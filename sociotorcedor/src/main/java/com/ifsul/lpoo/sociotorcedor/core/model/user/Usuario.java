@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 
-@Table(name = "USUARIO")
+@Table(name = "USUARIOS")
 @Entity
 public class Usuario implements Serializable, UserDetails {
 
@@ -33,6 +33,9 @@ public class Usuario implements Serializable, UserDetails {
 
     @Column(name = "USER_ROLE")
     private String role;
+
+    @Column(name = "USER_EMAIL")
+    private String email;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "USER_ASSOCIADO", referencedColumnName = "ASSOC_ID")

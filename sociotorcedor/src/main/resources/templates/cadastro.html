@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+
+<form th:action="@{/cadastro}" th:object="${cadastroForm}" method="post">
+    <input type="text" th:field="*{username}" placeholder="Usuário">
+    <input type="password" th:field="*{senha}" placeholder="Senha">
+    <input type="email" th:field="*{email}" placeholder="E-mail">
+    <input type="text" th:field="*{cpf}" placeholder="CPF">
+
+    <button type="submit" class="btn-cta">Cadastrar</button>
+</form>
+
+</body>
+</html>

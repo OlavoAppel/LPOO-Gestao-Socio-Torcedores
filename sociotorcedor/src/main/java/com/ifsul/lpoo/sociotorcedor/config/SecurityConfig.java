@@ -12,16 +12,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/", "/login").permitAll()
-                .requestMatchers("/noticias", "/noticias/**").permitAll()
-                .requestMatchers("/jogos", "/jogos/calendario").permitAll()
-                .requestMatchers("/loja", "/loja/**").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/login", "/cadastro").permitAll()
+                .requestMatchers("/").permitAll()
 
-                .requestMatchers("/associados/tornar-socio").authenticated()
-                .requestMatchers("/loja/resgatar/**").authenticated()
                 .requestMatchers("/usuario/**").hasAnyRole("ADMIN", "USER")
-
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )

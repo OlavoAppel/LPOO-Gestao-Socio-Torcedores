@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 public enum CategoriaSocio {
 
-    CAT1(1, "cat1");
+    NAO_ASSOCIADO(1, "Não associado");
 
     private Integer codigo;
     private String descricao;
