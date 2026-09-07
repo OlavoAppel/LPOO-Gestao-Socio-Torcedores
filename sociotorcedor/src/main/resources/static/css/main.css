@@ -1,0 +1,16 @@
+:root {
+    --navbar-bg: #0d1b2a;
+    --navbar-bg-2: #0a1520;
+    --text: #f2f4f6;
+    --text-muted: #9aa5b1;
+    --accent: #ffc700;
+    --accent-ink: #14202c;
+    --line: rgba(255,255,255,0.08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
