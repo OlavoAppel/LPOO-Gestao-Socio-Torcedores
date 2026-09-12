@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.Set;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -24,5 +27,8 @@ public class Estadio {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "EST_ENDERECO", referencedColumnName = "END_ID")
     private Endereco endereco;
+
+    @OneToMany(mappedBy = "estadio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SetorEstadio> setores;
 
 }

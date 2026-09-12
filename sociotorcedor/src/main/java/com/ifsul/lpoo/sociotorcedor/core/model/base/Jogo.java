@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CollectionIdJdbcTypeCode;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -35,7 +36,9 @@ public class Jogo {
     @JoinColumn(name = "JOG_TIMEFORA", referencedColumnName = "TME_ID")
     private Time fora;
 
-    @Column(name = "JOG_INGRESSOS")
-    private Integer ingressosTotais;
+    private String campeonato;
+
+    @OneToMany
+    private List<LoteIngresso> loteIngressoList;
 
 }
