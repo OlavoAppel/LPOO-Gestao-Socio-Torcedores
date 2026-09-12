@@ -1,21 +1,30 @@
 package com.ifsul.lpoo.sociotorcedor.core.model.base;
 
+import com.ifsul.lpoo.sociotorcedor.core.model.enumerator.Categoria;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-public enum CategoriaSocio {
+@Data
 
-    NAO_ASSOCIADO(1, "Não associado", new BigDecimal("0.00")),
-    SOCIO1TESTE(2, "Teste", new BigDecimal("2.50"));
+@Entity
+public class CategoriaSocio {
 
-    private Integer codigo;
-    private String descricao;
-    private BigDecimal preco;
+    @Id @GeneratedValue
+    private Long id;
+
+    private BigDecimal mensalidade;
+    private String nome;
+    private BigDecimal descontoIngresso;
+    private Integer hierarquia;
+
+    @ManyToMany
+    private List<SetorEstadio> setoresDiponiveis;
 
 }

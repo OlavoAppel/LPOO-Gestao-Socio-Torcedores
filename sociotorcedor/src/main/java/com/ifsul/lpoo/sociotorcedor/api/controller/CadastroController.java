@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class CadastroController {
 
     @Autowired
-    CadastroService cadastroService;
+    private CadastroService cadastroService;
 
     @GetMapping("/cadastro")
     public String cadastro(Model model) {

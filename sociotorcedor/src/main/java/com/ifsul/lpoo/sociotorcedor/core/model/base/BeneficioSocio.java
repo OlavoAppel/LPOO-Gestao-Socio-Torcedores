@@ -1,9 +1,9 @@
 package com.ifsul.lpoo.sociotorcedor.core.model.base;
 
+import com.ifsul.lpoo.sociotorcedor.core.model.enumerator.Categoria;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Generated;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
@@ -33,6 +33,6 @@ public class BeneficioSocio {
     private BigDecimal descontoBrindes;
 
     @Column(name = "BEN_CATEGORIA")
-    private CategoriaSocio categoria;
+    private Categoria categoria;
 
 }
