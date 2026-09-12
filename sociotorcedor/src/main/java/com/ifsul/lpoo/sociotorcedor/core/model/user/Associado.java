@@ -1,7 +1,7 @@
 package com.ifsul.lpoo.sociotorcedor.core.model.user;
 
-import com.ifsul.lpoo.sociotorcedor.core.model.base.CategoriaSocio;
-import jakarta.annotation.security.DenyAll;
+import com.ifsul.lpoo.sociotorcedor.core.model.converter.CategoriaSocioConverter;
+import com.ifsul.lpoo.sociotorcedor.core.model.enumerator.Categoria;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,8 +24,9 @@ public class Associado {
     @Column(name = "ASSOC_NOME")
     private String nome;
 
+    @Convert(converter = CategoriaSocioConverter.class)
     @Column(name = "ASSOC_CATEGORIA")
-    private CategoriaSocio categoria;
+    private Categoria categoria;
 
     @Column(name = "ASSOC_CPF", length = 11)
     private String cpf;

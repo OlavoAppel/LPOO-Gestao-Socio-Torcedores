@@ -1,7 +1,6 @@
 package com.ifsul.lpoo.sociotorcedor.api.repository;
 
 import com.ifsul.lpoo.sociotorcedor.core.model.user.Usuario;
-import org.hibernate.query.criteria.JpaExpression;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
