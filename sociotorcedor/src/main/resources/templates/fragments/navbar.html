@@ -1,36 +1,102 @@
-<div th:fragment="navbar" class="navbar-wrap">
-    <div class="navbar-top">
-<!--        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>-->
-<!--        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>-->
-<!--        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2 L2 22 L22 22 Z"/></svg>-->
-    </div>
+<div th:fragment="navbar" xmlns:sec="http://www.w3.org/1999/xhtml">
+    <div class="navbar-wrap">
 
-    <nav class="navbar">
-        <div class="nav-left">
-            <div class="hamburger"><span></span><span></span><span></span></div>
-            <a href="#" class="nav-link desktop-only">Notícias</a>
-            <a href="#" class="nav-link desktop-only">Calendário</a>
-            <a href="#" class="nav-link desktop-only">Loja</a>
-            <svg class="icon-svg" viewBox="0 0 24 24" style="stroke:#f2f4f6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <!-- Faixa superior (opcional) -->
+        <div class="navbar-top">
+            <!-- Outros ícones/redes -->
         </div>
 
-        <div class="brand">
-            <div class="crest">FC</div>
-        </div>
+        <!-- Navbar principal -->
+        <header class="navbar">
+            <div class="nav-left">
+                <a href="/" class="nav-link">Início</a>
 
-        <div class="nav-right">
-            <a href="#" class="nav-link desktop-only">
-                <svg class="icon-svg" viewBox="0 0 24 24" style="stroke:#f2f4f6"><path d="M3 7h18M3 12h18M3 17h11"/></svg>
-                Ingressos
-            </a>
-            <a href="#" class="nav-link desktop-only">
-                <svg class="icon-svg" viewBox="0 0 24 24" style="stroke:#f2f4f6"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                Loja
-            </a>
-            <a th:href="@{/sociotorcedor}" class="btn-cta">Seja Sócio</a>
-            <div id="login_btn" class="avatar-btn">
-                <svg class="icon-svg" viewBox="0 0 24 24" style="stroke:#f2f4f6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+                <!-- Exemplo de item exclusivo para ADMIN -->
+                <a th:href="@{/admin}" class="nav-link" sec:authorize="hasRole('ADMIN')">Painel Admin</a>
             </div>
-        </div>
-    </nav>
+
+            <div class="brand">
+                <div class="crest">FC</div>
+            </div>
+
+            <div class="nav-right">
+
+                <!-- SE O USUÁRIO NÃO ESTIVER LOGADO -->
+                <div sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" class="btn-cta">Entrar</a>
+                </div>
+
+                <!-- SE O USUÁRIO ESTIVER LOGADO -->
+                <div sec:authorize="isAuthenticated()" class="profile-dropdown-container">
+
+                    <!-- Botão do Avatar / Ícone -->
+                    <button type="button" class="avatar-btn" id="userMenuBtn" onclick="toggleProfileMenu()">
+                        <svg class="icon-svg" viewBox="0 0 24 24">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </button>
+
+                    <!-- Popup / Menu Suspenso (Dropdown) -->
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="dropdown-header">
+                            <div class="user-avatar-large">
+                                <svg class="icon-svg" viewBox="0 0 24 24">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                            <!-- Pega o nome do usuário autenticado no Spring Security -->
+                            <p class="greeting">Olá, <span sec:authentication="name">Usuário</span></p>
+                        </div>
+
+                        <ul class="dropdown-links">
+                            <li>
+                                <a th:href="@{/perfil}">
+                                    <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                                    Minha conta
+                                </a>
+                            </li>
+
+                            <!-- Opção exclusiva de ADMIN no menu -->
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a th:href="@{/admin/dashboard}">
+                                    <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                                    Painel Administrativo
+                                </a>
+                            </li>
+
+                            <!-- Formulário de Logout exigido pelo Spring Security (POST) -->
+                            <li class="logout-item">
+                                <form th:action="@{/logout}" method="post">
+                                    <button type="submit" class="logout-btn">
+                                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                        Sair
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+            </div>
+        </header>
+    </div>
 </div>
+
+<!-- JS Simples para abrir/fechar o popup -->
+<script>
+    function toggleProfileMenu() {
+        const dropdown = document.getElementById('profileDropdown');
+        dropdown.classList.toggle('active');
+    }
+
+    // Fecha o menu ao clicar fora dele
+    window.addEventListener('click', function(e) {
+        const container = document.querySelector('.profile-dropdown-container');
+        if (container && !container.contains(e.target)) {
+            document.getElementById('profileDropdown').classList.remove('active');
+        }
+    });
+</script>

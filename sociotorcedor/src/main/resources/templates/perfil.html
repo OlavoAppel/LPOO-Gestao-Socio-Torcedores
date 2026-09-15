@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div style="padding: 40px; text-align:center;">
+    <h1>Perfil</h1>
+    <p>Bem-vindo, <span th:text="${#authentication.principal.username}"></span></p>
+</div>
+</body>
+</html>

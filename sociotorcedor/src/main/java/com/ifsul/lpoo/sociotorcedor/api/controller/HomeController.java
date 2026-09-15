@@ -1,10 +1,7 @@
 package com.ifsul.lpoo.sociotorcedor.api.controller;
 
-import com.ifsul.lpoo.sociotorcedor.core.form.CadastroForm;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @Controller
 public class HomeController {
@@ -26,7 +23,7 @@ public class HomeController {
 
     @GetMapping("/testeadmin")
     public String testeAdmin(){
-        return "testeadmin";
+        return "admindashboard";
     }
 
 }

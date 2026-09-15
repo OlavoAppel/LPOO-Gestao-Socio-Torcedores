@@ -24,15 +24,15 @@ public class Jogo {
     @Column(name = "JOG_DATAHORA")
     private LocalDateTime dhJogo;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "JOG_ESTADIO", referencedColumnName = "EST_ID")
     private Estadio estadio;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "JOG_TIMECASA", referencedColumnName = "TME_ID")
     private Time casa;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "JOG_TIMEFORA", referencedColumnName = "TME_ID")
     private Time fora;
 

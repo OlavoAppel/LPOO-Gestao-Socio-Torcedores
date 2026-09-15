@@ -1,19 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Title</title>
+    <meta charset="UTF-8">
+    <title>Criar Conta</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
 </head>
 <body>
 
-<form th:action="@{/cadastro}" th:object="${cadastroForm}" method="post">
-    <input type="text" th:field="*{username}" placeholder="Usuário">
-    <input type="password" th:field="*{senha}" placeholder="Senha">
-    <input type="email" th:field="*{email}" placeholder="E-mail">
-    <input type="text" th:field="*{cpf}" placeholder="CPF">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <button type="submit" class="btn-cta">Cadastrar</button>
-</form>
+<div class="auth-wrap">
+
+    <div class="auth-back">
+        <a th:href="@{/}">&larr; VOLTAR</a>
+    </div>
+
+    <div class="auth-card">
+        <h2>Criar Conta</h2>
+        <p class="auth-subtitle">Preencha os campos abaixo para criar sua conta</p>
+
+        <form th:action="@{/cadastro}" th:object="${cadastroForm}" method="post">
+
+            <div class="field-group">
+                <label for="username">Username <span class="required">*</span></label>
+                <input type="text" id="username" th:field="*{username}" placeholder="Seu nome de usuário" required>
+            </div>
+
+            <div class="field-group">
+                <label for="email">E-mail <span class="required">*</span></label>
+                <input type="email" id="email" th:field="*{email}" placeholder="seu@email.com" required>
+            </div>
+
+            <div class="field-group">
+                <label for="senha">Senha <span class="required">*</span></label>
+                <input type="password" id="senha" th:field="*{senha}" placeholder="Digite sua senha" required>
+            </div>
+
+            <div class="field-group">
+                <label for="cpf">CPF <span class="required">*</span></label>
+                <input type="text" id="cpf" th:field="*{cpf}" placeholder="000.000.000-00" required>
+            </div>
+
+            <button type="submit" class="btn-cta">Cadastrar</button>
+        </form>
+
+        <p class="auth-footer">Já possui uma conta? <a th:href="@{/login}">Entrar</a></p>
+    </div>
+</div>
 
 </body>
 </html>

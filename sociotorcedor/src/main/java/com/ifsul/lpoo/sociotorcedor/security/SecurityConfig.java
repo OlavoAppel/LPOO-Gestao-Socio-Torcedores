@@ -1,4 +1,4 @@
-package com.ifsul.lpoo.sociotorcedor.config;
+package com.ifsul.lpoo.sociotorcedor.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

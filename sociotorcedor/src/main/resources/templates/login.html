@@ -1,17 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Entrar</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
 </head>
 <body>
 
-<form th:action="@{/login}" method="post">
-    <input type="text" name="username" placeholder="Usuário" required>
-    <input type="password" name="password" placeholder="Senha" required>
-    <button type="submit" class="btn-cta">Entrar</button>
-</form>
-<p>Não possui conta?</p><a href="/cadastro">cadastrese</a>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="auth-wrap">
+
+    <div class="auth-back">
+        <a th:href="@{/}">&larr; VOLTAR</a>
+    </div>
+
+    <div class="auth-card">
+        <div class="crest" style="margin: 0 0 16px;">FC</div>
+        <h1>Entrar</h1>
+        <p class="auth-subtitle">Acesse sua conta para continuar</p>
+
+        <div th:if="${param.error}" class="auth-error">Usuário ou senha inválidos.</div>
+        <div th:if="${param.logout}" class="auth-success">Você saiu da sua conta.</div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="field-group">
+                <label for="login-user">Usuário</label>
+                <input type="text" id="login-user" name="username" placeholder="Seu usuário" required>
+            </div>
+
+            <div class="field-group">
+                <label for="login-pass">Senha</label>
+                <input type="password" id="login-pass" name="password" placeholder="Sua senha" required>
+            </div>
+
+            <button type="submit" class="btn-cta">Entrar</button>
+        </form>
+
+        <p class="auth-footer">Ainda não tem conta? <a th:href="@{/cadastro}">Cadastre-se</a></p>
+    </div>
+</div>
 
 </body>
 </html>
