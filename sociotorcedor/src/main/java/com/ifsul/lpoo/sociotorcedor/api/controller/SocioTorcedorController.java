@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class SocioTorcedorController {
 
-    @Autowired
-    private SocioTorcedorService socioTorcedorService;
-
-    @GetMapping("/sociotorcedor")
-    private String socioTorcedor(){
-        return "sociotorcedor";
-    }
-
-    @PostMapping("/sociotorcedor/associar")
-    private void associar(@AuthenticationPrincipal Usuario usuario, @RequestParam Categoria categoria){
-        socioTorcedorService.tornarseSocio(categoria, usuario);
-    }
+//    @Autowired
+//    private SocioTorcedorService socioTorcedorService;
+//
+//    @GetMapping("/sociotorcedor")
+//    private String socioTorcedor(){
+//        return "sociotorcedor";
+//    }
+//
+//    @PostMapping("/sociotorcedor/associar")
+//    private void associar(@AuthenticationPrincipal Usuario usuario, @RequestParam Categoria categoria){
+//        socioTorcedorService.tornarseSocio(categoria, usuario);
+//    }
 
 }

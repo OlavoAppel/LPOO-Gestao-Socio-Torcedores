@@ -16,14 +16,4 @@ public class HomeController {
         return "login";
     }
 
-    @GetMapping("/testecadastro")
-    public String testeCadastro(){
-        return "testecadastro";
-    }
-
-    @GetMapping("/testeadmin")
-    public String testeAdmin(){
-        return "admindashboard";
-    }
-
 }

@@ -26,15 +26,11 @@ public class CadastroController {
 
     @PostMapping("/cadastro")
     public String processaCadastro(@Valid @ModelAttribute CadastroForm cadastroForm, BindingResult result, RedirectAttributes redirectAttributes){
-        /*if (result.hasErrors()) {
-            return "cadastro"; // volta pro form mostrando os erros de validação
-        }*/
-
         try{
             cadastroService.cadastrar(cadastroForm);
             redirectAttributes.addFlashAttribute("sucesso", "Cadastro realizado!");
             return "redirect:/login";
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erro", e.getMessage());
             return "redirect:/cadastro";
         }

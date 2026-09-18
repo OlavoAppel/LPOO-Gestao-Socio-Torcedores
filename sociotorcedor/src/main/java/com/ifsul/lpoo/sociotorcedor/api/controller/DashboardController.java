@@ -11,9 +11,9 @@ public class DashboardController {
         return "perfil";
     }
 
-    @GetMapping("admin/dashboard")
+    @GetMapping("admin")
     public String dashBoard(){
-        return "admindashboard";
+        return "admin";
     }
 
 }
