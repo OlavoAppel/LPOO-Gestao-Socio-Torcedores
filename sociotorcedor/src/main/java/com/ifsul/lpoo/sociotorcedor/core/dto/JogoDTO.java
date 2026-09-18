@@ -5,15 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 
 public class JogoDTO {
-    private String diaJogo;
-    private String mesJogo;
-    private String horaJogo;
+    private LocalDateTime dhJogo;
     private String nomeEstadio;
     private String campeonato;
     private TimeDTO casa;

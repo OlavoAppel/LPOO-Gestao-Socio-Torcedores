@@ -27,8 +27,8 @@ public class Time {
     private String sigla;
     private String escudoPath;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "TME_LOCALIDADE", referencedColumnName = "LOC_ID")
-    private Localidade localidade;
+//    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "TME_LOCALIDADE", referencedColumnName = "LOC_ID")
+//    private Localidade localidade;
 
 }

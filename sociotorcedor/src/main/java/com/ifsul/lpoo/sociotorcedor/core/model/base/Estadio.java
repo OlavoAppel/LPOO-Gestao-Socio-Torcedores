@@ -24,9 +24,9 @@ public class Estadio {
     @Column(name = "EST_NOME")
     private String nome;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "EST_ENDERECO", referencedColumnName = "END_ID")
-    private Endereco endereco;
+//    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "EST_ENDERECO", referencedColumnName = "END_ID")
+//    private Endereco endereco;
 
     @OneToMany(mappedBy = "estadio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SetorEstadio> setores;

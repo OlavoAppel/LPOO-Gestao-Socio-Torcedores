@@ -29,9 +29,7 @@ public class DTOFactory {
 
     public static JogoDTO createJogoDTO(Jogo jogo){
         JogoDTO jogoDTO = JogoDTO.builder()
-                .horaJogo(String.valueOf(jogo.getDhJogo().getHour()))
-                .mesJogo(jogo.getDhJogo().getMonth().toString())
-                .diaJogo(String.valueOf(jogo.getDhJogo().getDayOfMonth()))
+                .dhJogo(jogo.getDhJogo())
                 .nomeEstadio(jogo.getEstadio().getNome())
                 .campeonato(jogo.getCampeonato())
                 .build();

@@ -25,8 +25,8 @@ public class LoteService {
         this.loteValidationChain = loteValidationChain;
     }
 
-    public List<LoteIngressoDTO> findLotes(ContextoCompra contextoCompra, Long jogoId){
-        Jogo jogo = InjectionProvider.getJogoRepository().findById(jogoId).orElseThrow();
+    public List<LoteIngressoDTO> findLotes(ContextoCompra contextoCompra){
+        Jogo jogo = InjectionProvider.getJogoRepository().findById(contextoCompra.getJogoId()).orElseThrow();
         List<LoteIngresso> loteIngressosDiponiveis = jogo.getLoteIngressoList();
         List<LoteIngressoDTO> loteDtoList = new ArrayList<>();
 
