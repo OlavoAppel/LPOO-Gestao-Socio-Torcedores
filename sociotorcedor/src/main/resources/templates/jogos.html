@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Calendário de Jogos</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/jogos.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="jogos-page-wrap">
+    <div class="jogos-container">
+
+        <header class="jogos-header">
+            <span class="subtitle">Calendário</span>
+            <h1>Calendário de Jogos</h1>
+        </header>
+
+        <!-- CARD PRÓXIMO JOGO -->
+        <div class="proximo-jogo-card" th:if="${jogosData.proximoJogo != null}">
+            <div class="proximo-info-left">
+                <span class="proximo-tag">Próximo jogo</span>
+                <span class="proximo-campeonato" th:text="${jogosData.proximoJogo.campeonato}">Brasileirão</span>
+            </div>
+
+            <div class="confronto-verus">
+                <img th:src="@{${jogosData.proximoJogo.casa.escudoPath}}" th:alt="${jogosData.proximoJogo.casa.sigla}" class="escudo-img" />
+                <span class="vs-text">x</span>
+                <img th:src="@{${jogosData.proximoJogo.fora.escudoPath}}" th:alt="${jogosData.proximoJogo.fora.sigla}" class="escudo-img" />
+            </div>
+
+            <div class="proximo-info-right">
+                <div class="proximo-data"
+                     th:text="${#temporals.format(jogosData.proximoJogo.dhJogo, 'dd/MM/yyyy - EEEE - HH:mm')}">
+                    19/09/2026 - Sábado - 21:00
+                </div>
+                <div class="proximo-estadio" th:text="${jogosData.proximoJogo.nomeEstadio}">MorumBIS</div>
+            </div>
+        </div>
+
+        <!-- BARRA DE MESES COM DATA-MES -->
+        <nav class="meses-nav">
+            <button class="mes-item" data-mes="1">JANEIRO</button>
+            <button class="mes-item" data-mes="2">FEVEREIRO</button>
+            <button class="mes-item" data-mes="3">MARÇO</button>
+            <button class="mes-item" data-mes="4">ABRIL</button>
+            <button class="mes-item" data-mes="5">MAIO</button>
+            <button class="mes-item" data-mes="6">JUNHO</button>
+            <button class="mes-item" data-mes="7">JULHO</button>
+            <button class="mes-item" data-mes="8">AGOSTO</button>
+            <button class="mes-item active" data-mes="9">SETEMBRO</button>
+            <button class="mes-item" data-mes="10">OUTUBRO</button>
+            <button class="mes-item" data-mes="11">NOVEMBRO</button>
+            <button class="mes-item" data-mes="12">DEZEMBRO</button>
+        </nav>
+
+        <!-- LISTA DE JOGOS -->
+        <div class="jogos-list">
+            <!-- th:data-mes extrai o número do mês diretamente da data Java -->
+            <div class="jogo-card"
+                 th:each="jogo : ${jogosData.jogosList}"
+                 th:data-mes="${jogo.dhJogo.monthValue}">
+
+                <div class="jogo-detalhes">
+                    <span class="campeonato-nome" th:text="${jogo.campeonato}">Campeonato</span>
+                    <span class="jogo-data-hora"
+                          th:text="${#temporals.format(jogo.dhJogo, 'dd/MM/yyyy (EEEE) - HH:mm')}">
+                        05/09/2026 - 18:30
+                    </span>
+                    <span class="estadio-nome" th:text="${jogo.nomeEstadio}">Estádio</span>
+                </div>
+
+                <div class="confronto-verus">
+                    <img th:src="@{${jogo.casa.escudoPath}}" th:alt="${jogo.casa.sigla}" class="escudo-img" />
+                    <span class="vs-text">x</span>
+                    <img th:src="@{${jogo.fora.escudoPath}}" th:alt="${jogo.fora.sigla}" class="escudo-img" />
+                </div>
+
+                <div class="jogo-card-btn">
+                    <a href="#" class="btn-saiba-mais">Saiba Mais</a>
+                </div>
+            </div>
+
+            <p id="no-games-msg" style="display: none; text-align: center; color: #64748b; padding: 20px;">
+                Nenhum jogo encontrado para este mês.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<!-- SCRIPT DE FILTRAGEM -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mesButtons = document.querySelectorAll('.meses-nav .mes-item');
+        const jogoCards = document.querySelectorAll('.jogo-card');
+        const noGamesMsg = document.getElementById('no-games-msg');
+
+        function filtrarJogosPorMes(mesSelecionado) {
+            let jogosEncontrados = 0;
+
+            // 1. Inicia o fade-out de todos os cards
+            jogoCards.forEach(card => card.classList.remove('show'));
+            if (noGamesMsg) noGamesMsg.classList.remove('show');
+
+            // 2. Aguarda a animação de saída sumir (150ms) para trocar o display
+            setTimeout(() => {
+                jogoCards.forEach(card => {
+                    const mesJogo = card.getAttribute('data-mes');
+                    if (mesJogo === mesSelecionado) {
+                        card.classList.remove('hidden');
+                        jogosEncontrados++;
+
+                        // Pequeno micro-delay para engatar a animação de entrada (fade-in)
+                        requestAnimationFrame(() => {
+                            card.classList.add('show');
+                        });
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+
+                // Controla a mensagem de "Nenhum jogo encontrado"
+                if (noGamesMsg) {
+                    if (jogosEncontrados === 0) {
+                        noGamesMsg.style.display = 'block';
+                        requestAnimationFrame(() => noGamesMsg.classList.add('show'));
+                    } else {
+                        noGamesMsg.style.display = 'none';
+                    }
+                }
+            }, 150);
+        }
+
+        mesButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                mesButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const mes = this.getAttribute('data-mes');
+                filtrarJogosPorMes(mes);
+            });
+        });
+
+        // Exibição inicial do mês ativo
+        const activeBtn = document.querySelector('.meses-nav .mes-item.active');
+        if (activeBtn) {
+            const mesInicial = activeBtn.getAttribute('data-mes');
+            jogoCards.forEach(card => {
+                if (card.getAttribute('data-mes') === mesInicial) {
+                    card.classList.remove('hidden');
+                    card.classList.add('show');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

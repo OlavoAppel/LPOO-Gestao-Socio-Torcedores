@@ -1,7 +1,7 @@
-<div th:fragment="navbar" xmlns:sec="http://www.w3.org/1999/xhtml">
+<div th:fragment="navbar" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <div class="navbar-wrap">
 
-        <!-- Faixa superior (opcional) -->
+        <!-- Faixa superior -->
         <div class="navbar-top">
             <!-- Outros ícones/redes -->
         </div>
@@ -10,9 +10,8 @@
         <header class="navbar">
             <div class="nav-left">
                 <a href="/" class="nav-link">Início</a>
-
-                <!-- Exemplo de item exclusivo para ADMIN -->
                 <a th:href="@{/admin}" class="nav-link" sec:authorize="hasRole('ADMIN')">Painel Admin</a>
+                <a href="/jogos" class="nav-link">Jogos</a>
             </div>
 
             <div class="brand">
@@ -29,15 +28,15 @@
                 <!-- SE O USUÁRIO ESTIVER LOGADO -->
                 <div sec:authorize="isAuthenticated()" class="profile-dropdown-container">
 
-                    <!-- Botão do Avatar / Ícone -->
-                    <button type="button" class="avatar-btn" id="userMenuBtn" onclick="toggleProfileMenu()">
-                        <svg class="icon-svg" viewBox="0 0 24 24">
+                    <!-- Botão do Avatar com stopPropagation no clique -->
+                    <button type="button" class="avatar-btn" id="userMenuBtn" onclick="toggleProfileMenu(event)">
+                        <svg class="icon-svg" viewBox="0 0 24 24" style="pointer-events: none;">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </button>
 
-                    <!-- Popup / Menu Suspenso (Dropdown) -->
+                    <!-- Popup / Menu Suspenso -->
                     <div class="profile-dropdown" id="profileDropdown">
                         <div class="dropdown-header">
                             <div class="user-avatar-large">
@@ -46,7 +45,6 @@
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
                             </div>
-                            <!-- Pega o nome do usuário autenticado no Spring Security -->
                             <p class="greeting">Olá, <span sec:authentication="name">Usuário</span></p>
                         </div>
 
@@ -58,15 +56,13 @@
                                 </a>
                             </li>
 
-                            <!-- Opção exclusiva de ADMIN no menu -->
                             <li sec:authorize="hasRole('ADMIN')">
-                                <a th:href="@{/admin/dashboard}">
+                                <a th:href="@{/admin}">
                                     <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                                     Painel Administrativo
                                 </a>
                             </li>
 
-                            <!-- Formulário de Logout exigido pelo Spring Security (POST) -->
                             <li class="logout-item">
                                 <form th:action="@{/logout}" method="post">
                                     <button type="submit" class="logout-btn">
@@ -83,20 +79,26 @@
             </div>
         </header>
     </div>
-</div>
 
-<!-- JS Simples para abrir/fechar o popup -->
-<script>
-    function toggleProfileMenu() {
-        const dropdown = document.getElementById('profileDropdown');
-        dropdown.classList.toggle('active');
-    }
-
-    // Fecha o menu ao clicar fora dele
-    window.addEventListener('click', function(e) {
-        const container = document.querySelector('.profile-dropdown-container');
-        if (container && !container.contains(e.target)) {
-            document.getElementById('profileDropdown').classList.remove('active');
+    <!-- Script corrigido com parada de propagação e fechamento ao clicar fora -->
+    <script>
+        function toggleProfileMenu(event) {
+            if (event) event.stopPropagation();
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('active');
+            }
         }
-    });
-</script>
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('profileDropdown');
+            const container = document.querySelector('.profile-dropdown-container');
+
+            if (dropdown && dropdown.classList.contains('active')) {
+                if (container && !container.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            }
+        });
+    </script>
+</div>

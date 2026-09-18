@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
 </head>
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
-<div style="padding: 40px; text-align:center;">
+<div style="padding: 40px; text-align:center; color: white">
     <h1>Perfil</h1>
     <p>Bem-vindo, <span th:text="${#authentication.principal.username}"></span></p>
 </div>

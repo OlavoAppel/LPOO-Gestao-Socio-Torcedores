@@ -1,0 +1,246 @@
+.jogos-page-wrap {
+    background-color: #f4f6f8;
+    min-height: calc(100vh - 80px);
+    padding: 40px 20px 60px;
+}
+
+.jogos-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.jogos-header {
+    margin-bottom: 30px;
+}
+
+.jogos-header .subtitle {
+    color: #ffc700;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.jogos-header h1 {
+    color: #0d1b2a;
+    font-size: 2rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* Card Próximo Jogo */
+.proximo-jogo-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 24px 32px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    border-left: 5px solid #ffc700;
+}
+
+.proximo-info-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.proximo-tag {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.proximo-campeonato {
+    color: #0d1b2a;
+    font-weight: 800;
+    font-size: 16px;
+}
+
+
+.proximo-info-right {
+    text-align: right;
+}
+
+.proximo-data {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.proximo-estadio {
+    color: #0d1b2a;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Navegação de Meses */
+.meses-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+
+.mes-item:hover, .mes-item.active {
+    color: #ffc700;
+}
+
+/* Lista de Partidas */
+.jogos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.jogo-detalhes {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.campeonato-nome {
+    color: #0d1b2a;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.jogo-data-hora {
+    font-size: 14px;
+    color: #334155;
+    font-weight: 600;
+}
+
+.estadio-nome {
+    color: #ffc700;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.btn-saiba-mais {
+    background-color: #ffc700;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.btn-saiba-mais:hover {
+    background-color: #c79c08;
+}
+
+
+
+
+
+/* Container de confronto centralizado e fixo */
+.confronto-verus {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    width: 140px; /* Garante que todos os confrontos ocupem a mesma largura */
+}
+
+.confronto-verus .escudo-img:first-child {
+    justify-self: end; /* Escudo da esquerda cola no centro */
+}
+
+.confronto-verus .escudo-img:last-child {
+    justify-self: start; /* Escudo da direita cola no centro */
+}
+
+.escudo-img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+}
+
+.vs-text {
+    font-weight: 700;
+    color: #64748b;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Ajuste no layout do card de jogo */
+.jogo-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 20px 28px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr; /* Alinha Informações, Confronto e Botão */
+    align-items: center;
+}
+
+.jogo-card-btn {
+    justify-self: end;
+}
+
+/* Estado visual para botão de mês inativo/ativo */
+.mes-item {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #1e293b;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.mes-item:hover, .mes-item.active {
+    color: #ffc700;
+    border-bottom-color: #ffc700;
+}
+
+/* Animação suave para os cards de jogos */
+.jogo-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 20px 28px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    align-items: center;
+
+    /* Propriedades da transição suave */
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Classe aplicada via JS quando o card está visível */
+.jogo-card.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Ocultamento completo para cards que não pertencem ao mês */
+.jogo-card.hidden {
+    display: none !important;
+}
+
+/* Transição suave para a mensagem de "sem jogos" */
+#no-games-msg {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#no-games-msg.show {
+    opacity: 1;
+}
