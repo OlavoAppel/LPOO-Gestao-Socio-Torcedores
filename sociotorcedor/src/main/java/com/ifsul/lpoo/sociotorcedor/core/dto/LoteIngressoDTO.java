@@ -1,7 +1,12 @@
 package com.ifsul.lpoo.sociotorcedor.core.dto;
 
-public record LoteIngressoDTO(Long id,
-   String nome,
-   Boolean valido,
-   String motivo
+import java.math.BigDecimal;
+
+public record LoteIngressoDTO(
+    Long id,
+    String nome,
+    Boolean valido,
+    BigDecimal precoComDesconto,
+    BigDecimal precoBase,
+    String motivo
 ) {}

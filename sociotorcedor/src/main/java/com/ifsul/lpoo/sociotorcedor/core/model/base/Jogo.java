@@ -35,7 +35,7 @@ public class Jogo {
     @JoinColumn(name = "JOG_TIMEFORA", referencedColumnName = "TME_ID")
     private Time fora;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<LoteIngresso> loteIngressoList;
 
     private String campeonato;

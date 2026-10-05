@@ -12,8 +12,10 @@ public class DTOFactory {
     public static LoteIngressoDTO createLoteIngressoDTO(LoteIngresso lote, ValidationResult result){
         return new LoteIngressoDTO(
                 lote.getId(),
-                lote.getSetor().getNome(),
+                lote.getNome(),
                 result.isValido(),
+                lote.getPrecoBase(),
+                lote.getPrecoBase(),
                 result.getMotivo()
         );
     }
@@ -21,8 +23,10 @@ public class DTOFactory {
     public static LoteIngressoDTO createLoteIngressoDTO(LoteIngresso lote){
         return new LoteIngressoDTO(
                 lote.getId(),
-                lote.getSetor().getNome(),
+                lote.getNome(),
                 false,
+                lote.getPrecoBase(),
+                lote.getPrecoBase(),
                 "Erro ao consultar lote."
         );
     }
@@ -32,6 +36,7 @@ public class DTOFactory {
                 .dhJogo(jogo.getDhJogo())
                 .nomeEstadio(jogo.getEstadio().getNome())
                 .campeonato(jogo.getCampeonato())
+                .id(jogo.getId())
                 .build();
 
         TimeDTO timeCasa = TimeDTO.builder()

@@ -33,6 +33,9 @@
             </div>
 
             <div class="proximo-info-right">
+                <a th:href="@{/ingressos(jogoId=${jogosData.proximoJogo.id})}" class="btn-cta">
+                    Comprar ingressos
+                </a>
                 <div class="proximo-data"
                      th:text="${#temporals.format(jogosData.proximoJogo.dhJogo, 'dd/MM/yyyy - EEEE - HH:mm')}">
                     19/09/2026 - Sábado - 21:00

@@ -13,11 +13,10 @@ import java.time.LocalDateTime;
 @Data
 
 public class JogoDTO {
+    private Long id;
     private LocalDateTime dhJogo;
     private String nomeEstadio;
     private String campeonato;
     private TimeDTO casa;
     private TimeDTO fora;
-
-
 }

@@ -29,6 +29,8 @@ public class LoteIngresso {
     @ManyToOne
     private SetorEstadio setor;
 
+    private String nome;
+
     private BigDecimal precoBase;
     private Integer ingressoDisponiveis;
     private LocalDateTime dhInicioVenda;
