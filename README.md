@@ -17,7 +17,7 @@ O objetivo deste projeto é desenvolver um Sistema de Gestão para Sócio-Torced
   - **Atribuição:** Desenvolvimento do Backend e Frontend do sistema.
 
 - **Bernardo Zavistanovicz Deters** ([@bedeters](https://github.com/bedeters))
-  - **Atribuição:** A definir.
+  - **Atribuição:** Auxílio na modelagem do banco de dados.
 
 - **Olavo Appel Neto** ([@OlavoAppel](https://github.com/OlavoAppel))
   - **Atribuição:** Realização dos testes do sistema e modelagem do banco de dados.
