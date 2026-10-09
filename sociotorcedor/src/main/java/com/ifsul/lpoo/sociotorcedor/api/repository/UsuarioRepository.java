@@ -14,7 +14,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Query("select case when count(user) > 0 then true else false end " +
             "from Usuario user " +
             "where user.associado.cpf = :cpf " +
-            "or user.associado.nome = :username " +
+            "or user.username = :username " +
             "or user.email = :email")
     boolean checkDuplicateUser(
             @Param("cpf") String cpf,

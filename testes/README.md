@@ -35,11 +35,7 @@ Os cadastros padrão, com dados considerados válidos, foram realizados e aprova
 
 ## Capturas de tela
 
-Coloque as imagens de evidência na pasta [`imagens/`](imagens/). Para exibir uma imagem neste relatório, use um caminho relativo, por exemplo:
 
-```markdown
-![Descrição do erro](imagens/cadastro-cpf-invalido.png)
-```
 
 ## Observações sobre os testes
 

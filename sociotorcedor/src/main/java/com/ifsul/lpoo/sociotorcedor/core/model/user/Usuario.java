@@ -25,7 +25,7 @@ public class Usuario implements Serializable, UserDetails {
     @Column(name = "USER_ID")
     private Long id;
 
-    @Column(name = "USER_USERNAME")
+    @Column(name = "USER_USERNAME", unique = true)
     private String username;
 
     @Column(name = "USER_PASSWORD")

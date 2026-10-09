@@ -3,6 +3,7 @@
 Projeto desenvolvido para a disciplina de Linguagem de Programação Orientada a Objetos (LPOO) do curso de Ciência da Computação no IFSul.
 
 ## Proposta do Projeto
+
 O objetivo deste projeto é desenvolver um Sistema de Gestão para Sócio-Torcedor focado em administrar de forma eficiente o engajamento, o controle financeiro e as vantagens oferecidas aos associados de um clube. O software contemplará as seguintes funcionalidades principais:
 
 * **Gestão de Associados:** Cadastro de novos associados e sistema para atualização contínua e migração de planos.
@@ -23,3 +24,7 @@ O objetivo deste projeto é desenvolver um Sistema de Gestão para Sócio-Torced
 
 - **Thomas Cansian dos Santos** ([@Thcansian](https://github.com/Thcansian))
   - **Atribuição:** Auxílio no desenvolvimento do Backend e na realização dos testes do sistema.
+
+## Relatório de testes
+
+O relatório de testes manuais e bugs encontrados está em [`testes/README.md`](testes/README.md).
