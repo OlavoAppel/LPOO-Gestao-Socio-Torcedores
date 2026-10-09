@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ingressos</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/ingressos.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="ingressos-page-wrap">
+    <div class="ingressos-container">
+
+        <header class="ingressos-header">
+            <span class="subtitle">Ingressos</span>
+            <h1>Escolha seu setor</h1>
+        </header>
+
+        <div class="lotes-list">
+            <div th:each="lote : ${lotes}"
+                 th:class="${lote.valido()} ? 'lote-card' : 'lote-card lote-disabled'">
+
+                <div class="lote-info">
+                    <span class="lote-nome" th:text="${lote.nome()}">Cadeira Norte</span>
+
+                    <span th:if="${!lote.valido()}" class="lote-motivo" th:text="${lote.motivo()}">
+                        Indisponível para sua categoria
+                    </span>
+                </div>
+
+                <div class="lote-preco">
+                    <span th:if="${lote.precoComDesconto() != null and lote.precoComDesconto().compareTo(lote.precoBase()) < 0}"
+                          class="preco-base-riscado"
+                          th:text="${'R$ ' + #numbers.formatDecimal(lote.precoBase(), 1, 'POINT', 2, 'COMMA')}">
+                        R$ 150,00
+                    </span>
+                    <span class="preco-final"
+                          th:text="${'R$ ' + #numbers.formatDecimal(lote.precoComDesconto() ?: lote.precoBase(), 1, 'POINT', 2, 'COMMA')}">
+                        R$ 120,00
+                    </span>
+                </div>
+
+                <form th:action="@{/ingressos/comprar}" method="post" class="lote-form">
+                    <input type="hidden" name="loteId" th:value="${lote.id()}">
+                    <button type="submit" class="btn-cta" th:disabled="${!lote.valido()}">
+                        <span th:text="${lote.valido()} ? 'Comprar' : 'Indisponível'">Comprar</span>
+                    </button>
+                </form>
+            </div>
+
+            <p th:if="${#lists.isEmpty(lotes)}" class="sem-lotes">
+                Nenhum lote de ingresso disponível para este jogo.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

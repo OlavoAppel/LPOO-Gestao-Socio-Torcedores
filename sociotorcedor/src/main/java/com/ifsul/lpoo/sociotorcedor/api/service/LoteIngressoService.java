@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class LoteService {
+public class LoteIngressoService {
 
     private final LoteValidationHandle loteValidationChain;
 
-    public LoteService(
+    public LoteIngressoService(
             @Qualifier("loteValidationChain")
             LoteValidationHandle loteValidationChain){
         this.loteValidationChain = loteValidationChain;

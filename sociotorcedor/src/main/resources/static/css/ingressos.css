@@ -1,0 +1,183 @@
+/* Estrutura Principal e Layout da Página */
+.ingressos-page-wrap {
+    background-color: #f8fafc; /* Fundo suave idêntico ao do calendário */
+    min-height: calc(100vh - 80px);
+    padding: 40px 20px 80px 20px;
+}
+
+.ingressos-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Cabeçalho */
+.ingressos-header {
+    margin-bottom: 32px;
+}
+
+.ingressos-header .subtitle {
+    display: block;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #c00000; /* Vermelho padrão da marca */
+    margin-bottom: 4px;
+}
+
+.ingressos-header h1 {
+    font-size: 32px;
+    font-weight: 900;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    margin: 0;
+}
+
+/* Lista de Lotes / Ingressos */
+.lotes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Card do Lote (Ativo) */
+.lote-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 20px 28px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    border-left: 4px solid #c00000; /* Destaque em vermelho na lateral */
+    display: grid;
+    grid-template-columns: 2fr 1.2fr auto; /* Informações, Preço e Botão */
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lote-card:hover:not(.lote-disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* Informações do Lote / Setor */
+.lote-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.lote-nome {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.lote-motivo {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ef4444; /* Vermelho de aviso/erro */
+}
+
+/* Área do Preço */
+.lote-preco {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.preco-base-riscado {
+    font-size: 13px;
+    color: #94a3b8;
+    text-decoration: line-through;
+    font-weight: 600;
+}
+
+.preco-final {
+    font-size: 22px;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+/* Formulário e Botão de Ação */
+.lote-form {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-cta {
+    background-color: #c00000;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-cta:hover:not(:disabled) {
+    background-color: #a00000;
+}
+
+.btn-cta:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+/* Estado Indisponível (Desabilitado) */
+.lote-card.lote-disabled {
+    border-left-color: #cbd5e1;
+    background-color: #f1f5f9;
+    opacity: 0.75;
+}
+
+.lote-card.lote-disabled .lote-nome {
+    color: #64748b;
+}
+
+.lote-card.lote-disabled .preco-final {
+    color: #64748b;
+}
+
+.btn-cta:disabled {
+    background-color: #cbd5e1;
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+/* Mensagem de Estado Vazio */
+.sem-lotes {
+    text-align: center;
+    color: #64748b;
+    font-size: 15px;
+    font-weight: 600;
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+/* Responsividade para Telas Menores */
+@media (max-width: 640px) {
+    .lote-card {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 20px;
+    }
+
+    .lote-preco {
+        align-items: flex-start;
+    }
+
+    .lote-form {
+        justify-content: stretch;
+    }
+
+    .btn-cta {
+        width: 100%;
+        text-align: center;
+    }
+}

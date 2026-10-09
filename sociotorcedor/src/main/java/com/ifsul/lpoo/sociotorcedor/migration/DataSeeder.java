@@ -4,9 +4,7 @@ import com.ifsul.lpoo.sociotorcedor.api.repository.EstadioRepository;
 import com.ifsul.lpoo.sociotorcedor.api.repository.JogoRepository;
 import com.ifsul.lpoo.sociotorcedor.api.repository.TimeRepository;
 import com.ifsul.lpoo.sociotorcedor.api.repository.UsuarioRepository;
-import com.ifsul.lpoo.sociotorcedor.core.model.base.Estadio;
-import com.ifsul.lpoo.sociotorcedor.core.model.base.Jogo;
-import com.ifsul.lpoo.sociotorcedor.core.model.base.Time;
+import com.ifsul.lpoo.sociotorcedor.core.model.base.*;
 import com.ifsul.lpoo.sociotorcedor.core.model.user.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +12,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -110,8 +109,30 @@ public class DataSeeder implements CommandLineRunner {
                 atleticoMineiro
         );
 
+        LoteIngresso loteIngresso1 = criarLoteIngresso(proximoJogo, "Lote1");
+        LoteIngresso loteIngresso2 = criarLoteIngresso(proximoJogo, "Lote2");
+        LoteIngresso loteIngresso3 = criarLoteIngresso(proximoJogo, "Lote3");
+        LoteIngresso loteIngresso4 = criarLoteIngresso(proximoJogo, "Lote4");
+
+        List<LoteIngresso> loteIngressoList = List.of(loteIngresso1, loteIngresso2, loteIngresso3, loteIngresso4);
+        proximoJogo.setLoteIngressoList(loteIngressoList);
+
         // Salva todos os jogos (CascadeType.ALL vai salvar os Estádios e Times automaticamente)
         jogoRepository.saveAll(List.of(jogoAnterior1, jogoAnterior2, jogoAnterior3, jogoAnterior4, proximoJogo, jogoFuturo));
+
+
+    }
+
+    private LoteIngresso criarLoteIngresso(Jogo jogo, String nome){
+        LoteIngresso loteIngresso = new LoteIngresso();
+        loteIngresso.setDhInicioVenda(jogo.getDhJogo().minusDays(4));
+        loteIngresso.setDhTerminoVendaExclusiva(jogo.getDhJogo().minusDays(1));
+        loteIngresso.setIngressoDisponiveis(100);
+        loteIngresso.setJogo(jogo);
+        loteIngresso.setPrecoBase(new BigDecimal(12));
+        loteIngresso.setNome(nome);
+
+        return loteIngresso;
     }
 
     private Time criarTime(String nome, Integer divisao, String sigla, String escudoPath) {
