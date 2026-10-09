@@ -1,0 +1,27 @@
+flowchart TB
+subgraph APRES["Presentation layer"]
+  V["Thymeleaf views<br/>templates/*.html + CSS + JavaScript"]
+  C["Controllers - api/controller<br/>HomeController, CadastroController, JogoController,<br/>LoteIngressoController, DashboardController"]
+end
+subgraph SERV["Service layer - business rules"]
+  S["Services - api/service<br/>CadastroService, JogoService, LoteIngressoService"]
+  VAL["Validation - core/validation<br/>LoteValidationHandle, IntervaloLoteValidator"]
+  F["Factories - core/factory<br/>UsuarioFactory, DTOFactory"]
+end
+subgraph PERS["Persistence layer"]
+  R["Repositories - api/repository<br/>Usuario, Associado, Jogo, Time, Estadio"]
+  DB[("PostgreSQL")]
+end
+subgraph DOM["Domain and data transfer - core"]
+  M["Entities - core/model<br/>Usuario, Associado, Jogo, Time, Estadio,<br/>SetorEstadio, LoteIngresso, CategoriaSocio<br/>DTOs - core/dto and Forms - core/form"]
+end
+T["Cross-cutting: security/SecurityConfig, config/LoteValidationConfig, migration/DataSeeder"]
+V <--> C
+C --> S
+S --> VAL
+S --> F
+S --> R
+R --> DB
+S -.uses.-> M
+R -.uses.-> M
+T -.protects and configures.-> C

@@ -1,0 +1,73 @@
+classDiagram
+direction LR
+class UserDetails {
+  <<interface>>
+}
+class Usuario {
+  -Long id
+  -String username
+  -String password
+  -String role
+  -String email
+  +getAuthorities()
+}
+class Associado {
+  -Long id
+  -String nome
+  -Categoria categoria
+  -String cpf
+  -String telefone
+  -LocalDate dataNascimento
+}
+class Categoria {
+  <<enumeration>>
+  NAO_ASSOCIADO
+  SOCIO1TESTE
+}
+class Jogo {
+  -Long id
+  -LocalDateTime dhJogo
+  -String campeonato
+}
+class Time {
+  -Long id
+  -String nome
+  -Integer divisao
+  -String sigla
+  -String escudoPath
+}
+class Estadio {
+  -Long id
+  -String nome
+}
+class SetorEstadio {
+  -Long id
+  -String nome
+  -Integer capacidadeTotal
+}
+class LoteIngresso {
+  -Long id
+  -String nome
+  -BigDecimal precoBase
+  -Integer ingressoDisponiveis
+  -LocalDateTime dhInicioVenda
+  -LocalDateTime dhTerminoVendaExclusiva
+}
+class CategoriaSocio {
+  -Long id
+  -String nome
+  -BigDecimal mensalidade
+  -BigDecimal descontoIngresso
+  -Integer hierarquia
+}
+Usuario ..|> UserDetails
+Usuario "1" -- "1" Associado
+Associado ..> Categoria
+Jogo "*" --> "1" Estadio
+Jogo "*" --> "1" Time : casa
+Jogo "*" --> "1" Time : fora
+Jogo "1" o-- "*" LoteIngresso
+Estadio "1" *-- "*" SetorEstadio
+LoteIngresso "*" --> "1" SetorEstadio
+LoteIngresso "*" --> "1" CategoriaSocio : categoriaMinima
+SetorEstadio "*" -- "*" CategoriaSocio
