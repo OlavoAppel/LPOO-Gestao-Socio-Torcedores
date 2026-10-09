@@ -24,6 +24,10 @@
             <div class="proximo-info-left">
                 <span class="proximo-tag">Próximo jogo</span>
                 <span class="proximo-campeonato" th:text="${jogosData.proximoJogo.campeonato}">Brasileirão</span>
+                <div class="proximo-data"
+                     th:text="${#temporals.format(jogosData.proximoJogo.dhJogo, 'dd/MM/yyyy - EEEE - HH:mm')}">
+                    19/09/2026 - Sábado - 21:00
+                </div>
             </div>
 
             <div class="confronto-verus">
@@ -36,11 +40,6 @@
                 <a th:href="@{/ingressos(jogoId=${jogosData.proximoJogo.id})}" class="btn-cta">
                     Comprar ingressos
                 </a>
-                <div class="proximo-data"
-                     th:text="${#temporals.format(jogosData.proximoJogo.dhJogo, 'dd/MM/yyyy - EEEE - HH:mm')}">
-                    19/09/2026 - Sábado - 21:00
-                </div>
-                <div class="proximo-estadio" th:text="${jogosData.proximoJogo.nomeEstadio}">MorumBIS</div>
             </div>
         </div>
 
