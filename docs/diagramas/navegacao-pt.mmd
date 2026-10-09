@@ -1,0 +1,20 @@
+stateDiagram-v2
+direction LR
+state "Início (/)" as Inicio
+state "Login (/login)" as Login
+state "Cadastro (/cadastro)" as Cadastro
+state "Jogos (/jogos)" as Jogos
+state "Ingressos (/ingressos)" as Ingressos
+state "Perfil (/perfil)" as Perfil
+state "Admin (/admin)" as Admin
+[*] --> Inicio
+Inicio --> Login : botão Entrar
+Login --> Cadastro : link Cadastre-se
+Cadastro --> Login : cadastro feito
+Login --> Inicio : login correto
+Inicio --> Jogos : link Jogos
+Jogos --> Ingressos : botão do próximo jogo
+Inicio --> Perfil : menu do avatar
+Inicio --> Admin : menu do avatar (só ADMIN)
+Perfil --> Login : Sair
+Admin --> Login : Sair

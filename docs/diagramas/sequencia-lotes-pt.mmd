@@ -1,0 +1,24 @@
+sequenceDiagram
+autonumber
+actor U as Usuário autenticado
+participant C as LoteIngressoController
+participant S as LoteIngressoService
+participant R as JogoRepository
+participant H as IntervaloLoteValidator
+participant F as DTOFactory
+participant V as View ingressos/lista
+U->>C: GET /ingressos?jogoId=1
+C->>C: cria ContextoCompra (data e hora agora, jogoId, usuário)
+C->>S: findLotes(contexto)
+S->>R: findById(jogoId)
+R-->>S: Jogo com a lista de LoteIngresso
+loop para cada LoteIngresso do jogo
+  S->>H: handle(lote, contexto)
+  H->>H: validar(lote, contexto)
+  H-->>S: ValidationResult (valido, motivo)
+  S->>F: createLoteIngressoDTO(lote, result)
+  F-->>S: LoteIngressoDTO
+end
+S-->>C: lista de LoteIngressoDTO
+C->>V: model com "lotes" e "logado"
+V-->>U: página HTML com os lotes

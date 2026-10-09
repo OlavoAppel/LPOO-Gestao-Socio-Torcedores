@@ -1,0 +1,53 @@
+classDiagram
+direction TB
+class LoteValidationHandle {
+  <<abstract>>
+  -LoteValidationHandle proximo
+  +setProximo(proximo) LoteValidationHandle
+  +handle(lote, contexto) ValidationResult
+  #validar(lote, contexto) ValidationResult
+}
+class IntervaloLoteValidator {
+  #validar(lote, contexto) ValidationResult
+}
+class ValidationResult {
+  -boolean valido
+  -String motivo
+}
+class ContextoCompra {
+  -Usuario usuario
+  -LocalDateTime dhRequisicao
+  -Long jogoId
+}
+class LoteValidationConfig {
+  +loteValidationChain(intervaloValidator) LoteValidationHandle
+}
+class LoteIngressoService {
+  -LoteValidationHandle loteValidationChain
+  +findLotes(contexto) List
+}
+class DTOFactory {
+  +createLoteIngressoDTO(lote, result)$ LoteIngressoDTO
+  +createJogoDTO(jogo)$ JogoDTO
+}
+class LoteIngressoDTO {
+  <<record>>
+  id
+  nome
+  valido
+  precoComDesconto
+  precoBase
+  motivo
+}
+class LoteIngresso
+LoteValidationHandle <|-- IntervaloLoteValidator
+LoteValidationHandle o-- LoteValidationHandle : proximo
+LoteValidationConfig ..> IntervaloLoteValidator : recebe
+LoteValidationConfig ..> LoteValidationHandle : cria o bean
+LoteIngressoService --> LoteValidationHandle : usa a cadeia
+LoteIngressoService ..> DTOFactory
+LoteIngressoService ..> ContextoCompra
+DTOFactory ..> LoteIngressoDTO : cria
+LoteValidationHandle ..> ValidationResult : devolve
+LoteValidationHandle ..> LoteIngresso : valida
+LoteValidationHandle ..> ContextoCompra : le

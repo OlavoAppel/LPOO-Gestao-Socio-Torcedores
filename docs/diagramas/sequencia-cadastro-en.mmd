@@ -1,0 +1,20 @@
+sequenceDiagram
+autonumber
+actor U as Visitor
+participant C as CadastroController
+participant S as CadastroService
+participant R as UsuarioRepository
+participant F as UsuarioFactory
+U->>C: POST /cadastro (CadastroForm)
+C->>S: cadastrar(form)
+S->>R: checkDuplicateUser(cpf, username, email)
+R-->>S: true or false
+alt a record already exists
+  S-->>C: throw Exception "Usuário já cadastrado para esses dados"
+  C-->>U: redirect:/cadastro with message "erro"
+else no record exists
+  S->>F: createNewUsuario(form)
+  F-->>S: Usuario with Associado and BCrypt password
+  S->>R: save(usuario)
+  C-->>U: redirect:/login with message "sucesso"
+end
