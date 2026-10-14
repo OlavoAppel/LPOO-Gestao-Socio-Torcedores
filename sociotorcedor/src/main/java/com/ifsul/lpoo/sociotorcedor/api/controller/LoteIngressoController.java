@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -36,4 +37,15 @@ public class LoteIngressoController {
         model.addAttribute("logado", usuario != null);
         return "ingressos/lista";
     }
+
+    @PostMapping("/comprar")
+    public String comprarIngresso(@RequestParam Long loteId, @AuthenticationPrincipal Usuario usuario){
+        ContextoCompra contexto = new ContextoCompra();
+        contexto.setDhRequisicao(LocalDateTime.now());
+        contexto.setUsuario(usuario);
+
+        loteIngressoService.comprarIngresso(contexto);
+        return "sucesso";
+    }
+
 }

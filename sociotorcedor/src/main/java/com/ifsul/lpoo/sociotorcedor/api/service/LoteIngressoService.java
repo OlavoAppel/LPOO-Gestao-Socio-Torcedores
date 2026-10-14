@@ -1,13 +1,18 @@
 package com.ifsul.lpoo.sociotorcedor.api.service;
 
+import com.ifsul.lpoo.sociotorcedor.api.repository.IngressoRepository;
 import com.ifsul.lpoo.sociotorcedor.api.repository.InjectionProvider;
+import com.ifsul.lpoo.sociotorcedor.api.repository.LoteIngressoRepository;
 import com.ifsul.lpoo.sociotorcedor.core.dto.LoteIngressoDTO;
 import com.ifsul.lpoo.sociotorcedor.core.factory.DTOFactory;
+import com.ifsul.lpoo.sociotorcedor.core.model.base.Ingresso;
 import com.ifsul.lpoo.sociotorcedor.core.model.base.Jogo;
 import com.ifsul.lpoo.sociotorcedor.core.model.base.LoteIngresso;
 import com.ifsul.lpoo.sociotorcedor.core.model.compra.ContextoCompra;
+import com.ifsul.lpoo.sociotorcedor.core.model.user.Usuario;
 import com.ifsul.lpoo.sociotorcedor.core.validation.ValidationResult;
 import com.ifsul.lpoo.sociotorcedor.core.validation.lote.LoteValidationHandle;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +23,12 @@ import java.util.List;
 public class LoteIngressoService {
 
     private final LoteValidationHandle loteValidationChain;
+
+    @Autowired
+    private LoteIngressoRepository loteIngressoRepository;
+
+    @Autowired
+    private IngressoRepository ingressoRepository;
 
     public LoteIngressoService(
             @Qualifier("loteValidationChain")
@@ -44,5 +55,24 @@ public class LoteIngressoService {
         return loteDtoList;
     }
 
+    public String comprarIngresso(ContextoCompra contextoCompra){
+        LoteIngresso lote = loteIngressoRepository.findById(contextoCompra.getLoteId()).orElseThrow();
+        ValidationResult result = loteValidationChain.handle(lote, contextoCompra);
+
+        if(!result.isValido()){ // validação dupla no backend para evitar requisições não autorizadas (via postman etc...)
+            return "erro";
+        }
+
+        Ingresso ingresso = new Ingresso();
+
+        ingresso.setAssociado(contextoCompra.getUsuario().getAssociado());
+        ingresso.setLote(lote);
+        ingresso.setPrecoPago(lote.getPrecoBase());
+
+        loteIngressoRepository.decrementarIngressosDisponiveis(lote.getId(), 1);
+        ingressoRepository.save(ingresso);
+
+        return "sucesso";
+    }
 
 }

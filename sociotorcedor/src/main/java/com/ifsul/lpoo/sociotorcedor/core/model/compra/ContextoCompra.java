@@ -16,6 +16,7 @@ public class ContextoCompra {
     private Usuario usuario;
     private LocalDateTime dhRequisicao;
     private Long jogoId;
+    private Long loteId;
 
 
 }
