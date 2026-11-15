@@ -25,14 +25,20 @@ public class CadastroController {
     }
 
     @PostMapping("/cadastro")
-    public String processaCadastro(@Valid @ModelAttribute CadastroForm cadastroForm, BindingResult result, RedirectAttributes redirectAttributes){
+    public String processaCadastro(@Valid @ModelAttribute("cadastroForm") CadastroForm cadastroForm,
+                                   BindingResult result,
+                                   Model model,
+                                   RedirectAttributes redirectAttributes){
+        if (result.hasErrors()) {
+            return "cadastro"; // reexibe o formulário com os erros de cada campo
+        }
         try{
             cadastroService.cadastrar(cadastroForm);
-            redirectAttributes.addFlashAttribute("sucesso", "Cadastro realizado!");
+            redirectAttributes.addFlashAttribute("sucesso", "Cadastro realizado! Entre com seu usuário e senha.");
             return "redirect:/login";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("erro", e.getMessage());
-            return "redirect:/cadastro";
+            model.addAttribute("erro", e.getMessage());
+            return "cadastro";
         }
     }
 

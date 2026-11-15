@@ -15,10 +15,10 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/login", "/cadastro").permitAll()
-                .requestMatchers("/").permitAll()
+                .requestMatchers("/", "/jogos").permitAll()
 
                 .requestMatchers("/perfil").hasAnyRole("ADMIN", "USER")
-                .requestMatchers("/admin").hasRole("ADMIN")
+                .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

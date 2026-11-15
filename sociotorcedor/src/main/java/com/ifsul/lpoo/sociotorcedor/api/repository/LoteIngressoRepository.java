@@ -17,4 +17,7 @@ public interface LoteIngressoRepository extends JpaRepository<LoteIngresso, Long
     int decrementarIngressosDisponiveis(@Param("id") Long id, @Param("quantidade") int quantidade);
 
     List<LoteIngresso> findAllByJogo_Id(Long jogoId);
+
+    Boolean existsByJogoIdAndSetorId(Long jogoId, Long setorId);
+
 }

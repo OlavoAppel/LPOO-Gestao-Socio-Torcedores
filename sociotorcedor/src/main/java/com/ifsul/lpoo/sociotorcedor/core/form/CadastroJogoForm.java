@@ -33,8 +33,8 @@ public class CadastroJogoForm {
     @Size(max = 100)
     private String campeonato;
 
-    @NotBlank(message = "Informe o estádio")
-    private String nomeEstadio;
+    @NotNull(message = "Informe o estádio")
+    private Long estadioId;
 
     @AssertTrue(message = "Os times da casa e visitante devem ser diferentes")
     public boolean isTimesDiferentes() {
