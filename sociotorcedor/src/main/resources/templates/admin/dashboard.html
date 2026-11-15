@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: base('Métricas')}"/>
+    <link rel="stylesheet" th:href="@{/css/conta.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="page">
+    <a th:href="@{/admin}" class="back-link">&larr; Painel administrativo</a>
+
+    <div class="page-head">
+        <h1>Métricas</h1>
+    </div>
+
+    <section class="stats">
+        <div class="panel stat">
+            <div class="stat-value" th:text="${dashboardInfo.associadosTotal}">0</div>
+            <div class="stat-label">Sócios no total</div>
+        </div>
+        <div class="panel stat">
+            <div class="stat-value" th:text="${dashboardInfo.novosAssociadosMesAnterior}">0</div>
+            <div class="stat-label">Novos sócios no mês anterior</div>
+        </div>
+        <div class="panel stat">
+            <div class="stat-value"
+                 th:text="${'R$ ' + #numbers.formatDecimal(dashboardInfo.ganhosTotais ?: 0, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</div>
+            <div class="stat-label">Arrecadação total</div>
+        </div>
+    </section>
+
+    <h2 style="margin-bottom: 14px;">Sócios por categoria</h2>
+
+    <div class="table-wrap" th:if="${not #lists.isEmpty(dashboardInfo.infoCategoriaSocioList)}">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Categoria</th>
+                <th class="num">Sócios</th>
+                <th class="num">Novos no mês anterior</th>
+                <th>Participação</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${dashboardInfo.infoCategoriaSocioList}"
+                th:with="pct=${dashboardInfo.associadosTotal != null and dashboardInfo.associadosTotal.signum() > 0} ? ${c.totalAssociados * 100 / dashboardInfo.associadosTotal} : 0">
+                <td th:text="${c.categoria.descricao}">Categoria</td>
+                <td class="num" th:text="${c.totalAssociados}">0</td>
+                <td class="num" th:text="${c.novosSociosMesAnterior}">0</td>
+                <td>
+                    <div class="bar">
+                        <span class="bar-track"><span class="bar-fill"
+                              th:style="'width:' + ${#numbers.formatDecimal(pct, 1, 'POINT', 1, 'POINT')} + '%'"></span></span>
+                        <span th:text="${#numbers.formatDecimal(pct, 1, 'POINT', 0, 'COMMA') + '%'}">0%</span>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="empty" th:if="${#lists.isEmpty(dashboardInfo.infoCategoriaSocioList)}">
+        <strong>Sem dados por categoria</strong>
+        Os números aparecem quando houver sócios associados.
+    </div>
+</main>
+
+</body>
+</html>

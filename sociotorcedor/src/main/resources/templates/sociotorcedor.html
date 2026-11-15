@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: base('Seja sócio')}"/>
+    <link rel="stylesheet" th:href="@{/css/conta.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="page"
+      th:with="assoc=${#authentication.principal.associado},
+               socio=${#authentication.principal.associado != null and #authentication.principal.associado.categoria != null and #authentication.principal.associado.categoria.name() != 'NAO_ASSOCIADO'}">
+
+    <div class="page-head">
+        <h1>Seja sócio</h1>
+        <p>Escolha uma categoria. Sócios pagam menos nos ingressos e acessam setores exclusivos.</p>
+    </div>
+
+    <div class="alerts">
+        <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
+        <div class="alert alert-error" role="alert" th:if="${erro}" th:text="${erro}"></div>
+    </div>
+
+    <!-- Já é sócio -->
+    <section class="panel" th:if="${socio}" style="margin-bottom: 24px;">
+        <h2>Você é sócio</h2>
+        <dl class="dl">
+            <dt>Categoria atual</dt>
+            <dd><span class="badge badge-ok" th:text="${assoc.categoria.descricao}">Categoria</span></dd>
+        </dl>
+        <form th:action="@{/sociotorcedor/revogarassociacao}" method="post" class="actions"
+              onsubmit="return confirm('Cancelar sua associação? Você perde os descontos de sócio.');">
+            <button type="submit" class="btn btn-ghost">Cancelar associação</button>
+        </form>
+    </section>
+
+    <!-- Categorias -->
+    <div class="planos">
+        <article class="panel plano" th:each="cat : ${categorias}">
+            <h3 th:text="${cat.descricao}">Categoria</h3>
+            <p class="plano-preco">
+                <span th:text="${'R$ ' + #numbers.formatDecimal(cat.preco, 1, 'POINT', 2, 'COMMA')}">R$ 2,50</span>
+                <small>/ mês</small>
+            </p>
+            <form th:action="@{/sociotorcedor/associar}" method="post">
+                <input type="hidden" name="categoria" th:value="${cat.name()}">
+                <button type="submit" class="btn btn-cta btn-block" th:disabled="${socio}"
+                        th:text="${socio} ? 'Cancele a atual para trocar' : 'Associar-se'">Associar-se</button>
+            </form>
+        </article>
+    </div>
+
+</main>
+
+</body>
+</html>

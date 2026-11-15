@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: base('Compra concluída')}"/>
+    <link rel="stylesheet" th:href="@{/css/ingressos.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="page page-ingressos">
+    <article class="ticket ticket-ok">
+        <div class="ticket-main">
+            <h1>Ingresso garantido.</h1>
+            <p>Sua compra foi concluída. Nos vemos na arquibancada!</p>
+        </div>
+        <div class="ticket-stub">
+            <a th:href="@{/jogos}" class="btn btn-cta">Ver mais jogos</a>
+            <a th:href="@{/}" class="btn btn-ghost">Ir para o início</a>
+        </div>
+    </article>
+</main>
+
+</body>
+</html>
