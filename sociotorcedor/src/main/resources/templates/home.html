@@ -1,15 +1,58 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Navbar — Sócio-Torcedor (mockup)</title>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <th:block th:replace="~{fragments/head :: base('Início')}"/>
+    <link rel="stylesheet" th:href="@{/css/jogos.css}">
 </head>
 <body>
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
+<main class="page">
+
+    <h1 class="hero-title">Seu lugar na arquibancada.</h1>
+
+    <article class="ticket ticket-hero" th:if="${jogosData.proximoJogo != null}">
+        <div class="ticket-main">
+            <div class="match-main">
+                <div class="match-info">
+                    <span class="match-campeonato" th:text="${jogosData.proximoJogo.campeonato}">Campeonato</span>
+                    <span class="match-quando"
+                          th:text="${#temporals.format(jogosData.proximoJogo.dhJogo, 'dd/MM/yyyy (EEEE) · HH:mm')}">19/09/2026 · 21:00</span>
+                    <span class="match-estadio" th:text="${jogosData.proximoJogo.nomeEstadio}">Estádio</span>
+                </div>
+                <div class="versus">
+                    <img th:src="@{${jogosData.proximoJogo.casa.escudoPath}}" th:alt="${jogosData.proximoJogo.casa.sigla}" class="escudo-img">
+                    <span class="x">x</span>
+                    <img th:src="@{${jogosData.proximoJogo.fora.escudoPath}}" th:alt="${jogosData.proximoJogo.fora.sigla}" class="escudo-img">
+                </div>
+            </div>
+        </div>
+        <div class="ticket-stub">
+            <span class="stub-label">Próximo jogo</span>
+            <a th:href="@{/ingressos(jogoId=${jogosData.proximoJogo.id})}" class="btn btn-cta">Comprar ingressos</a>
+        </div>
+    </article>
+
+    <div class="empty" th:if="${jogosData.proximoJogo == null}">
+        <strong>Nenhum jogo marcado por enquanto</strong>
+        Assim que a próxima partida for cadastrada, ela aparece aqui.
+    </div>
+
+    <section class="feature-row">
+        <div class="panel feature">
+            <h2>Calendário</h2>
+            <p>Todas as partidas da temporada, mês a mês, com estádio e horário.</p>
+            <a th:href="@{/jogos}" class="btn btn-ghost">Ver jogos</a>
+        </div>
+        <div class="panel feature">
+            <h2>Seja sócio</h2>
+            <p>Associe-se para ter desconto nos ingressos e acesso a setores exclusivos.</p>
+            <a th:href="@{/sociotorcedor}" class="btn btn-brand">Quero ser sócio</a>
+        </div>
+    </section>
+
+</main>
 
 </body>
 </html>

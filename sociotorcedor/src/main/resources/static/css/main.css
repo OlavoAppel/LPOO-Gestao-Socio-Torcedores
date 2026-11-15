@@ -1,17 +1,138 @@
-:root {
-    --navbar-bg: #0d1b2a;
-    --navbar-bg-2: #0a1520;
-    --text: #f2f4f6;
-    --text-muted: #9aa5b1;
-    --accent: #ffc700;
-    --accent-ink: #14202c;
-    --line: rgba(255,255,255,0.08);
+/* ==========================================================================
+   TOKENS — para trocar a paleta, edite apenas os blocos abaixo.
+   Tema claro é o padrão; o escuro entra com <html data-theme="dark">
+   (alternado pelo botão da navbar via /js/theme.js).
+   ========================================================================== */
+:root,
+:root[data-theme="light"] {
+    color-scheme: light;
+
+    /* superfícies */
+    --bg:          #eef1ec;   /* fundo da página */
+    --surface:     #ffffff;   /* cards, tabelas, formulários */
+    --surface-2:   #e5eae3;   /* áreas rebaixadas, hover */
+    --line:        #ccd5cd;   /* bordas e divisórias */
+
+    /* texto */
+    --ink:         #14201b;
+    --ink-muted:   #56645d;
+
+    /* marca */
+    --brand:       #14513e;   /* verde gramado */
+    --brand-hover: #0e3d2e;
+    --brand-ink:   #ffffff;   /* texto sobre --brand */
+
+    /* destaque (botões de ação principal e ingressos) */
+    --accent:       #f0b000;
+    --accent-hover: #d99f00;
+    --accent-ink:   #1a1500;  /* texto sobre --accent */
+
+    /* navbar */
+    --nav-bg:      #0f3b2e;
+    --nav-ink:     #f2f6f3;
+    --nav-muted:   #9db8ac;
+
+    /* estados */
+    --danger:      #b42318;
+    --danger-bg:   #fdeceb;
+    --danger-line: #f3b9b4;
+    --success:     #17653a;
+    --success-bg:  #e7f5ec;
+    --success-line:#b3dcc2;
+
+    /* sombra única, usada só em elementos flutuantes */
+    --shadow:      0 12px 32px rgba(15, 40, 30, 0.14);
 }
 
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --bg:          #0c1411;
+    --surface:     #141f1b;
+    --surface-2:   #1c2b26;
+    --line:        #2b3d36;
+
+    --ink:         #e8efea;
+    --ink-muted:   #93a69b;
+
+    --brand:       #3da57f;
+    --brand-hover: #55bb95;
+    --brand-ink:   #06140f;
+
+    --accent:       #f5b81c;
+    --accent-hover: #ffc83f;
+    --accent-ink:   #1a1500;
+
+    --nav-bg:      #0a1e18;
+    --nav-ink:     #eaf2ed;
+    --nav-muted:   #7f9a8d;
+
+    --danger:      #ff8a80;
+    --danger-bg:   #2e1613;
+    --danger-line: #6b2b25;
+    --success:     #6fd49a;
+    --success-bg:  #10271b;
+    --success-line:#25533a;
+
+    --shadow:      0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Tipografia, raios e espaçamento */
+:root {
+    --font-display: "Barlow Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+    --font-body:    "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+
+    --radius-sm: 4px;
+    --radius-md: 8px;     /* campos e botões */
+    --radius-lg: 14px;    /* painéis e ingressos */
+
+    --page-width: 1080px;
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
 * { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
 
 body {
     margin: 0;
-    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-    background-color: #55606b;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: 0.01em;
+}
+h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); }
+h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
+h3 { font-size: 1.25rem; }
+
+p { margin: 0; }
+a { color: var(--brand); }
+
+img { max-width: 100%; }
+
+/* garante que o atributo hidden vença qualquer display definido nas classes */
+[hidden] { display: none !important; }
+
+:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+    }
 }

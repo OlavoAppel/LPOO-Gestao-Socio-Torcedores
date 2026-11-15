@@ -1,104 +1,54 @@
-<div th:fragment="navbar" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <div class="navbar-wrap">
+<header th:fragment="navbar" class="navbar-wrap"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <div class="navbar">
 
-        <!-- Faixa superior -->
-        <div class="navbar-top">
-            <!-- Outros ícones/redes -->
+        <a th:href="@{/}" class="brand" aria-label="Página inicial">
+            <span class="crest">FC</span>
+            <span class="brand-name">Sócio-Torcedor</span>
+        </a>
+
+        <nav class="nav-links" aria-label="Principal">
+            <a th:href="@{/}" class="nav-link">Início</a>
+            <a th:href="@{/jogos}" class="nav-link">Jogos</a>
+            <a th:href="@{/sociotorcedor}" class="nav-link">Seja sócio</a>
+            <a th:href="@{/admin}" class="nav-link" sec:authorize="hasRole('ADMIN')">Painel admin</a>
+        </nav>
+
+        <div class="nav-actions">
+            <button type="button" class="icon-btn" id="themeToggle" aria-label="Usar tema escuro" aria-pressed="false">
+                <svg class="icon-svg icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+                <svg class="icon-svg icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+            </button>
+
+            <div sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="btn btn-cta">Entrar</a>
+            </div>
+
+            <div sec:authorize="isAuthenticated()" class="profile-dropdown-container">
+                <button type="button" class="icon-btn" id="userMenuBtn"
+                        aria-label="Menu da conta" aria-haspopup="true" aria-expanded="false">
+                    <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </button>
+
+                <div class="profile-dropdown" id="profileDropdown">
+                    <p class="dropdown-greeting">Olá, <strong sec:authentication="name">usuário</strong></p>
+                    <ul class="dropdown-links">
+                        <li><a th:href="@{/perfil}">Minha conta</a></li>
+                        <li><a th:href="@{/sociotorcedor}">Minha associação</a></li>
+                        <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin}">Painel administrativo</a></li>
+                        <li class="logout-item">
+                            <form th:action="@{/logout}" method="post">
+                                <button type="submit" class="logout-btn">Sair</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-
-        <!-- Navbar principal -->
-        <header class="navbar">
-            <div class="nav-left">
-                <a href="/" class="nav-link">Início</a>
-                <a th:href="@{/admin}" class="nav-link" sec:authorize="hasRole('ADMIN')">Painel Admin</a>
-                <a href="/jogos" class="nav-link">Jogos</a>
-            </div>
-
-            <div class="brand">
-                <div class="crest">FC</div>
-            </div>
-
-            <div class="nav-right">
-
-                <!-- SE O USUÁRIO NÃO ESTIVER LOGADO -->
-                <div sec:authorize="isAnonymous()">
-                    <a th:href="@{/login}" class="btn-cta">Entrar</a>
-                </div>
-
-                <!-- SE O USUÁRIO ESTIVER LOGADO -->
-                <div sec:authorize="isAuthenticated()" class="profile-dropdown-container">
-
-                    <!-- Botão do Avatar com stopPropagation no clique -->
-                    <button type="button" class="avatar-btn" id="userMenuBtn" onclick="toggleProfileMenu(event)">
-                        <svg class="icon-svg" viewBox="0 0 24 24" style="pointer-events: none;">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                    </button>
-
-                    <!-- Popup / Menu Suspenso -->
-                    <div class="profile-dropdown" id="profileDropdown">
-                        <div class="dropdown-header">
-                            <div class="user-avatar-large">
-                                <svg class="icon-svg" viewBox="0 0 24 24">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
-                                </svg>
-                            </div>
-                            <p class="greeting">Olá, <span sec:authentication="name">Usuário</span></p>
-                        </div>
-
-                        <ul class="dropdown-links">
-                            <li>
-                                <a th:href="@{/perfil}">
-                                    <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                                    Minha conta
-                                </a>
-                            </li>
-
-                            <li sec:authorize="hasRole('ADMIN')">
-                                <a th:href="@{/admin}">
-                                    <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                                    Painel Administrativo
-                                </a>
-                            </li>
-
-                            <li class="logout-item">
-                                <form th:action="@{/logout}" method="post">
-                                    <button type="submit" class="logout-btn">
-                                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                                        Sair
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-
-                </div>
-
-            </div>
-        </header>
     </div>
-
-    <!-- Script corrigido com parada de propagação e fechamento ao clicar fora -->
-    <script>
-        function toggleProfileMenu(event) {
-            if (event) event.stopPropagation();
-            const dropdown = document.getElementById('profileDropdown');
-            if (dropdown) {
-                dropdown.classList.toggle('active');
-            }
-        }
-
-        document.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('profileDropdown');
-            const container = document.querySelector('.profile-dropdown-container');
-
-            if (dropdown && dropdown.classList.contains('active')) {
-                if (container && !container.contains(e.target)) {
-                    dropdown.classList.remove('active');
-                }
-            }
-        });
-    </script>
-</div>
+    <script th:src="@{/js/theme.js}"></script>
+</header>

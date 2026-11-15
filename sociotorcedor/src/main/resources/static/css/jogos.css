@@ -1,246 +1,73 @@
-.jogos-page-wrap {
-    background-color: #f4f6f8;
-    min-height: calc(100vh - 80px);
-    padding: 40px 20px 60px;
-}
+/* Jogos (calendário) e home — ingresso de partida */
 
-.jogos-container {
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-.jogos-header {
-    margin-bottom: 30px;
-}
-
-.jogos-header .subtitle {
-    color: #ffc700;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 4px;
-}
-
-.jogos-header h1 {
-    color: #0d1b2a;
-    font-size: 2rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    margin: 0;
-}
-
-/* Card Próximo Jogo */
-.proximo-jogo-card {
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 24px 32px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    display: flex;
+.match-main {
+    display: grid;
+    grid-template-columns: 1fr auto;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 40px;
-    border-left: 5px solid #ffc700;
+    gap: 20px;
 }
+.match-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.match-campeonato { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; }
+.match-quando { font-weight: 600; font-variant-numeric: tabular-nums; }
+.match-estadio { color: var(--ink-muted); font-size: 0.9rem; }
 
-.proximo-info-left {
-    display: flex;
-    flex-direction: column;
-}
+.versus { display: flex; align-items: center; gap: 14px; }
+.versus .x { font-family: var(--font-display); font-size: 1.4rem; color: var(--ink-muted); }
+.escudo-img { width: 48px; height: 48px; object-fit: contain; }
 
-.proximo-tag {
-    font-size: 13px;
-    color: #64748b;
-    font-weight: 600;
-}
+.stub-label { font-size: 0.8rem; color: var(--ink-muted); text-align: center; }
 
-.proximo-campeonato {
-    color: #0d1b2a;
-    font-weight: 800;
-    font-size: 16px;
-}
+/* Lista de jogos */
+.jogos-list { display: flex; flex-direction: column; gap: 14px; }
 
-
-.proximo-info-right {
-    text-align: right;
-}
-
-.proximo-data {
-    font-size: 15px;
-    font-weight: 700;
-    color: #1e293b;
-}
-
-.proximo-estadio {
-    color: #0d1b2a;
-    font-size: 14px;
-    font-weight: 700;
-}
-
-/* Navegação de Meses */
+/* Barra de meses */
 .meses-nav {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 4px;
     overflow-x: auto;
-    padding-bottom: 12px;
-    margin-bottom: 24px;
-    border-bottom: 1px solid #e2e8f0;
+    margin: 36px 0 20px;
+    border-bottom: 1px solid var(--line);
 }
-
-
-.mes-item:hover, .mes-item.active {
-    color: #ffc700;
-}
-
-/* Lista de Partidas */
-.jogos-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.jogo-detalhes {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.campeonato-nome {
-    color: #0d1b2a;
-    font-size: 14px;
-    font-weight: 800;
-}
-
-.jogo-data-hora {
-    font-size: 14px;
-    color: #334155;
-    font-weight: 600;
-}
-
-.estadio-nome {
-    color: #ffc700;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.btn-saiba-mais {
-    background-color: #ffc700;
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 10px 20px;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: background-color 0.2s ease;
-}
-
-.btn-saiba-mais:hover {
-    background-color: #c79c08;
-}
-
-
-
-
-
-/* Container de confronto centralizado e fixo */
-.confronto-verus {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 12px;
-    width: 140px; /* Garante que todos os confrontos ocupem a mesma largura */
-}
-
-.confronto-verus .escudo-img:first-child {
-    justify-self: end; /* Escudo da esquerda cola no centro */
-}
-
-.confronto-verus .escudo-img:last-child {
-    justify-self: start; /* Escudo da direita cola no centro */
-}
-
-.escudo-img {
-    width: 44px;
-    height: 44px;
-    object-fit: contain;
-}
-
-.vs-text {
-    font-weight: 700;
-    color: #64748b;
-    font-size: 14px;
-    text-align: center;
-}
-
-/* Ajuste no layout do card de jogo */
-.jogo-card {
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 20px 28px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr; /* Alinha Informações, Confronto e Botão */
-    align-items: center;
-}
-
-.jogo-card-btn {
-    justify-self: end;
-}
-
-/* Estado visual para botão de mês inativo/ativo */
 .mes-item {
+    flex: 0 0 auto;
     background: none;
     border: none;
+    border-bottom: 3px solid transparent;
+    padding: 10px 14px;
+    margin-bottom: -1px;
+    color: var(--ink-muted);
+    font: 600 0.95rem var(--font-body);
     cursor: pointer;
-    color: #1e293b;
-    font-size: 13px;
-    font-weight: 800;
-    text-transform: uppercase;
-    padding: 8px 14px;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s ease;
+}
+.mes-item:hover { color: var(--ink); }
+.mes-item.active { color: var(--ink); border-bottom-color: var(--accent); }
+.mes-item.has-games::after {
+    content: "";
+    display: inline-block;
+    width: 6px; height: 6px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: var(--brand);
+    vertical-align: middle;
 }
 
-.mes-item:hover, .mes-item.active {
-    color: #ffc700;
-    border-bottom-color: #ffc700;
-}
+/* Destaque: próximo jogo */
+.ticket-hero .match-main { padding: 8px 0; }
+.ticket-hero .ticket-main { padding: 28px 32px; }
+.ticket-hero .match-campeonato { font-size: 1.5rem; }
+.ticket-hero .escudo-img { width: 84px; height: 84px; }
+.ticket-hero .versus { gap: 22px; }
+.ticket-hero .versus .x { font-size: 2.2rem; }
+.ticket-hero .ticket-stub { min-width: 220px; }
 
-/* Animação suave para os cards de jogos */
-.jogo-card {
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 20px 28px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    align-items: center;
+/* Home */
+.hero-title { max-width: 14ch; margin-bottom: 28px; }
+.feature-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 40px; }
+.feature { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.feature p { color: var(--ink-muted); max-width: 40ch; }
 
-    /* Propriedades da transição suave */
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-/* Classe aplicada via JS quando o card está visível */
-.jogo-card.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Ocultamento completo para cards que não pertencem ao mês */
-.jogo-card.hidden {
-    display: none !important;
-}
-
-/* Transição suave para a mensagem de "sem jogos" */
-#no-games-msg {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-#no-games-msg.show {
-    opacity: 1;
+@media (max-width: 640px) {
+    .match-main { grid-template-columns: 1fr; }
+    .feature-row { grid-template-columns: 1fr; }
+    .ticket-hero .ticket-main { padding: 20px; }
 }

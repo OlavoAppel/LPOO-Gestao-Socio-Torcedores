@@ -1,17 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link rel="stylesheet" th:href="@{/css/navbar.css}">
-    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <th:block th:replace="~{fragments/head :: base('Painel administrativo')}"/>
+    <link rel="stylesheet" th:href="@{/css/conta.css}">
 </head>
 <body>
-    <div th:replace="~{fragments/navbar :: navbar}"></div>
-    <div style="padding: 40px; text-align:center; color: white">
-        <h1>Painel Administrativo</h1>
-        <p>Bem-vindo, <span th:text="${#authentication.principal.username}"></span> (ADMIN)</p>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="page">
+    <div class="page-head">
+        <h1>Painel administrativo</h1>
+        <p>Olá, <span th:text="${#authentication.principal.username}">admin</span>. O que você quer fazer?</p>
     </div>
+
+    <div class="admin-links">
+        <section class="panel admin-link">
+            <h2>Cadastrar jogo</h2>
+            <p>Registre uma partida e depois defina os lotes de ingressos de cada setor.</p>
+            <a th:href="@{/admin/cadastro/jogo}" class="btn btn-brand">Novo jogo</a>
+        </section>
+        <section class="panel admin-link">
+            <h2>Métricas</h2>
+            <p>Total de sócios, novos associados e arrecadação por categoria.</p>
+            <a th:href="@{/admin/metricas}" class="btn btn-ghost">Ver métricas</a>
+        </section>
+    </div>
+</main>
+
 </body>
 </html>

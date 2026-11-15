@@ -1,53 +1,67 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Cadastrar jogo</title>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link rel="stylesheet" th:href="@{/css/navbar.css}">
-    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <th:block th:replace="~{fragments/head :: base('Cadastrar jogo')}"/>
+    <link rel="stylesheet" th:href="@{/css/conta.css}">
 </head>
 <body>
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<div class="auth-wrap">
-    <div class="auth-card" style="max-width: 480px; text-align: left;">
-        <h1>Cadastrar jogo</h1>
+<main class="page page-narrow">
+    <a th:href="@{/admin}" class="back-link">&larr; Painel administrativo</a>
 
-        <form th:action="@{/admin/cadastro/jogo}" th:object="${cadastroJogoForm}" method="post">
+    <div class="panel">
+        <h1 style="font-size: 2.2rem; margin-bottom: 22px;">Cadastrar jogo</h1>
 
-            <label>Time da casa</label>
-            <select th:field="*{casaId}">
-                <option value="">Selecione...</option>
-                <option th:each="t : ${times}" th:value="${t.id}" th:text="${t.nome}"></option>
-            </select>
-            <span class="auth-error" th:if="${#fields.hasErrors('casaId')}" th:errors="*{casaId}"></span>
+        <form th:action="@{/admin/cadastro/jogo}" th:object="${cadastroJogoForm}" method="post" class="form" novalidate>
 
-            <label>Time visitante</label>
-            <select th:field="*{foraId}">
-                <option value="">Selecione...</option>
-                <option th:each="t : ${times}" th:value="${t.id}" th:text="${t.nome}"></option>
-            </select>
-            <span class="auth-error" th:if="${#fields.hasErrors('foraId')}" th:errors="*{foraId}"></span>
-            <span class="auth-error" th:if="${#fields.hasErrors('timesDiferentes')}" th:errors="*{timesDiferentes}"></span>
+            <div class="field-row">
+                <div class="field">
+                    <label for="casaId">Time da casa</label>
+                    <select id="casaId" th:field="*{casaId}">
+                        <option value="">Selecione</option>
+                        <option th:each="t : ${times}" th:value="${t.id}" th:text="${t.nome}"></option>
+                    </select>
+                    <span class="field-error" th:if="${#fields.hasErrors('casaId')}" th:errors="*{casaId}"></span>
+                </div>
+                <div class="field">
+                    <label for="foraId">Time visitante</label>
+                    <select id="foraId" th:field="*{foraId}">
+                        <option value="">Selecione</option>
+                        <option th:each="t : ${times}" th:value="${t.id}" th:text="${t.nome}"></option>
+                    </select>
+                    <span class="field-error" th:if="${#fields.hasErrors('foraId')}" th:errors="*{foraId}"></span>
+                </div>
+            </div>
+            <span class="field-error" th:if="${#fields.hasErrors('timesDiferentes')}" th:errors="*{timesDiferentes}"></span>
 
-            <label>Data e hora</label>
-            <input type="datetime-local" th:field="*{dhJogo}">
-            <span class="auth-error" th:if="${#fields.hasErrors('dhJogo')}" th:errors="*{dhJogo}"></span>
+            <div class="field">
+                <label for="estadioId">Estádio</label>
+                <select id="estadioId" th:field="*{estadioId}">
+                    <option value="">Selecione</option>
+                    <option th:each="e : ${estadios}" th:value="${e.id}" th:text="${e.nome}"></option>
+                </select>
+                <span class="field-error" th:if="${#fields.hasErrors('estadioId')}" th:errors="*{estadioId}"></span>
+            </div>
 
-            <label>Campeonato</label>
-            <input type="text" th:field="*{campeonato}" placeholder="Brasileirão 2026">
-            <span class="auth-error" th:if="${#fields.hasErrors('campeonato')}" th:errors="*{campeonato}"></span>
+            <div class="field-row">
+                <div class="field">
+                    <label for="dhJogo">Data e hora</label>
+                    <input type="datetime-local" id="dhJogo" th:field="*{dhJogo}">
+                    <span class="field-error" th:if="${#fields.hasErrors('dhJogo')}" th:errors="*{dhJogo}"></span>
+                </div>
+                <div class="field">
+                    <label for="campeonato">Campeonato</label>
+                    <input type="text" id="campeonato" th:field="*{campeonato}" placeholder="Brasileirão 2026">
+                    <span class="field-error" th:if="${#fields.hasErrors('campeonato')}" th:errors="*{campeonato}"></span>
+                </div>
+            </div>
 
-            <label>Estádio</label>
-            <input type="text" th:field="*{nomeEstadio}" placeholder="MorumBIS">
-            <span class="auth-error" th:if="${#fields.hasErrors('nomeEstadio')}" th:errors="*{nomeEstadio}"></span>
-
-            <button type="submit" class="btn-cta">Salvar e cadastrar lotes</button>
+            <button type="submit" class="btn btn-brand btn-block">Salvar e cadastrar lotes</button>
         </form>
     </div>
-</div>
+</main>
 
 </body>
 </html>

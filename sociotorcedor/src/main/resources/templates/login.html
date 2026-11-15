@@ -1,47 +1,41 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Entrar</title>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <th:block th:replace="~{fragments/head :: base('Entrar')}"/>
     <link rel="stylesheet" th:href="@{/css/auth.css}">
 </head>
 <body>
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<div class="auth-wrap">
-
-    <div class="auth-back">
-        <a th:href="@{/}">&larr; VOLTAR</a>
-    </div>
-
-    <div class="auth-card">
-        <div class="crest" style="margin: 0 0 16px;">FC</div>
+<main class="page page-narrow auth-page">
+    <div class="panel auth-panel">
         <h1>Entrar</h1>
-        <p class="auth-subtitle">Acesse sua conta para continuar</p>
+        <p class="lead">Acesse sua conta para comprar ingressos e gerenciar sua associação.</p>
 
-        <div th:if="${param.error}" class="auth-error">Usuário ou senha inválidos.</div>
-        <div th:if="${param.logout}" class="auth-success">Você saiu da sua conta.</div>
+        <div class="alerts">
+            <div th:if="${param.error}" class="alert alert-error" role="alert">Usuário ou senha incorretos. Confira os dados e tente de novo.</div>
+            <div th:if="${param.logout}" class="alert alert-success">Você saiu da sua conta.</div>
+            <div th:if="${sucesso}" class="alert alert-success" th:text="${sucesso}"></div>
+        </div>
 
-        <form th:action="@{/login}" method="post">
-            <div class="field-group">
+        <form th:action="@{/login}" method="post" class="form">
+            <div class="field">
                 <label for="login-user">Usuário</label>
-                <input type="text" id="login-user" name="username" placeholder="Seu usuário" required>
+                <input type="text" id="login-user" name="username" autocomplete="username" required autofocus>
             </div>
 
-            <div class="field-group">
+            <div class="field">
                 <label for="login-pass">Senha</label>
-                <input type="password" id="login-pass" name="password" placeholder="Sua senha" required>
+                <input type="password" id="login-pass" name="password" autocomplete="current-password" required>
             </div>
 
-            <button type="submit" class="btn-cta">Entrar</button>
+            <button type="submit" class="btn btn-brand btn-block">Entrar</button>
         </form>
 
-        <p class="auth-footer">Ainda não tem conta? <a th:href="@{/cadastro}">Cadastre-se</a></p>
+        <p class="auth-footer">Ainda não tem conta? <a th:href="@{/cadastro}">Criar conta</a></p>
     </div>
-</div>
+</main>
 
 </body>
 </html>
