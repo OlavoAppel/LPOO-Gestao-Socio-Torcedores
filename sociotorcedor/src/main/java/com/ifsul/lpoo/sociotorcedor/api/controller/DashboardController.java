@@ -28,6 +28,7 @@ public class DashboardController {
     public String dashboardMetricas(Model model){
         DashboardInfoDTO dashboardInfo = dashboardService.getInformacoesDashboard();
         model.addAttribute("dashboardInfo", dashboardInfo);
+        model.addAttribute("categoriasInfo", dashboardService.getInformacoesCategorias());
 
         return "admin/dashboard";
     }

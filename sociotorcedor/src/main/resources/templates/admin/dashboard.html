@@ -21,8 +21,8 @@
             <div class="stat-label">Sócios no total</div>
         </div>
         <div class="panel stat">
-            <div class="stat-value" th:text="${dashboardInfo.novosAssociadosMesAnterior}">0</div>
-            <div class="stat-label">Novos sócios no mês anterior</div>
+            <div class="stat-value" th:text="${dashboardInfo.novosAssociadosMesAtual}">0</div>
+            <div class="stat-label">Novos sócios no mês</div>
         </div>
         <div class="panel stat">
             <div class="stat-value"
@@ -33,22 +33,22 @@
 
     <h2 style="margin-bottom: 14px;">Sócios por categoria</h2>
 
-    <div class="table-wrap" th:if="${not #lists.isEmpty(dashboardInfo.infoCategoriaSocioList)}">
+    <div class="table-wrap" th:if="${not #lists.isEmpty(categoriasInfo)}">
         <table class="table">
             <thead>
             <tr>
                 <th>Categoria</th>
                 <th class="num">Sócios</th>
-                <th class="num">Novos no mês anterior</th>
+                <th class="num">Novos no mês</th>
                 <th>Participação</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="c : ${dashboardInfo.infoCategoriaSocioList}"
-                th:with="pct=${dashboardInfo.associadosTotal != null and dashboardInfo.associadosTotal.signum() > 0} ? ${c.totalAssociados * 100 / dashboardInfo.associadosTotal} : 0">
-                <td th:text="${c.categoria.descricao}">Categoria</td>
+            <tr th:each="c : ${categoriasInfo}"
+                th:with="pct=${dashboardInfo.associadosTotal != null and dashboardInfo.associadosTotal > 0} ? ${c.totalAssociados * 100.0 / dashboardInfo.associadosTotal} : 0">
+                <td th:text="${c.nomeCategoria}">Categoria</td>
                 <td class="num" th:text="${c.totalAssociados}">0</td>
-                <td class="num" th:text="${c.novosSociosMesAnterior}">0</td>
+                <td class="num" th:text="${c.novosAssociadosMesAtual}">0</td>
                 <td>
                     <div class="bar">
                         <span class="bar-track"><span class="bar-fill"
@@ -61,7 +61,7 @@
         </table>
     </div>
 
-    <div class="empty" th:if="${#lists.isEmpty(dashboardInfo.infoCategoriaSocioList)}">
+    <div class="empty" th:if="${#lists.isEmpty(categoriasInfo)}">
         <strong>Sem dados por categoria</strong>
         Os números aparecem quando houver sócios associados.
     </div>

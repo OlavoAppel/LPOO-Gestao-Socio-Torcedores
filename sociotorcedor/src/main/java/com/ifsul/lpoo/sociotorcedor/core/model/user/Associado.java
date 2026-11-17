@@ -1,7 +1,6 @@
 package com.ifsul.lpoo.sociotorcedor.core.model.user;
 
-import com.ifsul.lpoo.sociotorcedor.core.model.converter.CategoriaSocioConverter;
-import com.ifsul.lpoo.sociotorcedor.core.model.enumerator.Categoria;
+import com.ifsul.lpoo.sociotorcedor.core.model.base.CategoriaSocio;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,32 +12,36 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 
-@Table(name = "ASSOCIADOS")
+@Table(name = "ASSOCIADOS", indexes = @Index(name = "idx_associado_data_adesao", columnList = "ASSOCIADO_DATAADESAO"))
 @Entity
 public class Associado {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ASSOC_ID")
+    @Column(name = "ASSOCIADO_ID")
     private Long id;
 
-    @Column(name = "ASSOC_NOME")
+    @Column(name = "ASSOCIADO_NOME")
     private String nome;
 
-    @Convert(converter = CategoriaSocioConverter.class)
-    @Column(name = "ASSOC_CATEGORIA")
-    private Categoria categoria;
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "ASSOCIADO_CATEGORIA")
+    private CategoriaSocio categoria;
 
-    @Column(name = "ASSOC_CPF", length = 11)
+    /** Data em que virou sócio; nula enquanto for "não associado". */
+    @Column(name = "ASSOCIADO_DATAADESAO")
+    private LocalDate dataAdesao;
+
+    @Column(name = "ASSOCIADO_CPF", length = 11)
     private String cpf;
 
-    @Column(name = "ASSOC_TELEFONE")
+    @Column(name = "ASSOCIADO_TELEFONE")
     private String telefone;
 
-    @Column(name = "ASSOC_DATANASCIMENTO")
+    @Column(name = "ASSOCIADO_DATANASCIMENTO")
     private LocalDate dataNascimento;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "ASSOC_USUARIO", referencedColumnName = "USER_ID")
+    @JoinColumn(name = "ASSOCIADO_USUARIO", referencedColumnName = "USER_ID")
     private Usuario usuario;
 
 }

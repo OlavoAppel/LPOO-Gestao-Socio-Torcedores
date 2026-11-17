@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Endereco {
 
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "END_ID")
     private Long id;
 

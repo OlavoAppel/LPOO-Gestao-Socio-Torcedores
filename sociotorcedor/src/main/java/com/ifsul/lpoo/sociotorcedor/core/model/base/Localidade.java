@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Localidade {
 
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "LOC_ID")
     private Long id;
 

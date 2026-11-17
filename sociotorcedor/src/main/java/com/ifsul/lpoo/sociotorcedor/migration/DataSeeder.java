@@ -1,5 +1,6 @@
 package com.ifsul.lpoo.sociotorcedor.migration;
 
+import com.ifsul.lpoo.sociotorcedor.api.repository.CategoriaSocioRepository;
 import com.ifsul.lpoo.sociotorcedor.api.repository.EstadioRepository;
 import com.ifsul.lpoo.sociotorcedor.api.repository.JogoRepository;
 import com.ifsul.lpoo.sociotorcedor.api.repository.TimeRepository;
@@ -25,9 +26,17 @@ public class DataSeeder implements CommandLineRunner {
     private final JogoRepository jogoRepository;
     private final TimeRepository timeRepository;
     private final EstadioRepository estadioRepository;
+    private final CategoriaSocioRepository categoriaSocioRepository;
 
     @Override
     public void run(String... args) {
+        if (categoriaSocioRepository.count() == 0) {
+            categoriaSocioRepository.saveAll(List.of(
+                    criarCategoria("Não associado", 0, "0.00", "0.00"),
+                    criarCategoria("Teste", 1, "2.50", "0.00")
+            ));
+        }
+
         if (!usuarioRepository.existsByUsername("admin")) {
             Usuario admin = new Usuario();
             admin.setUsername("admin");
@@ -121,6 +130,15 @@ public class DataSeeder implements CommandLineRunner {
         jogoRepository.saveAll(List.of(jogoAnterior1, jogoAnterior2, jogoAnterior3, jogoAnterior4, proximoJogo, jogoFuturo));
 
 
+    }
+
+    private CategoriaSocio criarCategoria(String nome, Integer hierarquia, String mensalidade, String descontoIngresso) {
+        CategoriaSocio categoria = new CategoriaSocio();
+        categoria.setNome(nome);
+        categoria.setHierarquia(hierarquia);
+        categoria.setMensalidade(new BigDecimal(mensalidade));
+        categoria.setDescontoIngresso(new BigDecimal(descontoIngresso));
+        return categoria;
     }
 
     private LoteIngresso criarLoteIngresso(Jogo jogo, String nome){

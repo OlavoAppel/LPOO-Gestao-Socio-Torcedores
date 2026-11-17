@@ -10,7 +10,7 @@
 
 <main class="page"
       th:with="assoc=${#authentication.principal.associado},
-               socio=${#authentication.principal.associado != null and #authentication.principal.associado.categoria != null and #authentication.principal.associado.categoria.name() != 'NAO_ASSOCIADO'}">
+               socio=${#authentication.principal.associado != null and #authentication.principal.associado.categoria != null and !#authentication.principal.associado.categoria.naoAssociado}">
 
     <div class="page-head">
         <h1>Seja sócio</h1>
@@ -27,7 +27,7 @@
         <h2>Você é sócio</h2>
         <dl class="dl">
             <dt>Categoria atual</dt>
-            <dd><span class="badge badge-ok" th:text="${assoc.categoria.descricao}">Categoria</span></dd>
+            <dd><span class="badge badge-ok" th:text="${assoc.categoria.nome}">Categoria</span></dd>
         </dl>
         <form th:action="@{/sociotorcedor/revogarassociacao}" method="post" class="actions"
               onsubmit="return confirm('Cancelar sua associação? Você perde os descontos de sócio.');">
@@ -38,13 +38,13 @@
     <!-- Categorias -->
     <div class="planos">
         <article class="panel plano" th:each="cat : ${categorias}">
-            <h3 th:text="${cat.descricao}">Categoria</h3>
+            <h3 th:text="${cat.nome}">Categoria</h3>
             <p class="plano-preco">
-                <span th:text="${'R$ ' + #numbers.formatDecimal(cat.preco, 1, 'POINT', 2, 'COMMA')}">R$ 2,50</span>
+                <span th:text="${'R$ ' + #numbers.formatDecimal(cat.mensalidade, 1, 'POINT', 2, 'COMMA')}">R$ 2,50</span>
                 <small>/ mês</small>
             </p>
             <form th:action="@{/sociotorcedor/associar}" method="post">
-                <input type="hidden" name="categoria" th:value="${cat.name()}">
+                <input type="hidden" name="categoriaId" th:value="${cat.id}">
                 <button type="submit" class="btn btn-cta btn-block" th:disabled="${socio}"
                         th:text="${socio} ? 'Cancele a atual para trocar' : 'Associar-se'">Associar-se</button>
             </form>

@@ -1,6 +1,5 @@
 package com.ifsul.lpoo.sociotorcedor.core.model.base;
 
-import com.ifsul.lpoo.sociotorcedor.core.model.enumerator.Categoria;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +15,10 @@ import java.util.List;
 @Entity
 public class CategoriaSocio {
 
-    @Id @GeneratedValue
+    /** Hierarquia reservada à categoria "não associado" (usuário sem plano de sócio). */
+    public static final int HIERARQUIA_NAO_ASSOCIADO = 0;
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private BigDecimal mensalidade;
@@ -26,5 +28,10 @@ public class CategoriaSocio {
 
     @ManyToMany
     private List<SetorEstadio> setoresDiponiveis;
+
+
+    public boolean isNaoAssociado() {
+        return hierarquia != null && hierarquia == HIERARQUIA_NAO_ASSOCIADO;
+    }
 
 }

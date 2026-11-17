@@ -1,23 +1,20 @@
 package com.ifsul.lpoo.sociotorcedor.core.dto;
 
-import jakarta.validation.constraints.NegativeOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-
 public class DashboardInfoDTO {
 
-    private BigDecimal associadosTotal;
-    private BigDecimal novosAssociadosMesAnterior;
+    private Long associadosTotal;
+    private Long novosAssociadosMesAtual;
     private BigDecimal ganhosTotais;
-    private List<InformacaoCategoriaDTO> infoCategoriaSocioList;
-
+    private BigDecimal receitaIngressos; // utilizando mês atual
+    private Long ingressosVendidos; // utilizando mês atual
 
 }

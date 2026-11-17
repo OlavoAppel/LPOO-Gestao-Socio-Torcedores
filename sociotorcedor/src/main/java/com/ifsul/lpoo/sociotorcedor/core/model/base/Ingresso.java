@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Data
 
+@Table(name = "INGRESSO", indexes = @Index(name = "idx_ingresso_dh_compra", columnList = "ING_DATAHORACOMPRA"))
 @Entity
 public class Ingresso {
 
@@ -32,6 +33,7 @@ public class Ingresso {
     private String status; // RESERVADO, PAGO, EXPIRADO, CANCELADO
 
     private BigDecimal precoPago;      // snapshot do valor no momento da compra
+    @Column(name = "ING_DATAHORACOMPRA")
     private LocalDateTime dhCompra;
 
     @Column(unique = true)

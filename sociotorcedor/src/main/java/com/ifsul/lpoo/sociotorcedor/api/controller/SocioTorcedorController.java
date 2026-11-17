@@ -1,7 +1,6 @@
 package com.ifsul.lpoo.sociotorcedor.api.controller;
 
 import com.ifsul.lpoo.sociotorcedor.api.service.SocioTorcedorService;
-import com.ifsul.lpoo.sociotorcedor.core.model.enumerator.Categoria;
 import com.ifsul.lpoo.sociotorcedor.core.model.user.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -9,8 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.Arrays;
 
 @Controller
 public class SocioTorcedorController {
@@ -20,18 +17,16 @@ public class SocioTorcedorController {
 
     @GetMapping("/sociotorcedor")
     public String socioTorcedor(Model model){
-        model.addAttribute("categorias", Arrays.stream(Categoria.values())
-                .filter(c -> c != Categoria.NAO_ASSOCIADO)
-                .toList());
+        model.addAttribute("categorias", socioTorcedorService.listarCategoriasDisponiveis());
         return "sociotorcedor";
     }
 
     @PostMapping("/sociotorcedor/associar")
     public String associar(@AuthenticationPrincipal Usuario usuario,
-                           @RequestParam Categoria categoria,
+                           @RequestParam Long categoriaId,
                            RedirectAttributes redirectAttributes){
         try {
-            socioTorcedorService.tornarseSocio(categoria, usuario);
+            socioTorcedorService.tornarseSocio(categoriaId, usuario);
             redirectAttributes.addFlashAttribute("sucesso", "Associação realizada. Bem-vindo ao quadro de sócios!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erro", e.getMessage());

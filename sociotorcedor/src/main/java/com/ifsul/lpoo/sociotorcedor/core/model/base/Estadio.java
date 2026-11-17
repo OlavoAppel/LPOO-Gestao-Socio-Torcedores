@@ -17,7 +17,7 @@ import java.util.Set;
 @Entity
 public class Estadio {
 
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "EST_ID")
     private Long id;
 

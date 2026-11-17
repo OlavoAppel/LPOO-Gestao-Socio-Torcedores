@@ -11,12 +11,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "JOGO")
+@Table(name = "JOGO", indexes = @Index(name = "idx_jogo_datahora", columnList = "JOG_DATAHORA"))
 @Entity
 public class Jogo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "JOG_ID")
     private Long id;
 

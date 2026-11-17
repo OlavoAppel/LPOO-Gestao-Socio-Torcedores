@@ -1,11 +1,6 @@
 package com.ifsul.lpoo.sociotorcedor.core.model.base;
 
-import com.ifsul.lpoo.sociotorcedor.api.repository.JogoRepository;
-import jakarta.annotation.security.DenyAll;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 public class LoteIngresso {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne

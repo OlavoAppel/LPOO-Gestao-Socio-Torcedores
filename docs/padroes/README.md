@@ -11,7 +11,6 @@
 | Repository | Padrão de acesso a dados | Interfaces Spring Data JPA |
 | Injeção de dependência e beans singleton | Recursos de framework / princípios de projeto | Beans Spring (`@Service`, `@Component`, `@Bean`) |
 | Service Locator com campos estáticos | Padrão de acesso a serviços, usado como conveniência | `InjectionProvider` |
-| Conversor de persistência | Integração/transformação de dados | `CategoriaSocioConverter` |
 
 ## Decisão: Factory para criar usuário e associado
 
@@ -28,7 +27,7 @@ public Usuario createNewUsuario(CadastroForm form) {
     Associado associado = new Associado();
     Usuario usuario = new Usuario();
 
-    associado.setCategoria(Categoria.NAO_ASSOCIADO);
+    associado.setCategoria(naoAssociado); // CategoriaSocio com hierarquia 0, buscada no repository
     associado.setNome(form.getNome());
     associado.setTelefone(form.getTelefone());
     associado.setCpf(form.getCpf());
@@ -231,9 +230,9 @@ InjectionProvider.getUsuarioRepository().save(usuario);
 
 **Impacto para manutenção:** o acoplamento fica menos visível nas assinaturas dos services, e testes isolados ficam mais difíceis porque os repositories são estado global. Para código novo, prefira injeção de dependência explícita por construtor, como já ocorre em `LoteService`. Se o projeto migrar os serviços existentes, atualize este registro para marcar o Service Locator como removido.
 
-## Conversão de categoria para persistência
+## Categorias de sócio como entidade
 
-`core/model/converter/CategoriaSocioConverter.java` adapta o enum `Categoria` ao formato armazenado no banco, sendo ligado à entidade `Associado` por `@Convert`. É uma conversão de fronteira entre o modelo Java e a persistência. O nome da interface JPA é `AttributeConverter`; aqui documentamos a função concreta de converter valores, sem afirmar que foi criada uma implementação genérica do padrão GoF Adapter.
+`CategoriaSocio` é uma entidade (nome, mensalidade, desconto de ingresso, hierarquia), em vez de um enum, para que valores e descontos sejam alterados sem mudar código. `Associado.categoria` é uma associação `@ManyToOne`. A categoria "não associado" é a linha com `hierarquia = 0` (`CategoriaSocio.isNaoAssociado()`), criada pelo `DataSeeder`; `UsuarioFactory` a busca ao criar um usuário. Mudanças de categoria passam por `SocioTorcedorService`, que atualiza `dataAdesao` e grava `HistoricoCategoria`.
 
 ## Regras para manter código e documento alinhados
 

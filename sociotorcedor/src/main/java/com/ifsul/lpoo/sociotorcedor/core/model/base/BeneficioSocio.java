@@ -1,6 +1,5 @@
 package com.ifsul.lpoo.sociotorcedor.core.model.base;
 
-import com.ifsul.lpoo.sociotorcedor.core.model.enumerator.Categoria;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +15,7 @@ import java.math.BigDecimal;
 @Entity
 public class BeneficioSocio {
 
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "BEN_ID")
     private Long id;
 
@@ -32,7 +31,8 @@ public class BeneficioSocio {
     @Column(name = "BEN_DESCONTOBRINDE")
     private BigDecimal descontoBrindes;
 
-    @Column(name = "BEN_CATEGORIA")
-    private Categoria categoria;
+    @ManyToOne
+    @JoinColumn(name = "BEN_CATEGORIA")
+    private CategoriaSocio categoria;
 
 }
