@@ -13,16 +13,27 @@
 
     <div class="page-head">
         <h1>Métricas</h1>
+        <p>Números de sócios e de ingressos. Os valores "no mês" consideram o mês atual.</p>
     </div>
 
+    <!-- Indicadores -->
     <section class="stats">
         <div class="panel stat">
-            <div class="stat-value" th:text="${dashboardInfo.associadosTotal}">0</div>
+            <div class="stat-value" th:text="${dashboardInfo.associadosTotal ?: 0}">0</div>
             <div class="stat-label">Sócios no total</div>
         </div>
         <div class="panel stat">
-            <div class="stat-value" th:text="${dashboardInfo.novosAssociadosMesAtual}">0</div>
+            <div class="stat-value" th:text="${dashboardInfo.novosAssociadosMesAtual ?: 0}">0</div>
             <div class="stat-label">Novos sócios no mês</div>
+        </div>
+        <div class="panel stat">
+            <div class="stat-value" th:text="${dashboardInfo.ingressosVendidos ?: 0}">0</div>
+            <div class="stat-label">Ingressos vendidos no mês</div>
+        </div>
+        <div class="panel stat">
+            <div class="stat-value"
+                 th:text="${'R$ ' + #numbers.formatDecimal(dashboardInfo.receitaIngressos ?: 0, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</div>
+            <div class="stat-label">Receita de ingressos no mês</div>
         </div>
         <div class="panel stat">
             <div class="stat-value"
@@ -31,41 +42,106 @@
         </div>
     </section>
 
-    <h2 style="margin-bottom: 14px;">Sócios por categoria</h2>
+    <!-- Sócios por categoria -->
+    <h2 class="dash-section">Sócios por categoria</h2>
 
-    <div class="table-wrap" th:if="${not #lists.isEmpty(categoriasInfo)}">
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Categoria</th>
-                <th class="num">Sócios</th>
-                <th class="num">Novos no mês</th>
-                <th>Participação</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="c : ${categoriasInfo}"
-                th:with="pct=${dashboardInfo.associadosTotal != null and dashboardInfo.associadosTotal > 0} ? ${c.totalAssociados * 100.0 / dashboardInfo.associadosTotal} : 0">
-                <td th:text="${c.nomeCategoria}">Categoria</td>
-                <td class="num" th:text="${c.totalAssociados}">0</td>
-                <td class="num" th:text="${c.novosAssociadosMesAtual}">0</td>
-                <td>
-                    <div class="bar">
-                        <span class="bar-track"><span class="bar-fill"
-                              th:style="'width:' + ${#numbers.formatDecimal(pct, 1, 'POINT', 1, 'POINT')} + '%'"></span></span>
-                        <span th:text="${#numbers.formatDecimal(pct, 1, 'POINT', 0, 'COMMA') + '%'}">0%</span>
-                    </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <div th:if="${not #lists.isEmpty(categoriasInfo)}">
+        <div class="charts">
+            <section class="panel chart-card">
+                <h2>Participação</h2>
+                <p class="chart-sub">Quantos sócios cada categoria reúne.</p>
+                <div class="chart-box">
+                    <canvas id="grafico-categorias" role="img" aria-label="Participação de cada categoria no total de sócios"></canvas>
+                </div>
+            </section>
+        </div>
+
+        <div class="table-wrap">
+            <table class="table" id="tabela-categorias">
+                <thead>
+                <tr>
+                    <th>Categoria</th>
+                    <th class="num">Sócios</th>
+                    <th class="num">Novos no mês</th>
+                    <th class="num">Participação</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${categoriasInfo}"
+                    th:data-nome="${c.nomeCategoria}"
+                    th:data-total="${c.totalAssociados ?: 0}"
+                    th:data-novos="${c.novosAssociadosMesAtual ?: 0}"
+                    th:with="pct=${dashboardInfo.associadosTotal != null and dashboardInfo.associadosTotal > 0 and c.totalAssociados != null} ? ${c.totalAssociados * 100.0 / dashboardInfo.associadosTotal} : 0">
+                    <td th:text="${c.nomeCategoria}">Categoria</td>
+                    <td class="num" th:text="${c.totalAssociados ?: 0}">0</td>
+                    <td class="num" th:text="${c.novosAssociadosMesAtual ?: 0}">0</td>
+                    <td class="num" th:text="${#numbers.formatDecimal(pct, 1, 'POINT', 1, 'COMMA') + '%'}">0%</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="empty" th:if="${#lists.isEmpty(categoriasInfo)}">
         <strong>Sem dados por categoria</strong>
         Os números aparecem quando houver sócios associados.
     </div>
+
+    <!-- Próximos jogos -->
+    <h2 class="dash-section">Próximos jogos</h2>
+
+    <div th:if="${not #lists.isEmpty(jogosInfo)}">
+        <div class="charts">
+            <section class="panel chart-card">
+                <h2>Ocupação</h2>
+                <p class="chart-sub">Ingressos vendidos sobre a capacidade dos lotes.</p>
+                <div class="chart-box chart-box-tall" th:style="'--chart-h:' + ${60 + #lists.size(jogosInfo) * 38} + 'px'">
+                    <canvas id="grafico-ocupacao" role="img" aria-label="Ocupação em porcentagem de cada jogo futuro"></canvas>
+                </div>
+            </section>
+            <section class="panel chart-card">
+                <h2>Receita</h2>
+                <p class="chart-sub">Arrecadação com ingressos de cada jogo.</p>
+                <div class="chart-box chart-box-tall" th:style="'--chart-h:' + ${60 + #lists.size(jogosInfo) * 38} + 'px'">
+                    <canvas id="grafico-receita" role="img" aria-label="Receita de ingressos de cada jogo futuro"></canvas>
+                </div>
+            </section>
+        </div>
+
+        <div class="table-wrap">
+            <table class="table" id="tabela-jogos">
+                <thead>
+                <tr>
+                    <th>Jogo</th>
+                    <th class="num">Ingressos vendidos</th>
+                    <th class="num">Ocupação</th>
+                    <th class="num">Receita</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="j : ${jogosInfo}"
+                    th:data-titulo="${j.titulo}"
+                    th:data-ocupacao="${j.ocupacaoJogoPorcentagem ?: 0}"
+                    th:data-vendidos="${j.ingressosVendidos ?: 0}"
+                    th:data-receita="${j.receitaPorJogo ?: 0}">
+                    <td th:text="${j.titulo}">SPFC x GRE</td>
+                    <td class="num" th:text="${j.ingressosVendidos ?: 0}">0</td>
+                    <td class="num" th:text="${#numbers.formatDecimal(j.ocupacaoJogoPorcentagem ?: 0, 1, 'POINT', 1, 'COMMA') + '%'}">0%</td>
+                    <td class="num" th:text="${'R$ ' + #numbers.formatDecimal(j.receitaPorJogo ?: 0, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="empty" th:if="${#lists.isEmpty(jogosInfo)}">
+        <strong>Nenhum jogo futuro</strong>
+        Cadastre um jogo para acompanhar vendas e ocupação.
+    </div>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script th:src="@{/js/dashboard.js}"></script>
 
 </body>
 </html>

@@ -27,7 +27,7 @@
             <dt>Associação</dt>
             <dd>
                 <span class="badge"
-                      th:text="${#authentication.principal.associado?.categoria?.descricao} ?: 'Não associado'">Não associado</span>
+                      th:text="${#authentication.principal.associado?.categoria?.nome} ?: 'Não associado'">Não associado</span>
             </dd>
         </dl>
 

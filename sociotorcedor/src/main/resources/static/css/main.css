@@ -42,6 +42,13 @@
 
     /* sombra única, usada só em elementos flutuantes */
     --shadow:      0 12px 32px rgba(15, 40, 30, 0.14);
+
+    /* gráficos (categorias distintas, em ordem de uso) */
+    --chart-1: #14513e;
+    --chart-2: #e0a100;
+    --chart-3: #2f78a6;
+    --chart-4: #8e5ab8;
+    --chart-5: #7b8a82;
 }
 
 :root[data-theme="dark"] {
@@ -75,6 +82,12 @@
     --success-line:#25533a;
 
     --shadow:      0 12px 32px rgba(0, 0, 0, 0.5);
+
+    --chart-1: #3da57f;
+    --chart-2: #f5b81c;
+    --chart-3: #5aa9d6;
+    --chart-4: #b58ae0;
+    --chart-5: #9fb0a7;
 }
 
 /* Tipografia, raios e espaçamento */

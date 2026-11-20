@@ -14,6 +14,8 @@
             btn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
             btn.setAttribute('aria-label', t === 'dark' ? 'Usar tema claro' : 'Usar tema escuro');
         }
+        // avisa quem desenha com cores calculadas (ex.: gráficos do dashboard)
+        document.dispatchEvent(new CustomEvent('themechange', { detail: t }));
     }
 
     document.addEventListener('DOMContentLoaded', function () {

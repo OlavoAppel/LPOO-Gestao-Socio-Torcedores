@@ -29,7 +29,7 @@
             <tr th:each="l : ${lotes}">
                 <td th:text="${l.setor.nome}">Setor</td>
                 <td class="num" th:text="${'R$ ' + #numbers.formatDecimal(l.precoBase, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
-                <td class="num" th:text="${l.estoqueDisponivel}">0</td>
+                <td class="num" th:text="${l.ingressoDisponiveis}">0</td>
             </tr>
             </tbody>
         </table>
