@@ -2,95 +2,52 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: base('Jogos')}"/>
-    <link rel="stylesheet" th:href="@{/css/jogos.css}">
 </head>
 <body>
 
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/navbar :: navbar('jogos')}"></div>
 
-<main class="page">
+<main id="conteudo" class="conteudo flex flex-col gap-6 py-10"
+      th:with="proximoId=${jogosData.proximoJogo != null ? jogosData.proximoJogo.id : null}">
 
-    <div class="page-head">
-        <h1>Calendário de jogos</h1>
-        <p>Escolha o mês e veja as partidas da temporada.</p>
-    </div>
+    <header th:replace="~{fragments/ui :: cabecalho('Calendário de jogos',
+            'Escolha o mês para ver as partidas da temporada. Abrimos no mês do próximo jogo.')}"></header>
 
-    <div class="alerts" th:if="${erro}">
-        <div class="alert alert-error" role="alert" th:text="${erro}"></div>
-    </div>
+    <div th:replace="~{fragments/ui :: alertas(null, ${erro})}"></div>
 
-    <!-- Próximo jogo -->
-    <article class="ticket ticket-hero" th:if="${jogosData.proximoJogo != null}">
-        <div class="ticket-main">
-            <div class="match-main">
-                <div class="match-info">
-                    <span class="match-campeonato" th:text="${jogosData.proximoJogo.campeonato}">Campeonato</span>
-                    <span class="match-quando"
-                          th:text="${#temporals.format(jogosData.proximoJogo.dhJogo, 'dd/MM/yyyy (EEEE) · HH:mm')}">19/09/2026 · 21:00</span>
-                    <span class="match-estadio" th:text="${jogosData.proximoJogo.nomeEstadio}">Estádio</span>
-                </div>
-                <div class="versus">
-                    <img th:src="@{${jogosData.proximoJogo.casa.escudoPath}}" th:alt="${jogosData.proximoJogo.casa.sigla}" class="escudo-img">
-                    <span class="x">x</span>
-                    <img th:src="@{${jogosData.proximoJogo.fora.escudoPath}}" th:alt="${jogosData.proximoJogo.fora.sigla}" class="escudo-img">
-                </div>
-            </div>
-        </div>
-        <div class="ticket-stub">
-            <span class="stub-label">Próximo jogo</span>
-            <a th:href="@{/ingressos(jogoId=${jogosData.proximoJogo.id})}" class="btn btn-cta">Comprar ingressos</a>
-        </div>
-    </article>
-
-    <!-- Meses -->
-    <nav class="meses-nav" aria-label="Filtrar por mês"
+    <!-- Meses: o script abaixo filtra a lista por data-mes -->
+    <nav class="meses-nav -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 md:flex-wrap md:overflow-visible"
+         aria-label="Filtrar jogos por mês"
          th:data-mes-inicial="${jogosData.proximoJogo != null} ? ${jogosData.proximoJogo.dhJogo.monthValue}">
-        <button type="button" class="mes-item" data-mes="1">Janeiro</button>
-        <button type="button" class="mes-item" data-mes="2">Fevereiro</button>
-        <button type="button" class="mes-item" data-mes="3">Março</button>
-        <button type="button" class="mes-item" data-mes="4">Abril</button>
-        <button type="button" class="mes-item" data-mes="5">Maio</button>
-        <button type="button" class="mes-item" data-mes="6">Junho</button>
-        <button type="button" class="mes-item" data-mes="7">Julho</button>
-        <button type="button" class="mes-item" data-mes="8">Agosto</button>
-        <button type="button" class="mes-item" data-mes="9">Setembro</button>
-        <button type="button" class="mes-item" data-mes="10">Outubro</button>
-        <button type="button" class="mes-item" data-mes="11">Novembro</button>
-        <button type="button" class="mes-item" data-mes="12">Dezembro</button>
+        <button type="button" class="mes-item group" data-mes="1" aria-pressed="false">Janeiro</button>
+        <button type="button" class="mes-item group" data-mes="2" aria-pressed="false">Fevereiro</button>
+        <button type="button" class="mes-item group" data-mes="3" aria-pressed="false">Março</button>
+        <button type="button" class="mes-item group" data-mes="4" aria-pressed="false">Abril</button>
+        <button type="button" class="mes-item group" data-mes="5" aria-pressed="false">Maio</button>
+        <button type="button" class="mes-item group" data-mes="6" aria-pressed="false">Junho</button>
+        <button type="button" class="mes-item group" data-mes="7" aria-pressed="false">Julho</button>
+        <button type="button" class="mes-item group" data-mes="8" aria-pressed="false">Agosto</button>
+        <button type="button" class="mes-item group" data-mes="9" aria-pressed="false">Setembro</button>
+        <button type="button" class="mes-item group" data-mes="10" aria-pressed="false">Outubro</button>
+        <button type="button" class="mes-item group" data-mes="11" aria-pressed="false">Novembro</button>
+        <button type="button" class="mes-item group" data-mes="12" aria-pressed="false">Dezembro</button>
     </nav>
 
-    <!-- Lista -->
-    <div class="jogos-list">
-        <article class="ticket jogo-card"
-                 th:each="jogo : ${jogosData.jogosList}"
-                 th:data-mes="${jogo.dhJogo.monthValue}">
-            <div class="ticket-main">
-                <div class="match-main">
-                    <div class="match-info">
-                        <span class="match-campeonato" th:text="${jogo.campeonato}">Campeonato</span>
-                        <span class="match-quando"
-                              th:text="${#temporals.format(jogo.dhJogo, 'dd/MM/yyyy (EEEE) · HH:mm')}">05/09/2026 · 18:30</span>
-                        <span class="match-estadio" th:text="${jogo.nomeEstadio}">Estádio</span>
-                    </div>
-                    <div class="versus">
-                        <img th:src="@{${jogo.casa.escudoPath}}" th:alt="${jogo.casa.sigla}" class="escudo-img">
-                        <span class="x">x</span>
-                        <img th:src="@{${jogo.fora.escudoPath}}" th:alt="${jogo.fora.sigla}" class="escudo-img">
-                    </div>
-                </div>
-            </div>
-            <div class="ticket-stub">
-                <a th:href="@{/ingressos(jogoId=${jogo.id})}" class="btn btn-ghost">Ver ingressos</a>
-            </div>
-        </article>
+    <!-- Lista: sem JavaScript, todos os jogos do ano aparecem -->
+    <div class="jogos-list flex flex-col gap-3">
+        <th:block th:each="jogo : ${jogosData.jogosList}">
+            <article th:replace="~{fragments/jogo :: linha(${jogo}, ${jogo.id == proximoId})}"></article>
+        </th:block>
 
-        <div id="no-games-msg" class="empty" hidden>
-            <strong>Nenhum jogo neste mês</strong>
-            Escolha outro mês para ver as partidas.
+        <div id="no-games-msg" hidden>
+            <div th:replace="~{fragments/ui :: vazio('Nenhum jogo neste mês',
+                    'Os meses marcados com um ponto têm partidas. Escolha um deles para ver os jogos.', null, null)}"></div>
         </div>
     </div>
 
 </main>
+
+<footer th:replace="~{fragments/footer :: rodape}"></footer>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -99,15 +56,22 @@
         var vazio = document.getElementById('no-games-msg');
         var nav = document.querySelector('.meses-nav');
 
-        // marca meses que têm jogos
+        // marca meses que têm jogos (ponto visível + texto para leitor de tela)
         cards.forEach(function (c) {
             var b = document.querySelector('.mes-item[data-mes="' + c.dataset.mes + '"]');
-            if (b) b.classList.add('has-games');
+            if (b && !b.classList.contains('has-games')) {
+                b.classList.add('has-games');
+                b.insertAdjacentHTML('beforeend', '<span class="sr-only">, tem jogos</span>');
+            }
         });
 
         function mostrar(mes) {
             var achou = 0;
-            botoes.forEach(function (b) { b.classList.toggle('active', b.dataset.mes === mes); });
+            botoes.forEach(function (b) {
+                var ativo = b.dataset.mes === mes;
+                b.classList.toggle('active', ativo);
+                b.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+            });
             cards.forEach(function (c) {
                 var visivel = c.dataset.mes === mes;
                 c.hidden = !visivel;

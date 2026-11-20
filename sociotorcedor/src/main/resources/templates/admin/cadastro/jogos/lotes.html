@@ -2,79 +2,96 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: base('Lotes do jogo')}"/>
-    <link rel="stylesheet" th:href="@{/css/conta.css}">
 </head>
 <body>
 
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/navbar :: navbar('admin')}"></div>
 
-<main class="page">
-    <a th:href="@{/admin}" class="back-link">&larr; Painel administrativo</a>
+<main id="conteudo" class="conteudo flex max-w-4xl flex-col gap-6 py-8 md:py-10">
+    <a th:replace="~{fragments/ui :: voltar(@{/admin}, 'Painel administrativo')}"></a>
 
-    <div class="admin-head">
-        <div>
-            <h1 th:text="${jogo.casa.nome + ' x ' + jogo.fora.nome}">Jogo</h1>
-            <p style="color: var(--ink-muted); margin-top: 6px;">Lotes de ingressos deste jogo</p>
+    <header class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-2">
+            <h1 class="titulo-pagina" th:text="${jogo.casa.nome + ' x ' + jogo.fora.nome}">São Paulo FC x Grêmio</h1>
+            <p class="apoio">
+                <span th:text="${jogo.campeonato}">Brasileirão 2026</span>,
+                <span th:text="${jogo.estadio.nome}">MorumBIS</span>,
+                <span th:text="${#temporals.format(jogo.dhJogo, 'dd/MM/yyyy')} + ' às ' + ${#temporals.format(jogo.dhJogo, 'HH:mm')}">23/11/2026 às 21:00</span>
+            </p>
         </div>
-        <button type="button" class="btn btn-cta"
+        <button type="button" class="btn btn-compra"
                 onclick="document.getElementById('modal-lote').showModal()">Novo lote</button>
-    </div>
+    </header>
 
-    <div class="table-wrap" th:if="${not #lists.isEmpty(lotes)}">
-        <table class="table">
-            <thead>
-            <tr><th>Setor</th><th class="num">Preço base</th><th class="num">Estoque</th></tr>
-            </thead>
-            <tbody>
-            <tr th:each="l : ${lotes}">
-                <td th:text="${l.setor.nome}">Setor</td>
-                <td class="num" th:text="${'R$ ' + #numbers.formatDecimal(l.precoBase, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
-                <td class="num" th:text="${l.ingressoDisponiveis}">0</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+    <section class="flex flex-col gap-3" aria-labelledby="titulo-lotes">
+        <h2 id="titulo-lotes" class="titulo-secao">Lotes de ingressos</h2>
 
-    <div class="empty" th:if="${#lists.isEmpty(lotes)}">
-        <strong>Nenhum lote cadastrado</strong>
-        Use "Novo lote" para liberar ingressos de um setor.
-    </div>
+        <div class="painel overflow-x-auto" th:if="${not #lists.isEmpty(lotes)}">
+            <table class="tabela">
+                <caption class="sr-only">Lotes de ingressos deste jogo</caption>
+                <thead>
+                <tr><th scope="col">Setor</th><th scope="col" class="num">Preço base</th><th scope="col" class="num">Disponíveis</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="l : ${lotes}">
+                    <th scope="row" class="font-semibold" th:text="${l.setor.nome}">Setor</th>
+                    <td class="num" th:text="${'R$ ' + #numbers.formatDecimal(l.precoBase, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
+                    <td class="num" th:text="${l.ingressoDisponiveis}">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <th:block th:if="${#lists.isEmpty(lotes)}">
+            <div th:replace="~{fragments/ui :: vazio('Nenhum lote cadastrado',
+                    'Sem lotes, o jogo aparece no calendário mas não vende ingressos. Use “Novo lote” para liberar um setor.', null, null)}"></div>
+        </th:block>
+    </section>
 </main>
 
-<dialog id="modal-lote" class="modal">
-    <form th:action="@{/admin/cadastro/{id}/lotes(id=${jogo.id})}" th:object="${cadastroLoteForm}" method="post" class="form" novalidate>
-        <h2>Novo lote</h2>
+<footer th:replace="~{fragments/footer :: rodape}"></footer>
 
-        <div class="alerts" th:if="${#fields.hasGlobalErrors()}">
-            <p class="alert alert-error" role="alert" th:each="e : ${#fields.globalErrors()}" th:text="${e}"></p>
+<dialog id="modal-lote" aria-labelledby="titulo-modal"
+        class="m-auto w-[min(32rem,calc(100%-2rem))] rounded-xl border border-line bg-surface p-0 text-ink shadow-2xl
+               backdrop:bg-placar/70 transition-[opacity,scale,display,overlay] transition-discrete duration-200
+               starting:open:scale-95 starting:open:opacity-0">
+    <form th:action="@{/admin/cadastro/{id}/lotes(id=${jogo.id})}" th:object="${cadastroLoteForm}" method="post"
+          class="flex flex-col gap-5 p-6 sm:p-7" novalidate>
+        <h2 id="titulo-modal" class="text-3xl">Novo lote</h2>
+
+        <div class="flex flex-col gap-2" th:if="${#fields.hasGlobalErrors()}">
+            <p class="alerta alerta-erro" role="alert" th:each="e : ${#fields.globalErrors()}" th:text="${e}"></p>
         </div>
 
-        <div class="field">
-            <label for="setorId">Setor</label>
-            <select id="setorId" th:field="*{setorId}">
-                <option value="">Selecione</option>
+        <div class="campo">
+            <label for="setorId" class="rotulo">Setor</label>
+            <select id="setorId" th:field="*{setorId}" class="entrada" th:errorclass="entrada-invalida" aria-describedby="setorId-erro">
+                <option value="">Selecione o setor</option>
                 <option th:each="s : ${setores}" th:value="${s.id}"
                         th:text="${s.nome + ' (capacidade ' + s.capacidadeTotal + ')'}"></option>
             </select>
-            <span class="field-error" th:if="${#fields.hasErrors('setorId')}" th:errors="*{setorId}"></span>
+            <span id="setorId-erro" class="erro-campo" th:if="${#fields.hasErrors('setorId')}" th:errors="*{setorId}"></span>
         </div>
 
-        <div class="field-row">
-            <div class="field">
-                <label for="precoBase">Preço base (R$)</label>
-                <input type="number" step="0.01" min="0" id="precoBase" th:field="*{precoBase}">
-                <span class="field-error" th:if="${#fields.hasErrors('precoBase')}" th:errors="*{precoBase}"></span>
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div class="campo">
+                <label for="precoBase" class="rotulo">Preço base (R$)</label>
+                <input type="number" step="0.01" min="0" id="precoBase" th:field="*{precoBase}" class="entrada" th:errorclass="entrada-invalida"
+                       inputmode="decimal" aria-describedby="precoBase-dica precoBase-erro">
+                <span id="precoBase-dica" class="dica">Sem desconto; o de sócio é aplicado na compra.</span>
+                <span id="precoBase-erro" class="erro-campo" th:if="${#fields.hasErrors('precoBase')}" th:errors="*{precoBase}"></span>
             </div>
-            <div class="field">
-                <label for="estoque">Estoque</label>
-                <input type="number" min="1" id="estoque" th:field="*{estoque}">
-                <span class="field-error" th:if="${#fields.hasErrors('estoque')}" th:errors="*{estoque}"></span>
+            <div class="campo">
+                <label for="estoque" class="rotulo">Ingressos no lote</label>
+                <input type="number" min="1" id="estoque" th:field="*{estoque}" class="entrada" th:errorclass="entrada-invalida"
+                       inputmode="numeric" aria-describedby="estoque-erro">
+                <span id="estoque-erro" class="erro-campo" th:if="${#fields.hasErrors('estoque')}" th:errors="*{estoque}"></span>
             </div>
         </div>
 
-        <div class="modal-actions">
-            <button type="button" class="btn btn-ghost" onclick="this.closest('dialog').close()">Cancelar</button>
-            <button type="submit" class="btn btn-brand">Salvar lote</button>
+        <div class="flex flex-col-reverse gap-3 border-t border-line pt-5 sm:flex-row sm:justify-end">
+            <button type="button" class="btn btn-contorno" onclick="this.closest('dialog').close()">Cancelar</button>
+            <button type="submit" class="btn btn-principal">Salvar lote</button>
         </div>
     </form>
 </dialog>

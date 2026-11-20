@@ -2,66 +2,77 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: base('Cadastrar jogo')}"/>
-    <link rel="stylesheet" th:href="@{/css/conta.css}">
 </head>
 <body>
 
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/navbar :: navbar('admin')}"></div>
 
-<main class="page page-narrow">
-    <a th:href="@{/admin}" class="back-link">&larr; Painel administrativo</a>
+<main id="conteudo" class="conteudo flex max-w-2xl flex-col gap-6 py-8 md:py-10">
+    <a th:replace="~{fragments/ui :: voltar(@{/admin}, 'Painel administrativo')}"></a>
 
-    <div class="panel">
-        <h1 style="font-size: 2.2rem; margin-bottom: 22px;">Cadastrar jogo</h1>
+    <div class="painel flex flex-col gap-6 p-6 sm:p-8">
+        <header th:replace="~{fragments/ui :: cabecalho('Cadastrar jogo',
+                'Depois de salvar, você define os lotes de ingressos de cada setor.')}"></header>
 
-        <form th:action="@{/admin/cadastro/jogo}" th:object="${cadastroJogoForm}" method="post" class="form" novalidate>
+        <form th:action="@{/admin/cadastro/jogo}" th:object="${cadastroJogoForm}" method="post"
+              class="flex flex-col gap-5" novalidate>
 
-            <div class="field-row">
-                <div class="field">
-                    <label for="casaId">Time da casa</label>
-                    <select id="casaId" th:field="*{casaId}">
-                        <option value="">Selecione</option>
-                        <option th:each="t : ${times}" th:value="${t.id}" th:text="${t.nome}"></option>
-                    </select>
-                    <span class="field-error" th:if="${#fields.hasErrors('casaId')}" th:errors="*{casaId}"></span>
+            <p th:if="${#fields.hasErrors('*')}" class="alerta alerta-erro" role="alert">
+                O jogo não foi salvo. Corrija os campos indicados abaixo.</p>
+
+            <fieldset class="flex flex-col gap-3">
+                <legend class="sr-only">Times</legend>
+                <div class="grid gap-5 sm:grid-cols-[1fr_auto_1fr] sm:items-start">
+                    <div class="campo">
+                        <label for="casaId" class="rotulo">Time da casa</label>
+                        <select id="casaId" th:field="*{casaId}" class="entrada" th:errorclass="entrada-invalida" aria-describedby="casaId-erro">
+                            <option value="">Selecione o time</option>
+                            <option th:each="t : ${times}" th:value="${t.id}" th:text="${t.nome}"></option>
+                        </select>
+                        <span id="casaId-erro" class="erro-campo" th:if="${#fields.hasErrors('casaId')}" th:errors="*{casaId}"></span>
+                    </div>
+                    <span class="hidden pt-10 font-display text-xl font-bold text-ink-muted sm:block" aria-hidden="true">x</span>
+                    <div class="campo">
+                        <label for="foraId" class="rotulo">Time visitante</label>
+                        <select id="foraId" th:field="*{foraId}" class="entrada" th:errorclass="entrada-invalida" aria-describedby="foraId-erro">
+                            <option value="">Selecione o time</option>
+                            <option th:each="t : ${times}" th:value="${t.id}" th:text="${t.nome}"></option>
+                        </select>
+                        <span id="foraId-erro" class="erro-campo" th:if="${#fields.hasErrors('foraId')}" th:errors="*{foraId}"></span>
+                    </div>
                 </div>
-                <div class="field">
-                    <label for="foraId">Time visitante</label>
-                    <select id="foraId" th:field="*{foraId}">
-                        <option value="">Selecione</option>
-                        <option th:each="t : ${times}" th:value="${t.id}" th:text="${t.nome}"></option>
-                    </select>
-                    <span class="field-error" th:if="${#fields.hasErrors('foraId')}" th:errors="*{foraId}"></span>
-                </div>
-            </div>
-            <span class="field-error" th:if="${#fields.hasErrors('timesDiferentes')}" th:errors="*{timesDiferentes}"></span>
+                <span class="erro-campo" th:if="${#fields.hasErrors('timesDiferentes')}" th:errors="*{timesDiferentes}"></span>
+            </fieldset>
 
-            <div class="field">
-                <label for="estadioId">Estádio</label>
-                <select id="estadioId" th:field="*{estadioId}">
-                    <option value="">Selecione</option>
+            <div class="campo">
+                <label for="estadioId" class="rotulo">Estádio</label>
+                <select id="estadioId" th:field="*{estadioId}" class="entrada" th:errorclass="entrada-invalida" aria-describedby="estadioId-erro">
+                    <option value="">Selecione o estádio</option>
                     <option th:each="e : ${estadios}" th:value="${e.id}" th:text="${e.nome}"></option>
                 </select>
-                <span class="field-error" th:if="${#fields.hasErrors('estadioId')}" th:errors="*{estadioId}"></span>
+                <span id="estadioId-erro" class="erro-campo" th:if="${#fields.hasErrors('estadioId')}" th:errors="*{estadioId}"></span>
             </div>
 
-            <div class="field-row">
-                <div class="field">
-                    <label for="dhJogo">Data e hora</label>
-                    <input type="datetime-local" id="dhJogo" th:field="*{dhJogo}">
-                    <span class="field-error" th:if="${#fields.hasErrors('dhJogo')}" th:errors="*{dhJogo}"></span>
+            <div class="grid gap-5 sm:grid-cols-2">
+                <div class="campo">
+                    <label for="dhJogo" class="rotulo">Data e hora</label>
+                    <input type="datetime-local" id="dhJogo" th:field="*{dhJogo}" class="entrada" th:errorclass="entrada-invalida" aria-describedby="dhJogo-erro">
+                    <span id="dhJogo-erro" class="erro-campo" th:if="${#fields.hasErrors('dhJogo')}" th:errors="*{dhJogo}"></span>
                 </div>
-                <div class="field">
-                    <label for="campeonato">Campeonato</label>
-                    <input type="text" id="campeonato" th:field="*{campeonato}" placeholder="Brasileirão 2026">
-                    <span class="field-error" th:if="${#fields.hasErrors('campeonato')}" th:errors="*{campeonato}"></span>
+                <div class="campo">
+                    <label for="campeonato" class="rotulo">Campeonato</label>
+                    <input type="text" id="campeonato" th:field="*{campeonato}" class="entrada" th:errorclass="entrada-invalida"
+                           placeholder="Brasileirão 2026" aria-describedby="campeonato-erro">
+                    <span id="campeonato-erro" class="erro-campo" th:if="${#fields.hasErrors('campeonato')}" th:errors="*{campeonato}"></span>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-brand btn-block">Salvar e cadastrar lotes</button>
+            <button type="submit" class="btn btn-principal w-full">Salvar e cadastrar lotes</button>
         </form>
     </div>
 </main>
+
+<footer th:replace="~{fragments/footer :: rodape}"></footer>
 
 </body>
 </html>

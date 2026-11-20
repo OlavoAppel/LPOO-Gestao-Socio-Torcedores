@@ -187,47 +187,48 @@ A interface é **web**. O Spring monta as páginas no servidor com Thymeleaf. O 
 | Perfil | `/perfil` | `perfil.html` | `USER` e `ADMIN` | Mensagem de boas-vindas |
 | Admin | `/admin` | `admin.html` | Só `ADMIN` | Mensagem de boas-vindas |
 
-A barra de navegação é um fragmento reutilizável (`fragments/navbar.html`). Todas as telas a incluem com `th:replace`.
+A barra de navegação é um fragmento reutilizável (`fragments/navbar.html`). Todas as telas a incluem com `th:replace`, passando o nome do link ativo (por exemplo `navbar('jogos')`). Outros fragmentos ficam em `templates/fragments`: `head` (fontes, tema e Tailwind), `marca` (brasão e logotipo), `footer`, `ui` (cabeçalho de página, alertas, estado vazio, link de voltar), `jogo` (placar do próximo jogo e linha de jogo) e `carteirinha`.
 
 ### 7.2 Componentes básicos
 
 | Componente | Onde aparece |
 |---|---|
-| Botão (`button`) | Avatar da barra, **Sair**, **Entrar**, **Cadastrar**, meses do calendário, **Comprar** |
-| Botão-link (`a.btn-cta`) | **Entrar** na barra, botão do próximo jogo |
-| Campo de texto | Usuário (login e cadastro), CPF |
-| Campo de senha | Login e cadastro |
-| Campo de e-mail | Cadastro |
-| Campo oculto | `loteId` no formulário de compra |
+| Botão (`button`) | Tema claro/escuro, menu da conta, **Sair da conta**, meses do calendário, **Comprar ingresso**, **Associar-se**, **Novo lote** |
+| Botão-link (`a.btn`) | **Entrar** na barra, **Comprar ingresso** no placar e nos jogos |
+| Campos de texto, senha, e-mail, data e seleção | Login, cadastro, cadastro de jogo e de lote |
+| Campo oculto | `loteId` (compra) e `categoriaId` (associação) |
 | Rótulo (`label`) | Todos os campos dos formulários |
-| Formulário (`form`) | Login, cadastro, logout e compra |
-| Link | **Voltar**, **Cadastre-se**, **Entrar**, **Saiba Mais** |
-| Menu suspenso | Menu do avatar |
-| Cartões | Próximo jogo, jogos da lista, lotes |
-| Imagem | Escudos dos times |
-| Mensagem de aviso | "Usuário ou senha inválidos." e "Você saiu da sua conta." |
+| Formulário (`form`) | Login, cadastro, logout, compra, associação, cancelamento, jogo e lote |
+| Menu suspenso | Menu da conta |
+| Placar | Próximo jogo, na home |
+| Ingresso com canhoto | Lotes à venda, ingressos comprados, confirmação de compra |
+| Carteirinha | Perfil e página de sócio, para quem é sócio |
+| Janela modal (`dialog`) | Novo lote |
+| Tabela | Métricas e lotes do jogo |
+| Imagem | Escudos dos times (com `alt`) |
+| Mensagem de aviso | Erros de login e de formulário, sucesso da associação |
 
 ### 7.3 Eventos
 
 | Evento | Onde | O que acontece |
 |---|---|---|
-| `onclick` no botão do avatar | `navbar.html` | A função `toggleProfileMenu(event)` abre e fecha o menu suspenso. |
-| `click` no documento | `navbar.html` | O menu suspenso fecha quando o usuário clica fora dele. |
-| `DOMContentLoaded` | `jogos.html` | A página liga o evento de clique aos botões de mês e mostra os jogos do mês ativo (setembro, no código). |
-| `click` nos botões de mês | `jogos.html` | O botão clicado fica ativo. Os cartões somem com animação de 150 ms. Só os jogos do mês escolhido voltam a aparecer. Sem jogos, a página mostra "Nenhum jogo encontrado para este mês." |
-| `submit` do formulário de login | `login.html` | O navegador envia `POST /login`. O Spring Security autentica. |
-| `submit` do formulário de cadastro | `cadastro.html` | O navegador envia `POST /cadastro`. |
-| `submit` do formulário de logout | `navbar.html` | O navegador envia `POST /logout`. |
+| `click` no botão de tema | `theme.js` | Alterna `data-theme` entre `light` e `dark` e salva a escolha. |
+| `click` no botão da conta | `theme.js` | Abre e fecha o menu suspenso. Clique fora ou `Esc` fecham. |
+| `DOMContentLoaded` | `jogos.html` | Marca os meses que têm jogos e mostra o mês do próximo jogo. |
+| `click` nos botões de mês | `jogos.html` | O botão fica com `aria-pressed="true"`. Só os jogos do mês aparecem. Sem jogos, aparece "Nenhum jogo neste mês". |
+| `click` em **Novo lote** | `lotes.html` | Abre o `dialog`. Se o envio voltar com erro, a página reabre o `dialog`. |
+| `DOMContentLoaded` e troca de tema | `dashboard.js` | Desenha os gráficos com as cores dos tokens. |
+| `submit` dos formulários | várias telas | O navegador envia o `POST` com o token CSRF. |
 
-### 7.4 Layouts
+### 7.4 Layouts e estilo
 
-O CSS usa três técnicas de layout:
+O estilo usa **Tailwind CSS v4**, carregado pelo CDN no fragmento `head.html`. O projeto não tem Node, então o Tailwind compila no navegador.
 
-- **Flexbox** nas barras, nos formulários, nos cartões e nas listas (`navbar.css`, `auth.css`, `jogos.css`, `ingressos.css`).
-- **CSS Grid** nos cartões de jogo (`.jogo-card`, `.confronto-verus`) e nos cartões de lote (`.lote-card`).
-- **Media queries** em `navbar.css` (largura até 900 px) e em `ingressos.css` (largura até 640 px).
+- **Flexbox** nas barras, formulários e listas.
+- **CSS Grid** no placar, nas linhas de jogo, nos ingressos e nas métricas.
+- **Responsivo** pelos prefixos do Tailwind (`sm:`, `md:`, `lg:`), de 360 px até desktop.
 
-O CSS fica em `static/css`: `main.css`, `navbar.css`, `auth.css`, `jogos.css` e `ingressos.css`.
+As cores, as fontes e a marca ficam em `static/css/tema.css`. Esse é o único arquivo para trocar a paleta. Os nomes do clube ficam em `messages.properties`.
 
 ### 7.5 Navegação
 

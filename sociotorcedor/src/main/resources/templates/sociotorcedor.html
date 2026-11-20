@@ -2,56 +2,90 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: base('Seja sócio')}"/>
-    <link rel="stylesheet" th:href="@{/css/conta.css}">
 </head>
 <body>
 
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/navbar :: navbar('socio')}"></div>
 
-<main class="page"
+<main id="conteudo" class="conteudo flex flex-col gap-8 py-10"
       th:with="assoc=${#authentication.principal.associado},
                socio=${#authentication.principal.associado != null and #authentication.principal.associado.categoria != null and !#authentication.principal.associado.categoria.naoAssociado}">
 
-    <div class="page-head">
-        <h1>Seja sócio</h1>
-        <p>Escolha uma categoria. Sócios pagam menos nos ingressos e acessam setores exclusivos.</p>
-    </div>
+    <header th:replace="~{fragments/ui :: cabecalho('Seja sócio',
+            'Escolha uma categoria. Quanto mais alta, maior o desconto nos ingressos e mais setores você pode comprar.')}"></header>
 
-    <div class="alerts">
-        <div class="alert alert-success" th:if="${sucesso}" th:text="${sucesso}"></div>
-        <div class="alert alert-error" role="alert" th:if="${erro}" th:text="${erro}"></div>
-    </div>
+    <div th:replace="~{fragments/ui :: alertas(${sucesso}, ${erro})}"></div>
 
-    <!-- Já é sócio -->
-    <section class="panel" th:if="${socio}" style="margin-bottom: 24px;">
-        <h2>Você é sócio</h2>
-        <dl class="dl">
-            <dt>Categoria atual</dt>
-            <dd><span class="badge badge-ok" th:text="${assoc.categoria.nome}">Categoria</span></dd>
-        </dl>
-        <form th:action="@{/sociotorcedor/revogarassociacao}" method="post" class="actions"
-              onsubmit="return confirm('Cancelar sua associação? Você perde os descontos de sócio.');">
-            <button type="submit" class="btn btn-ghost">Cancelar associação</button>
-        </form>
+    <!-- Já é sócio: carteirinha, benefícios e cancelamento -->
+    <section th:if="${socio}" class="painel grid gap-8 p-6 md:grid-cols-[auto_1fr] md:p-8" aria-labelledby="titulo-socio">
+        <section th:replace="~{fragments/carteirinha :: carteirinha(${assoc})}"></section>
+        <div class="flex flex-col gap-4">
+            <h2 id="titulo-socio" class="titulo-secao">Você é <span th:text="${assoc.categoria.nome}">Sócio Prata</span></h2>
+            <th:block th:if="${not #lists.isEmpty(beneficiosAtuais)}">
+                <h3 class="text-xl">Seus benefícios</h3>
+                <ul class="flex flex-col gap-2.5">
+                    <li th:each="b : ${beneficiosAtuais}" class="flex gap-3">
+                        <svg width="20" height="20" class="mt-0.5 size-5 shrink-0 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+                        <span><strong th:text="${b.nome}">Benefício</strong><span th:if="${b.descricao}" class="text-ink-muted" th:text="${'. ' + b.descricao}"></span></span>
+                    </li>
+                </ul>
+            </th:block>
+            <form th:action="@{/sociotorcedor/revogarassociacao}" method="post" class="mt-auto pt-2"
+                  onsubmit="return confirm('Cancelar sua associação? Você perde os descontos de sócio a partir de agora.');">
+                <button type="submit" class="btn btn-contorno text-danger">Cancelar associação</button>
+            </form>
+        </div>
     </section>
 
-    <!-- Categorias -->
-    <div class="planos">
-        <article class="panel plano" th:each="cat : ${categorias}">
-            <h3 th:text="${cat.nome}">Categoria</h3>
-            <p class="plano-preco">
-                <span th:text="${'R$ ' + #numbers.formatDecimal(cat.mensalidade, 1, 'POINT', 2, 'COMMA')}">R$ 2,50</span>
-                <small>/ mês</small>
-            </p>
-            <form th:action="@{/sociotorcedor/associar}" method="post">
-                <input type="hidden" name="categoriaId" th:value="${cat.id}">
-                <button type="submit" class="btn btn-cta btn-block" th:disabled="${socio}"
-                        th:text="${socio} ? 'Cancele a atual para trocar' : 'Associar-se'">Associar-se</button>
-            </form>
-        </article>
-    </div>
+    <!-- Categorias, da mais simples para a mais completa -->
+    <section class="flex flex-col gap-4" aria-labelledby="titulo-categorias">
+        <h2 id="titulo-categorias" class="titulo-secao" th:text="${socio} ? 'Todas as categorias' : 'Categorias'">Categorias</h2>
+        <p th:if="${socio}" class="text-ink-muted">Para trocar de categoria, cancele a atual e associe-se de novo.</p>
+
+        <ul class="grid gap-4 md:grid-cols-3">
+            <li th:each="cat : ${categorias}"
+                th:with="atual=${socio and assoc.categoria.id == cat.id}"
+                class="painel flex flex-col gap-5 p-6"
+                th:classappend="${atual} ? 'outline-2 -outline-offset-1 outline-brand'">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h3 class="text-2xl" th:text="${cat.nome}">Sócio Prata</h3>
+                    <span th:if="${atual}" class="selo bg-brand text-brand-ink">Seu plano</span>
+                </div>
+
+                <p class="flex items-baseline gap-2">
+                    <span class="numero text-5xl leading-none text-brand"
+                          th:text="${#numbers.formatDecimal(cat.descontoIngresso ?: 0, 1, 0, 'COMMA') + '%'}">25%</span>
+                    <span class="font-semibold leading-tight">de desconto<br>nos ingressos</span>
+                </p>
+
+                <p class="border-y border-line py-3">
+                    <span class="numero text-2xl" th:text="${'R$ ' + #numbers.formatDecimal(cat.mensalidade, 1, 'POINT', 2, 'COMMA')}">R$ 59,90</span>
+                    <span class="text-ink-muted">por mês</span>
+                </p>
+
+                <ul class="flex flex-col gap-2.5" th:if="${not #lists.isEmpty(cat.beneficios)}">
+                    <th:block th:each="b : ${cat.beneficios}">
+                        <li th:if="${b.descontoIngresso == null or b.descontoIngresso.signum() == 0}" class="flex gap-3">
+                            <svg width="20" height="20" class="mt-0.5 size-5 shrink-0 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+                            <span><strong th:text="${b.nome}">Camiseta do sócio</strong><span th:if="${b.descricao}" class="block text-ink-muted" th:text="${b.descricao}"></span></span>
+                        </li>
+                    </th:block>
+                </ul>
+
+                <form th:action="@{/sociotorcedor/associar}" method="post" class="mt-auto">
+                    <input type="hidden" name="categoriaId" th:value="${cat.id}">
+                    <button type="submit" class="btn btn-principal w-full" th:disabled="${socio}">
+                        <th:block th:if="${!socio}">Associar-se<span class="sr-only" th:text="${' ao ' + cat.nome}"> ao Sócio Prata</span></th:block>
+                        <th:block th:if="${socio}" th:text="${atual} ? 'Seu plano atual' : 'Cancele o plano atual para trocar'">Seu plano atual</th:block>
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </section>
 
 </main>
+
+<footer th:replace="~{fragments/footer :: rodape}"></footer>
 
 </body>
 </html>

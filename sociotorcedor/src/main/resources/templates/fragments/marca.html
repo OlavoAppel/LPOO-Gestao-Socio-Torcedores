@@ -1,0 +1,29 @@
+<!--
+    Marca do clube (fictício). Para trocar de clube:
+    1. desenhe outro brasão no fragmento "brasao" abaixo;
+    2. troque os nomes em messages.properties (clube.*);
+    3. troque as cores --crest-* e a paleta em static/css/tema.css.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Brasão: escudo azul-lagoa, faixa ondulada laranja (a lagoa), estrela e o L. Uso: brasao('size-10') -->
+<svg th:fragment="brasao(classe)" th:class="${classe}" width="40" height="48" viewBox="0 0 40 48" aria-hidden="true" focusable="false">
+    <path d="M3 3h34v19c0 12.5-8 19.5-17 23.5C11 41.5 3 34.5 3 22z"
+          style="fill: var(--crest-1); stroke: var(--crest-3); stroke-width: 2"/>
+    <path d="M4 14c5.3-3 10.7 3 16 0s10.7-3 16 0v6.5c-5.3-3-10.7 3-16 0s-10.7 3-16 0z"
+          style="fill: var(--crest-2)"/>
+    <path d="M20 4.6l1.25 2.55 2.8.4-2.03 1.98.48 2.8L20 11l-2.5 1.33.48-2.8-2.03-1.98 2.8-.4z"
+          style="fill: var(--crest-3)"/>
+    <path d="M15.5 25h4.2v10.8H27V40H15.5z" style="fill: var(--crest-3)"/>
+</svg>
+
+<!-- Logotipo completo (brasão + nome), usado na navbar e no rodapé -->
+<a th:fragment="logotipo" th:href="@{/}" class="flex shrink-0 items-center gap-2.5 rounded-md">
+    <svg th:replace="~{fragments/marca :: brasao('h-10 w-auto')}"></svg>
+    <span class="flex flex-col">
+        <span class="font-display text-xl leading-none text-ink [font-stretch:75%] font-extrabold" th:text="#{clube.curto}">Lagoa EC</span>
+        <span class="text-sm leading-tight text-ink-muted" th:text="#{clube.programa}">Sócio-torcedor</span>
+    </span>
+</a>
+
+</html>

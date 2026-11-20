@@ -4,7 +4,9 @@ import com.ifsul.lpoo.sociotorcedor.core.model.base.CategoriaSocio;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
@@ -40,8 +42,10 @@ public class Associado {
     @Column(name = "ASSOCIADO_DATANASCIMENTO")
     private LocalDate dataNascimento;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "ASSOCIADO_USUARIO", referencedColumnName = "USER_ID")
+    /** Lado inverso: a chave está em Usuario.USER_ASSOCIADO, então não há coluna aqui. */
+    @OneToOne(mappedBy = "associado", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Usuario usuario;
 
 }

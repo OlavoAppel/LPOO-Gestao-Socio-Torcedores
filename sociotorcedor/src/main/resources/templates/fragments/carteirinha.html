@@ -1,0 +1,36 @@
+<!-- Carteirinha de sócio (Associado: nome, categoria, id, dataAdesao). Usa as cores fixas do brasão,
+     iguais nos dois temas, como um cartão físico. Uso: carteirinha(${assoc}) -->
+<section th:fragment="carteirinha(assoc)" aria-label="Carteirinha de sócio"
+         class="relative isolate flex aspect-[1.586] w-full max-w-sm flex-col justify-between overflow-hidden rounded-2xl bg-crest-1 p-5 text-crest-3 shadow-lg ring-1 ring-crest-3/15"
+         xmlns:th="http://www.thymeleaf.org">
+    <!-- faixa ondulada do brasão atravessando o cartão -->
+    <svg width="320" height="36" class="absolute inset-x-0 top-[38%] -z-10 h-9 w-full" viewBox="0 0 320 36" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 10c40-12 80 12 120 0s80-12 120 0 60 8 80 2v24c-20 6-40-2-80-14s-80 12-120 0S40 14 0 26z" style="fill: var(--crest-2)"/>
+    </svg>
+
+    <div class="flex items-center gap-3">
+        <svg th:replace="~{fragments/marca :: brasao('h-11 w-auto')}"></svg>
+        <p class="leading-tight">
+            <span class="block font-display text-lg font-extrabold [font-stretch:75%]" th:text="#{clube.nome}">Lagoa Esporte Clube</span>
+            <span class="block text-sm opacity-85" th:text="#{clube.programa}">Sócio-torcedor</span>
+        </p>
+    </div>
+
+    <div>
+        <p class="truncate font-display text-2xl font-bold [font-stretch:75%]" th:text="${assoc.nome}">Ana Souza</p>
+        <dl class="mt-2 grid grid-cols-3 gap-3 text-sm">
+            <div>
+                <dt class="opacity-85">Categoria</dt>
+                <dd class="font-bold" th:text="${assoc.categoria.nome}">Sócio Prata</dd>
+            </div>
+            <div>
+                <dt class="opacity-85">Matrícula</dt>
+                <dd class="font-bold tabular-nums" th:text="${#numbers.formatInteger(assoc.id, 6)}">000012</dd>
+            </div>
+            <div th:if="${assoc.dataAdesao != null}">
+                <dt class="opacity-85">Sócio desde</dt>
+                <dd class="font-bold tabular-nums" th:text="${#temporals.format(assoc.dataAdesao, 'MM/yyyy')}">10/2026</dd>
+            </div>
+        </dl>
+    </div>
+</section>

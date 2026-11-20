@@ -25,6 +25,20 @@ public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
                                               @Param("inicio") LocalDateTime inicio,
                                               @Param("fim") LocalDateTime fim);
 
+    // Ingressos de um usuário, já com jogo/times/estádio/setor carregados (evita lazy na view).
+    @Query("""
+            select i from Ingresso i
+            join fetch i.lote l
+            join fetch l.jogo j
+            join fetch j.casa
+            join fetch j.fora
+            join fetch j.estadio
+            left join fetch l.setor
+            where i.associado.id = (select u.associado.id from Usuario u where u.username = :username)
+            order by j.dhJogo desc, i.dhCompra desc
+            """)
+    java.util.List<Ingresso> buscarDoUsuario(@Param("username") String username);
+
     long countByStatusAndDhCompraGreaterThanEqualAndDhCompraLessThan(StatusIngresso status,
                                                                       LocalDateTime inicio,
                                                                       LocalDateTime fim);

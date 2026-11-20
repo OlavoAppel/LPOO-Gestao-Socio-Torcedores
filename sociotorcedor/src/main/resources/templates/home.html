@@ -2,57 +2,64 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: base('Início')}"/>
-    <link rel="stylesheet" th:href="@{/css/jogos.css}">
 </head>
 <body>
 
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/navbar :: navbar('inicio')}"></div>
 
-<main class="page">
+<main id="conteudo"
+      th:with="proximo=${jogosData.proximoJogo},
+               seguintes=${jogosData.jogosList == null ? null : jogosData.jogosList.?[dhJogo.isAfter(#temporals.createNow()) and (#root.proximo == null or id != #root.proximo.id)]}">
 
-    <h1 class="hero-title">Seu lugar na arquibancada.</h1>
+    <th:block th:if="${proximo != null}">
+        <section th:replace="~{fragments/jogo :: placar(${proximo})}"></section>
+    </th:block>
 
-    <article class="ticket ticket-hero" th:if="${jogosData.proximoJogo != null}">
-        <div class="ticket-main">
-            <div class="match-main">
-                <div class="match-info">
-                    <span class="match-campeonato" th:text="${jogosData.proximoJogo.campeonato}">Campeonato</span>
-                    <span class="match-quando"
-                          th:text="${#temporals.format(jogosData.proximoJogo.dhJogo, 'dd/MM/yyyy (EEEE) · HH:mm')}">19/09/2026 · 21:00</span>
-                    <span class="match-estadio" th:text="${jogosData.proximoJogo.nomeEstadio}">Estádio</span>
-                </div>
-                <div class="versus">
-                    <img th:src="@{${jogosData.proximoJogo.casa.escudoPath}}" th:alt="${jogosData.proximoJogo.casa.sigla}" class="escudo-img">
-                    <span class="x">x</span>
-                    <img th:src="@{${jogosData.proximoJogo.fora.escudoPath}}" th:alt="${jogosData.proximoJogo.fora.sigla}" class="escudo-img">
-                </div>
-            </div>
-        </div>
-        <div class="ticket-stub">
-            <span class="stub-label">Próximo jogo</span>
-            <a th:href="@{/ingressos(jogoId=${jogosData.proximoJogo.id})}" class="btn btn-cta">Comprar ingressos</a>
-        </div>
-    </article>
-
-    <div class="empty" th:if="${jogosData.proximoJogo == null}">
-        <strong>Nenhum jogo marcado por enquanto</strong>
-        Assim que a próxima partida for cadastrada, ela aparece aqui.
+    <div class="conteudo flex flex-col gap-6 pt-10" th:if="${proximo == null}">
+        <h1 class="titulo-pagina">Próximo jogo</h1>
+        <div th:replace="~{fragments/ui :: vazio('Nenhum jogo marcado por enquanto',
+                'Assim que a próxima partida for cadastrada, ela aparece aqui com o horário e o estádio.',
+                @{/jogos}, 'Ver o calendário')}"></div>
     </div>
 
-    <section class="feature-row">
-        <div class="panel feature">
-            <h2>Calendário</h2>
-            <p>Todas as partidas da temporada, mês a mês, com estádio e horário.</p>
-            <a th:href="@{/jogos}" class="btn btn-ghost">Ver jogos</a>
-        </div>
-        <div class="panel feature">
-            <h2>Seja sócio</h2>
-            <p>Associe-se para ter desconto nos ingressos e acesso a setores exclusivos.</p>
-            <a th:href="@{/sociotorcedor}" class="btn btn-brand">Quero ser sócio</a>
-        </div>
-    </section>
+    <div class="conteudo grid gap-10 py-10 md:py-14 lg:grid-cols-[1fr_22rem] lg:gap-12">
 
+        <section aria-labelledby="titulo-seguintes" class="flex flex-col gap-4">
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 id="titulo-seguintes" class="titulo-secao">Jogos seguintes</h2>
+                <a th:href="@{/jogos}" class="link">Calendário completo</a>
+            </div>
+            <th:block th:if="${seguintes != null and not #lists.isEmpty(seguintes)}">
+                <th:block th:each="jogo, st : ${seguintes}" th:if="${st.index < 3}">
+                    <article th:replace="~{fragments/jogo :: linha(${jogo}, false)}"></article>
+                </th:block>
+            </th:block>
+            <p th:if="${seguintes == null or #lists.isEmpty(seguintes)}" class="text-ink-muted">
+                Ainda não há outros jogos marcados para este ano.</p>
+        </section>
+
+        <aside aria-labelledby="titulo-socio" class="painel flex flex-col gap-4 self-start p-6">
+            <h2 id="titulo-socio" class="titulo-secao">Seja sócio do <span th:text="#{clube.curto}">Lagoa EC</span></h2>
+            <ul class="flex flex-col gap-3">
+                <li class="flex gap-3">
+                    <svg width="20" height="20" class="mt-0.5 size-5 shrink-0 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+                    <span>Desconto em todos os ingressos, maior a cada categoria.</span>
+                </li>
+                <li class="flex gap-3">
+                    <svg width="20" height="20" class="mt-0.5 size-5 shrink-0 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+                    <span>Acesso a setores exclusivos, como o camarote.</span>
+                </li>
+                <li class="flex gap-3">
+                    <svg width="20" height="20" class="mt-0.5 size-5 shrink-0 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+                    <span>Brindes e experiências no clube.</span>
+                </li>
+            </ul>
+            <a th:href="@{/sociotorcedor}" class="btn btn-principal">Conhecer os planos</a>
+        </aside>
+    </div>
 </main>
+
+<footer th:replace="~{fragments/footer :: rodape}"></footer>
 
 </body>
 </html>

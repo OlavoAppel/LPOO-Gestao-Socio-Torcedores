@@ -18,8 +18,14 @@ public class SocioTorcedorController {
     private final SocioTorcedorService socioTorcedorService;
 
     @GetMapping
-    public String socioTorcedor(Model model) {
+    public String socioTorcedor(@AuthenticationPrincipal Usuario usuario, Model model) {
         model.addAttribute("categorias", socioTorcedorService.listarCategoriasDisponiveis());
+
+        // benefícios da categoria atual, para o sócio ver o que já recebe
+        if (usuario != null && usuario.getAssociado() != null && !usuario.getAssociado().getCategoria().isNaoAssociado()) {
+            model.addAttribute("beneficiosAtuais",
+                    socioTorcedorService.listarBeneficios(usuario.getAssociado().getCategoria().getId()));
+        }
         return "sociotorcedor";
     }
 

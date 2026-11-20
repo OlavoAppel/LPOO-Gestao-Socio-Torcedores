@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/head :: base('Compra concluída')}"/>
-    <link rel="stylesheet" th:href="@{/css/ingressos.css}">
+    <th:block th:replace="~{fragments/head :: base('Ingresso comprado')}"/>
 </head>
 <body>
 
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/navbar :: navbar('')}"></div>
 
-<main class="page page-ingressos">
-    <article class="ticket ticket-ok">
-        <div class="ticket-main">
-            <h1>Ingresso garantido.</h1>
-            <p>Sua compra foi concluída. Nos vemos na arquibancada!</p>
+<main id="conteudo" class="conteudo flex max-w-3xl flex-col py-10 md:py-16">
+    <article class="ingresso">
+        <div class="flex flex-col gap-3 p-6 sm:p-8">
+            <h1 class="titulo-pagina">Ingresso comprado</h1>
+            <p class="apoio">
+                Ele já está em Minha conta, com o código para a entrada no estádio. Nos vemos na arquibancada!</p>
         </div>
-        <div class="ticket-stub">
-            <a th:href="@{/jogos}" class="btn btn-cta">Ver mais jogos</a>
-            <a th:href="@{/}" class="btn btn-ghost">Ir para o início</a>
+        <div class="ingresso-canhoto items-start justify-center gap-4 sm:items-stretch">
+            <span class="carimbo self-center rounded-md border-[3px] border-success px-3 py-1 font-display text-2xl font-extrabold text-success [font-stretch:75%]"
+                  aria-hidden="true">Pago</span>
+            <a th:href="@{/perfil}" class="btn btn-principal w-full">Ver meus ingressos</a>
+            <a th:href="@{/jogos}" class="btn btn-contorno w-full">Ver outros jogos</a>
         </div>
     </article>
 </main>
+
+<footer th:replace="~{fragments/footer :: rodape}"></footer>
 
 </body>
 </html>

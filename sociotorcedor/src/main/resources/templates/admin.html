@@ -2,31 +2,46 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: base('Painel administrativo')}"/>
-    <link rel="stylesheet" th:href="@{/css/conta.css}">
 </head>
 <body>
 
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/navbar :: navbar('admin')}"></div>
 
-<main class="page">
-    <div class="page-head">
-        <h1>Painel administrativo</h1>
-        <p>Olá, <span th:text="${#authentication.principal.username}">admin</span>. O que você quer fazer?</p>
-    </div>
+<main id="conteudo" class="conteudo flex max-w-3xl flex-col gap-8 py-10">
+    <header class="flex flex-col gap-2">
+        <h1 class="titulo-pagina">Painel administrativo</h1>
+        <p class="apoio">Olá, <span th:text="${#authentication.principal.username}">admin</span>. O que você quer fazer?</p>
+    </header>
 
-    <div class="admin-links">
-        <section class="panel admin-link">
-            <h2>Cadastrar jogo</h2>
-            <p>Registre uma partida e depois defina os lotes de ingressos de cada setor.</p>
-            <a th:href="@{/admin/cadastro/jogo}" class="btn btn-brand">Novo jogo</a>
-        </section>
-        <section class="panel admin-link">
-            <h2>Métricas</h2>
-            <p>Total de sócios, novos associados e arrecadação por categoria.</p>
-            <a th:href="@{/admin/metricas}" class="btn btn-ghost">Ver métricas</a>
-        </section>
-    </div>
+    <ul class="painel divide-y divide-line overflow-hidden">
+        <li>
+            <a th:href="@{/admin/cadastro/jogo}" class="group flex items-center gap-4 p-5 hover:bg-surface-2 sm:p-6">
+                <span class="grid size-12 shrink-0 place-items-center rounded-lg bg-brand text-brand-ink" aria-hidden="true">
+                    <svg width="24" height="24" class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>
+                </span>
+                <span class="min-w-0 flex-1">
+                    <span class="block font-display text-2xl font-bold [font-stretch:75%]">Cadastrar jogo</span>
+                    <span class="block text-ink-muted">Registre a partida e, em seguida, os lotes de ingressos de cada setor.</span>
+                </span>
+                <svg width="20" height="20" class="size-5 shrink-0 text-ink-muted group-hover:text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/admin/metricas}" class="group flex items-center gap-4 p-5 hover:bg-surface-2 sm:p-6">
+                <span class="grid size-12 shrink-0 place-items-center rounded-lg bg-surface-2 text-brand" aria-hidden="true">
+                    <svg width="24" height="24" class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+                </span>
+                <span class="min-w-0 flex-1">
+                    <span class="block font-display text-2xl font-bold [font-stretch:75%]">Ver métricas</span>
+                    <span class="block text-ink-muted">Sócios por categoria, novos associados, ocupação e receita dos próximos jogos.</span>
+                </span>
+                <svg width="20" height="20" class="size-5 shrink-0 text-ink-muted group-hover:text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </a>
+        </li>
+    </ul>
 </main>
+
+<footer th:replace="~{fragments/footer :: rodape}"></footer>
 
 </body>
 </html>

@@ -1,0 +1,145 @@
+/* ==========================================================================
+   TEMA — único lugar para trocar a paleta, as fontes e a marca.
+
+   Os templates usam só nomes semânticos (bg-surface, text-ink, bg-brand...),
+   mapeados para estas variáveis no bloco @theme de fragments/head.html.
+   Tema claro é o padrão; o escuro entra com <html data-theme="dark">
+   (botão da navbar, /js/theme.js). Gráficos do admin leem --chart-* e --ink*.
+
+   Este arquivo também guarda o pouco que o Tailwind não cobre:
+   pintura antes do Tailwind compilar, [hidden], foco e movimento reduzido.
+   ========================================================================== */
+
+/* Marca: Lagoa Esporte Clube (clube fictício). Igual nos dois temas,
+   porque brasão e carteirinha são identidade, não interface. */
+:root {
+    --crest-1: #0e4a5e;   /* azul-lagoa */
+    --crest-2: #f0902a;   /* laranja-biguá */
+    --crest-3: #ffffff;   /* faixa clara e contorno */
+
+    --fonte-titulo: "Saira", "Arial Narrow", sans-serif;
+    --fonte-texto:  "Atkinson Hyperlegible Next", "Segoe UI", system-ui, sans-serif;
+}
+
+/* Tema claro */
+:root,
+:root[data-theme="light"] {
+    color-scheme: light;
+
+    --bg:          #edf2f4;   /* fundo da página (frio, puxado para a água) */
+    --surface:     #ffffff;   /* painéis, formulários, tabelas */
+    --surface-2:   #e2eaee;   /* áreas rebaixadas e hover */
+    --line:        #c5d3d9;   /* divisórias */
+    --line-strong: #758f99;   /* borda de campos (3:1 sobre a superfície) */
+
+    --ink:         #0b2530;
+    --ink-muted:   #4a626c;
+
+    --brand:       #0e4a5e;   /* azul-lagoa: links, botões principais */
+    --brand-hover: #0a3a4a;
+    --brand-ink:   #ffffff;   /* texto sobre --brand */
+
+    --accent:       #f0902a;  /* laranja-biguá: comprar ingresso */
+    --accent-hover: #e07e14;
+    --accent-ink:   #1f1206;  /* texto sobre --accent */
+
+    --focus:       #b85a00;   /* anel de foco (4:1 sobre o fundo) */
+
+    --danger:      #b3261e;
+    --danger-bg:   #fcedeb;
+    --success:     #0f6b4f;
+    --success-bg:  #e5f4ee;
+
+    /* placar do próximo jogo (sempre escuro, como um placar de estádio) */
+    --placar:        #08222c;
+    --placar-ink:    #e4eef1;
+    --placar-muted:  #8fb0bc;
+    --led:           #ffb347;
+
+    /* gráficos: ordem fixa, validada para daltonismo sobre --surface */
+    --chart-1: #2683a8;
+    --chart-2: #e07a1f;
+    --chart-3: #17a27e;
+    --chart-4: #7b63d6;
+    --chart-5: #d5527f;
+}
+
+/* Tema escuro */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --bg:          #061a22;
+    --surface:     #0c2832;
+    --surface-2:   #12333f;
+    --line:        #1f4452;
+    --line-strong: #5a808e;
+
+    --ink:         #e4eef1;
+    --ink-muted:   #93b0ba;
+
+    --brand:       #5db7cf;
+    --brand-hover: #7cc8dc;
+    --brand-ink:   #04161d;
+
+    --accent:       #f5a548;
+    --accent-hover: #f8b868;
+    --accent-ink:   #1f1206;
+
+    --focus:       #f5a548;
+
+    --danger:      #ff8f80;
+    --danger-bg:   #3a1a17;
+    --success:     #5fd1a6;
+    --success-bg:  #0f2e26;
+
+    --placar:        #020f14;
+    --placar-ink:    #e4eef1;
+    --placar-muted:  #8fb0bc;
+    --led:           #ffb347;
+
+    --chart-1: #2f8fb5;
+    --chart-2: #cf6f22;
+    --chart-3: #1c9573;
+    --chart-4: #8270db;
+    --chart-5: #c9507f;
+}
+
+/* --------------------------------------------------------------------------
+   Paleta alternativa de exemplo ("Grená do Cerro"). Para trocar de clube,
+   substitua os valores acima por estes (e ajuste o escuro no mesmo espírito):
+
+   --crest-1: #6b1f2a;  --crest-2: #e8c547;
+   --brand:   #6b1f2a;  --brand-hover: #551822;  --brand-ink: #ffffff;
+   --accent:  #e8c547;  --accent-hover: #d9b532; --accent-ink: #231b02;
+   --bg:      #f2efef;  --surface-2: #e9e3e3;    --line: #d6cccc;
+   --ink:     #2a1013;  --ink-muted: #6a5356;    --focus: #8a5a00;
+   --placar:  #1e0a0d;  --led: #ffd166;
+   escuro: --brand: #e58b97; --brand-ink: #1e0a0d; --bg: #160709; --surface: #241013;
+   -------------------------------------------------------------------------- */
+
+/* Pinta fundo e texto antes de o Tailwind compilar (evita clarão no tema escuro).
+   Fica no <html> para não competir com utilitários aplicados no <body>. */
+html {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--fonte-texto);
+}
+
+/* o atributo hidden sempre vence classes de display */
+[hidden] { display: none !important; }
+
+:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+}
+
+/* placar: o anel de foco precisa aparecer sobre o painel escuro */
+.placar :focus-visible { outline-color: var(--led); }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-delay: 0s !important;
+        transition-duration: 0.001ms !important;
+    }
+}

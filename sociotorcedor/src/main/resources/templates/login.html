@@ -1,41 +1,49 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <!-- Gera o token CSRF (e a sessão) antes do cabeçalho grande ser enviado ao navegador;
+         sem isto o formulário falha com "Cannot create a session after the response has been committed". -->
+    <meta name="_csrf" th:content="${_csrf.token}">
     <th:block th:replace="~{fragments/head :: base('Entrar')}"/>
-    <link rel="stylesheet" th:href="@{/css/auth.css}">
 </head>
 <body>
 
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/navbar :: navbar('')}"></div>
 
-<main class="page page-narrow auth-page">
-    <div class="panel auth-panel">
-        <h1>Entrar</h1>
-        <p class="lead">Acesse sua conta para comprar ingressos e gerenciar sua associação.</p>
+<main id="conteudo" class="conteudo flex justify-center py-10 md:py-16">
+    <div class="painel flex w-full max-w-md flex-col gap-6 p-6 sm:p-8">
+        <header th:replace="~{fragments/ui :: cabecalho('Entrar',
+                'Acesse sua conta para comprar ingressos e cuidar da sua associação.')}"></header>
 
-        <div class="alerts">
-            <div th:if="${param.error}" class="alert alert-error" role="alert">Usuário ou senha incorretos. Confira os dados e tente de novo.</div>
-            <div th:if="${param.logout}" class="alert alert-success">Você saiu da sua conta.</div>
-            <div th:if="${sucesso}" class="alert alert-success" th:text="${sucesso}"></div>
+        <div class="flex flex-col gap-2" th:if="${param.error != null or param.logout != null or sucesso != null}">
+            <p th:if="${param.error}" class="alerta alerta-erro" role="alert">
+                Usuário ou senha incorretos. Confira os dois campos e tente de novo.</p>
+            <p th:if="${param.logout}" class="alerta alerta-ok" role="status">Você saiu da sua conta.</p>
+            <p th:if="${sucesso}" class="alerta alerta-ok" role="status" th:text="${sucesso}"></p>
         </div>
 
-        <form th:action="@{/login}" method="post" class="form">
-            <div class="field">
-                <label for="login-user">Usuário</label>
-                <input type="text" id="login-user" name="username" autocomplete="username" required autofocus>
+        <form th:action="@{/login}" method="post" class="flex flex-col gap-5">
+            <div class="campo">
+                <label for="login-user" class="rotulo">Usuário</label>
+                <input type="text" id="login-user" name="username" class="entrada"
+                       autocomplete="username" autocapitalize="none" required autofocus>
             </div>
 
-            <div class="field">
-                <label for="login-pass">Senha</label>
-                <input type="password" id="login-pass" name="password" autocomplete="current-password" required>
+            <div class="campo">
+                <label for="login-pass" class="rotulo">Senha</label>
+                <input type="password" id="login-pass" name="password" class="entrada"
+                       autocomplete="current-password" required>
             </div>
 
-            <button type="submit" class="btn btn-brand btn-block">Entrar</button>
+            <button type="submit" class="btn btn-principal w-full">Entrar</button>
         </form>
 
-        <p class="auth-footer">Ainda não tem conta? <a th:href="@{/cadastro}">Criar conta</a></p>
+        <p class="border-t border-line pt-5 text-ink-muted">
+            Ainda não tem conta? <a th:href="@{/cadastro}" class="link">Criar conta</a></p>
     </div>
 </main>
+
+<footer th:replace="~{fragments/footer :: rodape}"></footer>
 
 </body>
 </html>

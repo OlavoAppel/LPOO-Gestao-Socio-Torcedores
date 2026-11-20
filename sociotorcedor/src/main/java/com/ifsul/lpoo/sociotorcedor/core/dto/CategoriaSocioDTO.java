@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,5 +17,6 @@ public class CategoriaSocioDTO {
     private BigDecimal mensalidade;
     private BigDecimal descontoIngresso;
     private Integer hierarquia;
+    private List<BeneficioSocioDTO> beneficios;
 
 }

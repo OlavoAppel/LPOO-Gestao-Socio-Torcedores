@@ -1,0 +1,20 @@
+<!-- Rodapé. Uso: <footer th:replace="~{fragments/footer :: rodape}"></footer> -->
+<footer th:fragment="rodape" class="mt-auto border-t border-line bg-surface" xmlns:th="http://www.thymeleaf.org">
+    <div class="conteudo grid gap-6 py-8 text-sm text-ink-muted md:grid-cols-[1fr_auto] md:items-start">
+        <div class="flex items-start gap-3">
+            <svg th:replace="~{fragments/marca :: brasao('h-12 w-auto shrink-0')}"></svg>
+            <p class="max-w-[52ch]">
+                <strong class="text-ink" th:text="#{clube.nome}">Lagoa Esporte Clube</strong> é um clube fictício,
+                criado para o trabalho de Linguagem de Programação Orientada a Objetos do IFSul.
+                Os escudos dos adversários pertencem aos respectivos clubes e aparecem aqui só para fins educacionais.
+            </p>
+        </div>
+        <nav aria-label="Rodapé">
+            <ul class="flex flex-wrap gap-x-5 gap-y-2 font-semibold text-ink">
+                <li><a th:href="@{/jogos}" class="hover:underline">Jogos</a></li>
+                <li><a th:href="@{/sociotorcedor}" class="hover:underline">Seja sócio</a></li>
+                <li><a th:href="@{/perfil}" class="hover:underline">Minha conta</a></li>
+            </ul>
+        </nav>
+    </div>
+</footer>

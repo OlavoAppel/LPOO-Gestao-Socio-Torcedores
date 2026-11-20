@@ -2,143 +2,151 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: base('Métricas')}"/>
-    <link rel="stylesheet" th:href="@{/css/conta.css}">
 </head>
 <body>
 
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/navbar :: navbar('admin')}"></div>
 
-<main class="page">
-    <a th:href="@{/admin}" class="back-link">&larr; Painel administrativo</a>
-
-    <div class="page-head">
-        <h1>Métricas</h1>
-        <p>Números de sócios e de ingressos. Os valores "no mês" consideram o mês atual.</p>
+<main id="conteudo" class="conteudo flex flex-col gap-10 py-8 md:py-10">
+    <div class="flex flex-col gap-3">
+        <a th:replace="~{fragments/ui :: voltar(@{/admin}, 'Painel administrativo')}"></a>
+        <header th:replace="~{fragments/ui :: cabecalho('Métricas',
+                'Sócios e ingressos. Os números “no mês” contam só o mês atual.')}"></header>
     </div>
 
-    <!-- Indicadores -->
-    <section class="stats">
-        <div class="panel stat">
-            <div class="stat-value" th:text="${dashboardInfo.associadosTotal ?: 0}">0</div>
-            <div class="stat-label">Sócios no total</div>
+    <!-- Indicadores: uma faixa só, contagens primeiro e valores em reais depois -->
+    <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line lg:grid-cols-5">
+        <div class="flex flex-col-reverse justify-end gap-1 bg-surface p-5">
+            <dt class="text-ink-muted">Sócios no total</dt>
+            <dd class="numero text-2xl sm:text-3xl" th:text="${dashboardInfo.associadosTotal ?: 0}">0</dd>
         </div>
-        <div class="panel stat">
-            <div class="stat-value" th:text="${dashboardInfo.novosAssociadosMesAtual ?: 0}">0</div>
-            <div class="stat-label">Novos sócios no mês</div>
+        <div class="flex flex-col-reverse justify-end gap-1 bg-surface p-5">
+            <dt class="text-ink-muted">Novos sócios no mês</dt>
+            <dd class="numero text-2xl sm:text-3xl" th:text="${dashboardInfo.novosAssociadosMesAtual ?: 0}">0</dd>
         </div>
-        <div class="panel stat">
-            <div class="stat-value" th:text="${dashboardInfo.ingressosVendidos ?: 0}">0</div>
-            <div class="stat-label">Ingressos vendidos no mês</div>
+        <div class="flex flex-col-reverse justify-end gap-1 bg-surface p-5">
+            <dt class="text-ink-muted">Ingressos vendidos no mês</dt>
+            <dd class="numero text-2xl sm:text-3xl" th:text="${dashboardInfo.ingressosVendidos ?: 0}">0</dd>
         </div>
-        <div class="panel stat">
-            <div class="stat-value"
-                 th:text="${'R$ ' + #numbers.formatDecimal(dashboardInfo.receitaIngressos ?: 0, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</div>
-            <div class="stat-label">Receita de ingressos no mês</div>
+        <div class="flex flex-col-reverse justify-end gap-1 bg-surface p-5">
+            <dt class="text-ink-muted">Receita de ingressos no mês</dt>
+            <dd class="numero text-2xl sm:text-3xl"
+                th:text="${'R$ ' + #numbers.formatDecimal(dashboardInfo.receitaIngressos ?: 0, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</dd>
         </div>
-        <div class="panel stat">
-            <div class="stat-value"
-                 th:text="${'R$ ' + #numbers.formatDecimal(dashboardInfo.ganhosTotais ?: 0, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</div>
-            <div class="stat-label">Arrecadação total</div>
+        <div class="col-span-2 lg:col-span-1 flex flex-col-reverse justify-end gap-1 bg-surface p-5">
+            <dt class="text-ink-muted">Arrecadação total</dt>
+            <dd class="numero text-2xl sm:text-3xl text-brand"
+                th:text="${'R$ ' + #numbers.formatDecimal(dashboardInfo.ganhosTotais ?: 0, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</dd>
         </div>
+    </dl>
+
+    <!-- Sócios por categoria: gráfico e tabela (a tabela é a versão em texto do gráfico) -->
+    <section class="flex flex-col gap-4" aria-labelledby="titulo-categorias">
+        <h2 id="titulo-categorias" class="titulo-secao">Sócios por categoria</h2>
+
+        <div th:if="${not #lists.isEmpty(categoriasInfo)}" class="grid gap-4 lg:grid-cols-[22rem_1fr]">
+            <figure class="painel flex flex-col gap-3 p-5">
+                <figcaption class="text-ink-muted">Quantos sócios cada categoria reúne.</figcaption>
+                <div class="relative h-72">
+                    <canvas id="grafico-categorias" role="img" aria-label="Participação de cada categoria no total de sócios. Os números estão na tabela ao lado."></canvas>
+                </div>
+            </figure>
+
+            <div class="painel self-start overflow-x-auto">
+                <table class="tabela" id="tabela-categorias">
+                    <caption class="sr-only">Sócios por categoria</caption>
+                    <thead>
+                    <tr>
+                        <th scope="col">Categoria</th>
+                        <th scope="col" class="num">Sócios</th>
+                        <th scope="col" class="num">Novos no mês</th>
+                        <th scope="col" class="num">Participação</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="c : ${categoriasInfo}"
+                        th:data-nome="${c.nomeCategoria}"
+                        th:data-total="${c.totalAssociados ?: 0}"
+                        th:data-novos="${c.novosAssociadosMesAtual ?: 0}"
+                        th:with="pct=${dashboardInfo.associadosTotal != null and dashboardInfo.associadosTotal > 0 and c.totalAssociados != null} ? ${c.totalAssociados * 100.0 / dashboardInfo.associadosTotal} : 0">
+                        <th scope="row" class="font-semibold" th:text="${c.nomeCategoria}">Categoria</th>
+                        <td class="num" th:text="${c.totalAssociados ?: 0}">0</td>
+                        <td class="num" th:text="${c.novosAssociadosMesAtual ?: 0}">0</td>
+                        <td class="num" th:text="${#numbers.formatDecimal(pct, 1, 'POINT', 1, 'COMMA') + '%'}">0%</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <th:block th:if="${#lists.isEmpty(categoriasInfo)}">
+            <div th:replace="~{fragments/ui :: vazio('Ainda não há sócios para contar',
+                    'Os números por categoria aparecem quando o primeiro torcedor se associar.', null, null)}"></div>
+        </th:block>
     </section>
 
-    <!-- Sócios por categoria -->
-    <h2 class="dash-section">Sócios por categoria</h2>
-
-    <div th:if="${not #lists.isEmpty(categoriasInfo)}">
-        <div class="charts">
-            <section class="panel chart-card">
-                <h2>Participação</h2>
-                <p class="chart-sub">Quantos sócios cada categoria reúne.</p>
-                <div class="chart-box">
-                    <canvas id="grafico-categorias" role="img" aria-label="Participação de cada categoria no total de sócios"></canvas>
-                </div>
-            </section>
-        </div>
-
-        <div class="table-wrap">
-            <table class="table" id="tabela-categorias">
-                <thead>
-                <tr>
-                    <th>Categoria</th>
-                    <th class="num">Sócios</th>
-                    <th class="num">Novos no mês</th>
-                    <th class="num">Participação</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="c : ${categoriasInfo}"
-                    th:data-nome="${c.nomeCategoria}"
-                    th:data-total="${c.totalAssociados ?: 0}"
-                    th:data-novos="${c.novosAssociadosMesAtual ?: 0}"
-                    th:with="pct=${dashboardInfo.associadosTotal != null and dashboardInfo.associadosTotal > 0 and c.totalAssociados != null} ? ${c.totalAssociados * 100.0 / dashboardInfo.associadosTotal} : 0">
-                    <td th:text="${c.nomeCategoria}">Categoria</td>
-                    <td class="num" th:text="${c.totalAssociados ?: 0}">0</td>
-                    <td class="num" th:text="${c.novosAssociadosMesAtual ?: 0}">0</td>
-                    <td class="num" th:text="${#numbers.formatDecimal(pct, 1, 'POINT', 1, 'COMMA') + '%'}">0%</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="empty" th:if="${#lists.isEmpty(categoriasInfo)}">
-        <strong>Sem dados por categoria</strong>
-        Os números aparecem quando houver sócios associados.
-    </div>
-
     <!-- Próximos jogos -->
-    <h2 class="dash-section">Próximos jogos</h2>
+    <section class="flex flex-col gap-4" aria-labelledby="titulo-jogos">
+        <h2 id="titulo-jogos" class="titulo-secao">Próximos jogos</h2>
 
-    <div th:if="${not #lists.isEmpty(jogosInfo)}">
-        <div class="charts">
-            <section class="panel chart-card">
-                <h2>Ocupação</h2>
-                <p class="chart-sub">Ingressos vendidos sobre a capacidade dos lotes.</p>
-                <div class="chart-box chart-box-tall" th:style="'--chart-h:' + ${60 + #lists.size(jogosInfo) * 38} + 'px'">
-                    <canvas id="grafico-ocupacao" role="img" aria-label="Ocupação em porcentagem de cada jogo futuro"></canvas>
-                </div>
-            </section>
-            <section class="panel chart-card">
-                <h2>Receita</h2>
-                <p class="chart-sub">Arrecadação com ingressos de cada jogo.</p>
-                <div class="chart-box chart-box-tall" th:style="'--chart-h:' + ${60 + #lists.size(jogosInfo) * 38} + 'px'">
-                    <canvas id="grafico-receita" role="img" aria-label="Receita de ingressos de cada jogo futuro"></canvas>
-                </div>
-            </section>
-        </div>
+        <th:block th:if="${not #lists.isEmpty(jogosInfo)}">
+            <div class="grid gap-4 lg:grid-cols-2">
+                <figure class="painel flex flex-col gap-3 p-5">
+                    <figcaption>
+                        <span class="block font-display text-xl font-bold [font-stretch:75%]">Ocupação</span>
+                        <span class="text-ink-muted">Ingressos vendidos sobre a capacidade dos lotes.</span>
+                    </figcaption>
+                    <div class="relative h-[var(--chart-h)]" th:style="'--chart-h:' + ${60 + #lists.size(jogosInfo) * 38} + 'px'">
+                        <canvas id="grafico-ocupacao" role="img" aria-label="Ocupação em porcentagem de cada jogo futuro. Os números estão na tabela abaixo."></canvas>
+                    </div>
+                </figure>
+                <figure class="painel flex flex-col gap-3 p-5">
+                    <figcaption>
+                        <span class="block font-display text-xl font-bold [font-stretch:75%]">Receita</span>
+                        <span class="text-ink-muted">Arrecadação com ingressos de cada jogo.</span>
+                    </figcaption>
+                    <div class="relative h-[var(--chart-h)]" th:style="'--chart-h:' + ${60 + #lists.size(jogosInfo) * 38} + 'px'">
+                        <canvas id="grafico-receita" role="img" aria-label="Receita de ingressos de cada jogo futuro. Os números estão na tabela abaixo."></canvas>
+                    </div>
+                </figure>
+            </div>
 
-        <div class="table-wrap">
-            <table class="table" id="tabela-jogos">
-                <thead>
-                <tr>
-                    <th>Jogo</th>
-                    <th class="num">Ingressos vendidos</th>
-                    <th class="num">Ocupação</th>
-                    <th class="num">Receita</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="j : ${jogosInfo}"
-                    th:data-titulo="${j.titulo}"
-                    th:data-ocupacao="${j.ocupacaoJogoPorcentagem ?: 0}"
-                    th:data-vendidos="${j.ingressosVendidos ?: 0}"
-                    th:data-receita="${j.receitaPorJogo ?: 0}">
-                    <td th:text="${j.titulo}">SPFC x GRE</td>
-                    <td class="num" th:text="${j.ingressosVendidos ?: 0}">0</td>
-                    <td class="num" th:text="${#numbers.formatDecimal(j.ocupacaoJogoPorcentagem ?: 0, 1, 'POINT', 1, 'COMMA') + '%'}">0%</td>
-                    <td class="num" th:text="${'R$ ' + #numbers.formatDecimal(j.receitaPorJogo ?: 0, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+            <div class="painel overflow-x-auto">
+                <table class="tabela" id="tabela-jogos">
+                    <caption class="sr-only">Vendas dos próximos jogos</caption>
+                    <thead>
+                    <tr>
+                        <th scope="col">Jogo</th>
+                        <th scope="col" class="num">Ingressos vendidos</th>
+                        <th scope="col" class="num">Ocupação</th>
+                        <th scope="col" class="num">Receita</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="j : ${jogosInfo}"
+                        th:data-titulo="${j.titulo}"
+                        th:data-ocupacao="${j.ocupacaoJogoPorcentagem ?: 0}"
+                        th:data-vendidos="${j.ingressosVendidos ?: 0}"
+                        th:data-receita="${j.receitaPorJogo ?: 0}">
+                        <th scope="row" class="font-semibold whitespace-nowrap" th:text="${j.titulo}">SPFC x GRE</th>
+                        <td class="num" th:text="${j.ingressosVendidos ?: 0}">0</td>
+                        <td class="num" th:text="${#numbers.formatDecimal(j.ocupacaoJogoPorcentagem ?: 0, 1, 'POINT', 1, 'COMMA') + '%'}">0%</td>
+                        <td class="num" th:text="${'R$ ' + #numbers.formatDecimal(j.receitaPorJogo ?: 0, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </th:block>
 
-    <div class="empty" th:if="${#lists.isEmpty(jogosInfo)}">
-        <strong>Nenhum jogo futuro</strong>
-        Cadastre um jogo para acompanhar vendas e ocupação.
-    </div>
+        <th:block th:if="${#lists.isEmpty(jogosInfo)}">
+            <div th:replace="~{fragments/ui :: vazio('Nenhum jogo futuro',
+                    'Cadastre um jogo para acompanhar vendas e ocupação por aqui.',
+                    @{/admin/cadastro/jogo}, 'Cadastrar jogo')}"></div>
+        </th:block>
+    </section>
 </main>
+
+<footer th:replace="~{fragments/footer :: rodape}"></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script th:src="@{/js/dashboard.js}"></script>

@@ -1,73 +1,84 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <!-- Gera o token CSRF (e a sessão) antes do cabeçalho grande ser enviado; ver login.html. -->
+    <meta name="_csrf" th:content="${_csrf.token}">
     <th:block th:replace="~{fragments/head :: base('Criar conta')}"/>
-    <link rel="stylesheet" th:href="@{/css/auth.css}">
 </head>
 <body>
 
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/navbar :: navbar('')}"></div>
 
-<main class="page page-narrow auth-page">
-    <div class="panel auth-panel">
-        <h1>Criar conta</h1>
-        <p class="lead">Preencha seus dados. Campos com * são obrigatórios.</p>
+<main id="conteudo" class="conteudo flex justify-center py-10 md:py-16">
+    <div class="painel flex w-full max-w-xl flex-col gap-6 p-6 sm:p-8">
+        <header th:replace="~{fragments/ui :: cabecalho('Criar conta',
+                'Com a conta você compra ingressos e pode se associar. Os campos marcados como opcionais podem ficar em branco.')}"></header>
 
-        <div class="alerts" th:if="${erro}">
-            <div class="alert alert-error" role="alert" th:text="${erro}"></div>
-        </div>
+        <div th:replace="~{fragments/ui :: alertas(null, ${erro})}"></div>
 
-        <form th:action="@{/cadastro}" th:object="${cadastroForm}" method="post" class="form" novalidate>
+        <form th:action="@{/cadastro}" th:object="${cadastroForm}" method="post" class="flex flex-col gap-5" novalidate>
 
-            <div class="field">
-                <label for="nome">Nome completo *</label>
-                <input type="text" id="nome" th:field="*{nome}" autocomplete="name">
-                <span class="field-error" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
+            <p th:if="${#fields.hasErrors('*')}" class="alerta alerta-erro" role="alert">
+                Alguns campos precisam de ajuste. Veja as mensagens abaixo de cada um.</p>
+
+            <div class="campo">
+                <label for="nome" class="rotulo">Nome completo</label>
+                <input type="text" id="nome" th:field="*{nome}" class="entrada" th:errorclass="entrada-invalida"
+                       autocomplete="name" aria-describedby="nome-erro">
+                <span id="nome-erro" class="erro-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
             </div>
 
-            <div class="field-row">
-                <div class="field">
-                    <label for="username">Usuário *</label>
-                    <input type="text" id="username" th:field="*{username}" autocomplete="username">
-                    <span class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+            <div class="grid gap-5 sm:grid-cols-2">
+                <div class="campo">
+                    <label for="username" class="rotulo">Usuário</label>
+                    <input type="text" id="username" th:field="*{username}" class="entrada" th:errorclass="entrada-invalida"
+                           autocomplete="username" autocapitalize="none" aria-describedby="username-dica username-erro">
+                    <span id="username-dica" class="dica">Você vai usar para entrar.</span>
+                    <span id="username-erro" class="erro-campo" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
                 </div>
-                <div class="field">
-                    <label for="senha">Senha *</label>
-                    <input type="password" id="senha" th:field="*{senha}" autocomplete="new-password">
-                    <span class="field-error" th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}"></span>
-                </div>
-            </div>
-
-            <div class="field">
-                <label for="email">E-mail *</label>
-                <input type="email" id="email" th:field="*{email}" placeholder="nome@email.com" autocomplete="email">
-                <span class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
-            </div>
-
-            <div class="field">
-                <label for="cpf">CPF</label>
-                <input type="text" id="cpf" th:field="*{cpf}" inputmode="numeric" maxlength="11" placeholder="Somente números">
-                <span class="hint">11 dígitos, sem pontos ou traço.</span>
-                <span class="field-error" th:if="${#fields.hasErrors('cpf')}" th:errors="*{cpf}"></span>
-            </div>
-
-            <div class="field-row">
-                <div class="field">
-                    <label for="telefone">Telefone</label>
-                    <input type="tel" id="telefone" th:field="*{telefone}" autocomplete="tel">
-                </div>
-                <div class="field">
-                    <label for="dataNascimento">Data de nascimento</label>
-                    <input type="date" id="dataNascimento" th:field="*{dataNascimento}">
+                <div class="campo">
+                    <label for="senha" class="rotulo">Senha</label>
+                    <input type="password" id="senha" th:field="*{senha}" class="entrada" th:errorclass="entrada-invalida"
+                           autocomplete="new-password" aria-describedby="senha-erro">
+                    <span id="senha-erro" class="erro-campo" th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}"></span>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-brand btn-block">Criar conta</button>
+            <div class="campo">
+                <label for="email" class="rotulo">E-mail</label>
+                <input type="email" id="email" th:field="*{email}" class="entrada" th:errorclass="entrada-invalida"
+                       placeholder="nome@email.com" autocomplete="email" aria-describedby="email-erro">
+                <span id="email-erro" class="erro-campo" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+            </div>
+
+            <div class="campo">
+                <label for="cpf" class="rotulo">CPF <span class="font-normal text-ink-muted">(opcional)</span></label>
+                <input type="text" id="cpf" th:field="*{cpf}" class="entrada" th:errorclass="entrada-invalida"
+                       inputmode="numeric" maxlength="11" aria-describedby="cpf-dica cpf-erro">
+                <span id="cpf-dica" class="dica">Só os 11 números, sem pontos nem traço.</span>
+                <span id="cpf-erro" class="erro-campo" th:if="${#fields.hasErrors('cpf')}" th:errors="*{cpf}"></span>
+            </div>
+
+            <div class="grid gap-5 sm:grid-cols-2">
+                <div class="campo">
+                    <label for="telefone" class="rotulo">Telefone <span class="font-normal text-ink-muted">(opcional)</span></label>
+                    <input type="tel" id="telefone" th:field="*{telefone}" class="entrada" autocomplete="tel">
+                </div>
+                <div class="campo">
+                    <label for="dataNascimento" class="rotulo">Data de nascimento <span class="font-normal text-ink-muted">(opcional)</span></label>
+                    <input type="date" id="dataNascimento" th:field="*{dataNascimento}" class="entrada" autocomplete="bday">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-principal w-full">Criar conta</button>
         </form>
 
-        <p class="auth-footer">Já tem conta? <a th:href="@{/login}">Entrar</a></p>
+        <p class="border-t border-line pt-5 text-ink-muted">
+            Já tem conta? <a th:href="@{/login}" class="link">Entrar</a></p>
     </div>
 </main>
+
+<footer th:replace="~{fragments/footer :: rodape}"></footer>
 
 </body>
 </html>

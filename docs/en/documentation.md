@@ -187,47 +187,48 @@ The interface is a **web** interface. Spring builds the pages on the server with
 | Profile | `/perfil` | `perfil.html` | `USER` and `ADMIN` | Welcome message |
 | Admin | `/admin` | `admin.html` | `ADMIN` only | Welcome message |
 
-The navigation bar is a fragment that all pages use (`fragments/navbar.html`). Each page includes it with `th:replace`.
+The navigation bar is a fragment that all pages use (`fragments/navbar.html`). Each page includes it with `th:replace` and passes the name of the active link (for example `navbar('jogos')`). Other fragments are in `templates/fragments`: `head` (fonts, theme and Tailwind), `marca` (crest and logo), `footer`, `ui` (page header, alerts, empty state, back link), `jogo` (next-game scoreboard and game row) and `carteirinha` (member card).
 
 ### 7.2 Basic components
 
 | Component | Where it is |
 |---|---|
-| Button (`button`) | Avatar in the bar, **Sair**, **Entrar**, **Cadastrar**, calendar months, **Comprar** |
-| Link button (`a.btn-cta`) | **Entrar** in the bar, button of the next game |
-| Text field | User name (login and sign-up), CPF |
-| Password field | Login and sign-up |
-| E-mail field | Sign-up |
-| Hidden field | `loteId` in the purchase form |
+| Button (`button`) | Light/dark theme, account menu, **Sair da conta**, calendar months, **Comprar ingresso**, **Associar-se**, **Novo lote** |
+| Link button (`a.btn`) | **Entrar** in the bar, **Comprar ingresso** in the scoreboard and the games |
+| Text, password, e-mail, date and select fields | Login, sign-up, game and batch forms |
+| Hidden field | `loteId` (purchase) and `categoriaId` (membership) |
 | Label (`label`) | All fields of the forms |
-| Form (`form`) | Login, sign-up, logout and purchase |
-| Link | **Voltar**, **Cadastre-se**, **Entrar**, **Saiba Mais** |
-| Drop-down menu | Avatar menu |
-| Cards | Next game, games in the list, batches |
-| Image | Team crests |
-| Message | "Usuário ou senha inválidos." and "Você saiu da sua conta." |
+| Form (`form`) | Login, sign-up, logout, purchase, membership, cancellation, game and batch |
+| Drop-down menu | Account menu |
+| Scoreboard | Next game, on the home page |
+| Ticket with stub | Batches on sale, bought tickets, purchase confirmation |
+| Member card | Profile and membership page, for members |
+| Modal window (`dialog`) | New batch |
+| Table | Metrics and batches of the game |
+| Image | Team crests (with `alt`) |
+| Message | Login and form errors, membership success |
 
 ### 7.3 Events
 
 | Event | Where | What happens |
 |---|---|---|
-| `onclick` on the avatar button | `navbar.html` | The function `toggleProfileMenu(event)` opens and closes the drop-down menu. |
-| `click` on the document | `navbar.html` | The drop-down menu closes when the user clicks outside it. |
-| `DOMContentLoaded` | `jogos.html` | The page connects the click event to the month buttons. It shows the games of the active month (September, in the code). |
-| `click` on the month buttons | `jogos.html` | The clicked button becomes active. The cards fade out in 150 ms. Only the games of the selected month appear again. If there are no games, the page shows "Nenhum jogo encontrado para este mês." |
-| `submit` of the login form | `login.html` | The browser sends `POST /login`. Spring Security does the authentication. |
-| `submit` of the sign-up form | `cadastro.html` | The browser sends `POST /cadastro`. |
-| `submit` of the logout form | `navbar.html` | The browser sends `POST /logout`. |
+| `click` on the theme button | `theme.js` | Switches `data-theme` between `light` and `dark` and saves the choice. |
+| `click` on the account button | `theme.js` | Opens and closes the drop-down menu. A click outside or `Esc` closes it. |
+| `DOMContentLoaded` | `jogos.html` | Marks the months that have games and shows the month of the next game. |
+| `click` on the month buttons | `jogos.html` | The button gets `aria-pressed="true"`. Only the games of that month appear. If there are none, the page shows "Nenhum jogo neste mês". |
+| `click` on **Novo lote** | `lotes.html` | Opens the `dialog`. If the form comes back with errors, the page opens the `dialog` again. |
+| `DOMContentLoaded` and theme change | `dashboard.js` | Draws the charts with the token colors. |
+| `submit` of the forms | several pages | The browser sends the `POST` with the CSRF token. |
 
-### 7.4 Layouts
+### 7.4 Layouts and style
 
-The CSS uses three layout methods:
+The style uses **Tailwind CSS v4**, loaded from the CDN in the `head.html` fragment. The project has no Node, so Tailwind compiles in the browser.
 
-- **Flexbox** in the bars, the forms, the cards and the lists (`navbar.css`, `auth.css`, `jogos.css`, `ingressos.css`).
-- **CSS Grid** in the game cards (`.jogo-card`, `.confronto-verus`) and in the batch cards (`.lote-card`).
-- **Media queries** in `navbar.css` (width up to 900 px) and in `ingressos.css` (width up to 640 px).
+- **Flexbox** in the bars, forms and lists.
+- **CSS Grid** in the scoreboard, game rows, tickets and metrics.
+- **Responsive** with the Tailwind prefixes (`sm:`, `md:`, `lg:`), from 360 px to desktop.
 
-The CSS files are in `static/css`: `main.css`, `navbar.css`, `auth.css`, `jogos.css` and `ingressos.css`.
+The colors, fonts and brand are in `static/css/tema.css`. It is the only file to change the palette. The club names are in `messages.properties`.
 
 ### 7.5 Navigation
 

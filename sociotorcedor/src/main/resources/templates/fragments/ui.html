@@ -1,0 +1,32 @@
+<!-- Peças de interface reutilizadas pelas páginas. -->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Cabeçalho de página: título e, opcionalmente, uma frase de apoio.
+     Uso: <header th:replace="~{fragments/ui :: cabecalho('Jogos', 'Frase de apoio')}"></header> -->
+<header th:fragment="cabecalho(titulo, apoio)" class="flex flex-col gap-2">
+    <h1 class="titulo-pagina" th:text="${titulo}">Título</h1>
+    <p class="apoio" th:if="${apoio}" th:text="${apoio}">Frase de apoio.</p>
+</header>
+
+<!-- Link de volta. Uso: <a th:replace="~{fragments/ui :: voltar(@{/jogos}, 'Voltar aos jogos')}"></a> -->
+<a th:fragment="voltar(destino, texto)" th:href="${destino}"
+   class="inline-flex min-h-11 items-center gap-1.5 self-start font-semibold text-ink-muted hover:text-ink">
+    <svg width="16" height="16" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    <span th:text="${texto}">Voltar</span>
+</a>
+
+<!-- Mensagens de retorno (flash "sucesso" e "erro"). Nada aparece quando ambas são nulas. -->
+<div th:fragment="alertas(sucesso, erro)" th:if="${sucesso != null or erro != null}" class="flex flex-col gap-2">
+    <p class="alerta alerta-ok" role="status" th:if="${sucesso}" th:text="${sucesso}">Tudo certo.</p>
+    <p class="alerta alerta-erro" role="alert" th:if="${erro}" th:text="${erro}">Algo deu errado.</p>
+</div>
+
+<!-- Estado vazio: o que aconteceu e o que fazer. Ação opcional (link e texto). -->
+<div th:fragment="vazio(titulo, texto, destino, acao)" class="vazio">
+    <p class="font-display text-xl font-bold [font-stretch:75%]" th:text="${titulo}">Nada por aqui</p>
+    <p class="mx-auto mt-1 max-w-[48ch] text-ink-muted" th:text="${texto}">Explicação.</p>
+    <a th:if="${destino}" th:href="${destino}" class="btn btn-contorno mt-5" th:text="${acao}">Ação</a>
+</div>
+
+</html>

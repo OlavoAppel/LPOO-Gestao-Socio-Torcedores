@@ -1,5 +1,7 @@
 // Gráficos do dashboard. Lê os dados das tabelas da própria página (data-*),
 // então não depende de serialização JSON do servidor e a tabela serve de alternativa em texto.
+// Todas as cores e a fonte vêm dos tokens de static/css/tema.css (--ink, --line, --chart-*...),
+// por isso os gráficos acompanham a troca de paleta e de tema sem editar este arquivo.
 (function () {
     var charts = [];
 
@@ -13,6 +15,11 @@
 
     function brl(v) {
         return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // eixo: sem centavos, para os rótulos caberem
+    function brlEixo(v) {
+        return 'R$ ' + Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 0 });
     }
 
     function destroyAll() {
@@ -29,7 +36,8 @@
         var line = css('--line');
         var surface = css('--surface');
 
-        Chart.defaults.font.family = css('--font-body');
+        Chart.defaults.font.family = css('--fonte-texto');
+        Chart.defaults.font.size = 14;
         Chart.defaults.color = muted;
 
         // 1) Sócios por categoria (participação)
@@ -45,7 +53,7 @@
                         data: cat.map(function (r) { return Number(r.dataset.total); }),
                         backgroundColor: cat.map(function (_, i) { return palette[i % palette.length]; }),
                         borderColor: surface,
-                        borderWidth: 3
+                        borderWidth: 2
                     }]
                 },
                 options: {
@@ -86,7 +94,7 @@
                     indexAxis: 'y',
                     maintainAspectRatio: false,
                     scales: {
-                        x: { min: 0, max: 100, grid: { color: line }, ticks: { callback: function (v) { return v + '%'; } } },
+                        x: { min: 0, max: 100, grid: { color: line }, ticks: { stepSize: 25, maxRotation: 0, callback: function (v) { return v + '%'; } } },
                         y: { grid: { display: false }, ticks: { color: ink } }
                     },
                     plugins: {
@@ -95,7 +103,7 @@
                             callbacks: {
                                 label: function (ctx) {
                                     var r = jogos[ctx.dataIndex].dataset;
-                                    return r.ocupacao + '% ocupado · ' + r.vendidos + ' ingressos';
+                                    return r.ocupacao + '% ocupado, ' + r.vendidos + ' ingressos vendidos';
                                 }
                             }
                         }
@@ -104,7 +112,7 @@
             }));
         }
 
-        // 3) Receita por jogo
+        // 3) Receita por jogo (barras horizontais: os nomes dos jogos não colidem no celular)
         var elRec = document.getElementById('grafico-receita');
         if (elRec && jogos.length) {
             charts.push(new Chart(elRec, {
@@ -116,18 +124,19 @@
                         data: jogos.map(function (r) { return Number(r.dataset.receita); }),
                         backgroundColor: css('--chart-2'),
                         borderRadius: 4,
-                        maxBarThickness: 40
+                        maxBarThickness: 22
                     }]
                 },
                 options: {
+                    indexAxis: 'y',
                     maintainAspectRatio: false,
                     scales: {
-                        x: { grid: { display: false }, ticks: { color: ink } },
-                        y: { beginAtZero: true, grid: { color: line }, ticks: { callback: function (v) { return brl(v); } } }
+                        x: { beginAtZero: true, grid: { color: line }, ticks: { maxTicksLimit: 5, maxRotation: 0, callback: function (v) { return brlEixo(v); } } },
+                        y: { grid: { display: false }, ticks: { color: ink } }
                     },
                     plugins: {
                         legend: { display: false },
-                        tooltip: { callbacks: { label: function (ctx) { return brl(ctx.parsed.y); } } }
+                        tooltip: { callbacks: { label: function (ctx) { return brl(ctx.parsed.x); } } }
                     }
                 }
             }));
