@@ -25,6 +25,11 @@ O objetivo deste projeto é desenvolver um Sistema de Gestão para Sócio-Torced
 - **Thomas Cansian dos Santos** ([@Thcansian](https://github.com/Thcansian))
   - **Atribuição:** Auxílio no desenvolvimento do Backend e na realização dos testes do sistema.
 
+## Créditos
+
+- **Escudos dos times** (`sociotorcedor/src/main/resources/static/images/escudos/`): imagens obtidas da [Wikipédia](https://www.wikipedia.org/) e do [Wikimedia Commons](https://commons.wikimedia.org/), a partir da página de cada clube. Os escudos são marcas registradas dos respectivos clubes e foram usados aqui apenas para fins educacionais, sem fins lucrativos. As imagens foram convertidas para PNG e redimensionadas para no máximo 256 px.
+- **Times cadastrados:** os 20 clubes do Campeonato Brasileiro Série A 2026 e os 32 clubes da fase de grupos da Copa Libertadores 2026 (dados da [Wikipédia](https://en.wikipedia.org/wiki/2026_Campeonato_Brasileiro_S%C3%A9rie_A) e da [Wikipédia](https://en.wikipedia.org/wiki/2026_Copa_Libertadores_group_stage)).
+
 ## Relatório de testes
 
 O relatório de testes manuais e bugs encontrados está em [`testes/README.md`](testes/README.md).
