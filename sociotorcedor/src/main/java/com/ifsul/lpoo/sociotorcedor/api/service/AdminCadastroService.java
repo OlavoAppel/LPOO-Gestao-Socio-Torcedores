@@ -63,6 +63,7 @@ public class AdminCadastroService {
         lote.setSetor(setor);
         lote.setPrecoBase(form.getPrecoBase());
         lote.setIngressoDisponiveis(form.getEstoque());
+        lote.setIngressosTotaisLote(form.getEstoque());
         loteIngressoRepository.save(lote);
 
     }

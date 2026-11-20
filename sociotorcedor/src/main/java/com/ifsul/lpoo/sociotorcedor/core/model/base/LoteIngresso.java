@@ -27,6 +27,7 @@ public class LoteIngresso {
     private String nome;
 
     private BigDecimal precoBase;
+    private Integer ingressosTotaisLote;
     private Integer ingressoDisponiveis;
     private LocalDateTime dhInicioVenda;
     private LocalDateTime dhTerminoVendaExclusiva;

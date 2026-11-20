@@ -146,6 +146,7 @@ public class DataSeeder implements CommandLineRunner {
         loteIngresso.setDhInicioVenda(jogo.getDhJogo().minusDays(4));
         loteIngresso.setDhTerminoVendaExclusiva(jogo.getDhJogo().minusDays(1));
         loteIngresso.setIngressoDisponiveis(100);
+        loteIngresso.setIngressosTotaisLote(100);
         loteIngresso.setJogo(jogo);
         loteIngresso.setPrecoBase(new BigDecimal(12));
         loteIngresso.setNome(nome);
