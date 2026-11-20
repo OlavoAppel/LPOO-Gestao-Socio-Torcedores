@@ -13,7 +13,7 @@
 
     <div class="admin-head">
         <div>
-            <h1 th:text="${jogo.get().getCasa().getNome() + ' x ' + jogo.get().getFora().getNome()}">Jogo</h1>
+            <h1 th:text="${jogo.casa.nome + ' x ' + jogo.fora.nome}">Jogo</h1>
             <p style="color: var(--ink-muted); margin-top: 6px;">Lotes de ingressos deste jogo</p>
         </div>
         <button type="button" class="btn btn-cta"
@@ -42,7 +42,7 @@
 </main>
 
 <dialog id="modal-lote" class="modal">
-    <form th:action="@{/admin/cadastro/{id}/lotes(id=${jogo.get().getId()})}" th:object="${cadastroLoteForm}" method="post" class="form" novalidate>
+    <form th:action="@{/admin/cadastro/{id}/lotes(id=${jogo.id})}" th:object="${cadastroLoteForm}" method="post" class="form" novalidate>
         <h2>Novo lote</h2>
 
         <div class="alerts" th:if="${#fields.hasGlobalErrors()}">

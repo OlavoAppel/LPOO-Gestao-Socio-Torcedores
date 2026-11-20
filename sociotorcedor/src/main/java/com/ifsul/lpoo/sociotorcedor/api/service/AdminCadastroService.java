@@ -8,6 +8,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AdminCadastroService {
 
@@ -23,6 +25,27 @@ public class AdminCadastroService {
     private LoteIngressoRepository loteIngressoRepository;
     @Autowired
     private EstadioRepository estadioRepository;
+
+    public List<Time> listarTimes() {
+        return timeRepository.findAll();
+    }
+
+    public List<Estadio> listarEstadios() {
+        return estadioRepository.findAll();
+    }
+
+    public List<SetorEstadio> listarSetores() {
+        return setorRepository.findAll();
+    }
+
+    public Jogo buscarJogo(Long jogoId) {
+        return jogoRepository.findById(jogoId)
+                .orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado"));
+    }
+
+    public List<LoteIngresso> listarLotes(Long jogoId) {
+        return loteIngressoRepository.findAllByJogo_Id(jogoId);
+    }
 
     @Transactional
     public Jogo cadastrarJogo(CadastroJogoForm form) {

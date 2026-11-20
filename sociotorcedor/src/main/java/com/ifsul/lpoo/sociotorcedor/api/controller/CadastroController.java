@@ -1,9 +1,10 @@
 package com.ifsul.lpoo.sociotorcedor.api.controller;
 
 import com.ifsul.lpoo.sociotorcedor.api.service.CadastroService;
+import com.ifsul.lpoo.sociotorcedor.core.exception.CadastroException;
 import com.ifsul.lpoo.sociotorcedor.core.form.CadastroForm;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,10 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
+@RequiredArgsConstructor
 public class CadastroController {
 
-    @Autowired
-    private CadastroService cadastroService;
+    private final CadastroService cadastroService;
 
     @GetMapping("/cadastro")
     public String cadastro(Model model) {
@@ -36,7 +37,7 @@ public class CadastroController {
             cadastroService.cadastrar(cadastroForm);
             redirectAttributes.addFlashAttribute("sucesso", "Cadastro realizado! Entre com seu usuário e senha.");
             return "redirect:/login";
-        } catch (Exception e) {
+        } catch (CadastroException e) {
             model.addAttribute("erro", e.getMessage());
             return "cadastro";
         }

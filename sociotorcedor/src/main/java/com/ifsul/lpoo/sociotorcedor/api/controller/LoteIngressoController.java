@@ -1,8 +1,10 @@
 package com.ifsul.lpoo.sociotorcedor.api.controller;
 
 import com.ifsul.lpoo.sociotorcedor.api.service.LoteIngressoService;
+import com.ifsul.lpoo.sociotorcedor.core.exception.CompraIngressoException;
 import com.ifsul.lpoo.sociotorcedor.core.model.compra.ContextoCompra;
 import com.ifsul.lpoo.sociotorcedor.core.model.user.Usuario;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,23 +18,17 @@ import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping("/ingressos")
+@RequiredArgsConstructor
 public class LoteIngressoController {
 
     private final LoteIngressoService loteIngressoService;
-
-    public LoteIngressoController(LoteIngressoService loteIngressoService) {
-        this.loteIngressoService = loteIngressoService;
-    }
 
     @GetMapping
     public String listarLotes(@RequestParam Long jogoId,
                               @AuthenticationPrincipal Usuario usuario,
                               Model model) {
-
-        ContextoCompra contexto = new ContextoCompra();
-        contexto.setDhRequisicao(LocalDateTime.now());
+        ContextoCompra contexto = novoContexto(usuario);
         contexto.setJogoId(jogoId);
-        contexto.setUsuario(usuario);
 
         model.addAttribute("lotes", loteIngressoService.findLotes(contexto));
         model.addAttribute("logado", usuario != null);
@@ -42,20 +38,14 @@ public class LoteIngressoController {
     @PostMapping("/comprar")
     public String comprarIngresso(@RequestParam Long loteId,
                                   @AuthenticationPrincipal Usuario usuario,
-                                  RedirectAttributes redirectAttributes){
-        ContextoCompra contexto = new ContextoCompra();
-        contexto.setDhRequisicao(LocalDateTime.now());
-        contexto.setUsuario(usuario);
+                                  RedirectAttributes redirectAttributes) {
+        ContextoCompra contexto = novoContexto(usuario);
         contexto.setLoteId(loteId);
 
         try {
-            String resultado = loteIngressoService.comprarIngresso(contexto);
-            if (!"sucesso".equals(resultado)) {
-                redirectAttributes.addFlashAttribute("erro", "Não foi possível concluir a compra deste ingresso.");
-                return "redirect:/jogos";
-            }
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("erro", "Não foi possível concluir a compra deste ingresso.");
+            loteIngressoService.comprarIngresso(contexto);
+        } catch (CompraIngressoException e) {
+            redirectAttributes.addFlashAttribute("erro", e.getMessage());
             return "redirect:/jogos";
         }
         return "redirect:/ingressos/sucesso"; // PRG: F5 não repete a compra
@@ -64,6 +54,13 @@ public class LoteIngressoController {
     @GetMapping("/sucesso")
     public String sucesso() {
         return "sucesso";
+    }
+
+    private ContextoCompra novoContexto(Usuario usuario) {
+        ContextoCompra contexto = new ContextoCompra();
+        contexto.setDhRequisicao(LocalDateTime.now());
+        contexto.setUsuario(usuario);
+        return contexto;
     }
 
 }

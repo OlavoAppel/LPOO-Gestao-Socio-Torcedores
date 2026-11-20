@@ -18,7 +18,7 @@ import java.time.YearMonth;
 import java.util.List;
 
 /**
- * Cada método público monta UM DTO, chamando várias consultas pequenas.
+ * Cada metodo público monta UM DTO, chamando várias consultas pequenas.
  * Assim cada informação pode virar uma página própria sem depender das outras.
  */
 @Service

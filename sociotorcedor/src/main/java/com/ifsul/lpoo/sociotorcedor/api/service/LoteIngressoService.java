@@ -4,6 +4,7 @@ import com.ifsul.lpoo.sociotorcedor.api.repository.IngressoRepository;
 import com.ifsul.lpoo.sociotorcedor.api.repository.InjectionProvider;
 import com.ifsul.lpoo.sociotorcedor.api.repository.LoteIngressoRepository;
 import com.ifsul.lpoo.sociotorcedor.core.dto.LoteIngressoDTO;
+import com.ifsul.lpoo.sociotorcedor.core.exception.CompraIngressoException;
 import com.ifsul.lpoo.sociotorcedor.core.factory.DTOFactory;
 import com.ifsul.lpoo.sociotorcedor.core.model.base.Ingresso;
 import com.ifsul.lpoo.sociotorcedor.core.model.base.Jogo;
@@ -55,12 +56,13 @@ public class LoteIngressoService {
         return loteDtoList;
     }
 
-    public String comprarIngresso(ContextoCompra contextoCompra){
-        LoteIngresso lote = loteIngressoRepository.findById(contextoCompra.getLoteId()).orElseThrow();
+    public void comprarIngresso(ContextoCompra contextoCompra){
+        LoteIngresso lote = loteIngressoRepository.findById(contextoCompra.getLoteId())
+                .orElseThrow(() -> new CompraIngressoException("Lote não encontrado"));
         ValidationResult result = loteValidationChain.handle(lote, contextoCompra);
 
         if(!result.isValido()){ // validação dupla no backend para evitar requisições não autorizadas (via postman etc...)
-            return "erro";
+            throw new CompraIngressoException(result.getMotivo());
         }
 
         Ingresso ingresso = new Ingresso();
@@ -71,8 +73,6 @@ public class LoteIngressoService {
 
         loteIngressoRepository.decrementarIngressosDisponiveis(lote.getId(), 1);
         ingressoRepository.save(ingresso);
-
-        return "sucesso";
     }
 
 }
