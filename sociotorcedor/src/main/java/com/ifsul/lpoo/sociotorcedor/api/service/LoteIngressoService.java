@@ -10,15 +10,20 @@ import com.ifsul.lpoo.sociotorcedor.core.model.base.Ingresso;
 import com.ifsul.lpoo.sociotorcedor.core.model.base.Jogo;
 import com.ifsul.lpoo.sociotorcedor.core.model.base.LoteIngresso;
 import com.ifsul.lpoo.sociotorcedor.core.model.compra.ContextoCompra;
+import com.ifsul.lpoo.sociotorcedor.core.model.enumerator.StatusIngresso;
+import com.ifsul.lpoo.sociotorcedor.core.model.user.Associado;
 import com.ifsul.lpoo.sociotorcedor.core.model.user.Usuario;
 import com.ifsul.lpoo.sociotorcedor.core.validation.ValidationResult;
 import com.ifsul.lpoo.sociotorcedor.core.validation.lote.LoteValidationHandle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class LoteIngressoService {
@@ -56,7 +61,14 @@ public class LoteIngressoService {
         return loteDtoList;
     }
 
+    @Transactional // se algo falhar depois de abater o estoque, tudo é desfeito
     public void comprarIngresso(ContextoCompra contextoCompra){
+        Usuario usuario = contextoCompra.getUsuario();
+        if (usuario == null || usuario.getAssociado() == null) {
+            throw new CompraIngressoException("É necessário estar logado como torcedor para comprar");
+        }
+        Associado associado = usuario.getAssociado();
+
         LoteIngresso lote = loteIngressoRepository.findById(contextoCompra.getLoteId())
                 .orElseThrow(() -> new CompraIngressoException("Lote não encontrado"));
         ValidationResult result = loteValidationChain.handle(lote, contextoCompra);
@@ -65,13 +77,19 @@ public class LoteIngressoService {
             throw new CompraIngressoException(result.getMotivo());
         }
 
+        // Abate o estoque primeiro: se outro comprador levou o último, o UPDATE não afeta nenhuma linha.
+        if (loteIngressoRepository.decrementarIngressosDisponiveis(lote.getId(), 1) == 0) {
+            throw new CompraIngressoException("Ingressos esgotados para este lote");
+        }
+
         Ingresso ingresso = new Ingresso();
-
-        ingresso.setAssociado(contextoCompra.getUsuario().getAssociado());
+        ingresso.setAssociado(associado);
         ingresso.setLote(lote);
-        ingresso.setPrecoPago(lote.getPrecoBase());
+        ingresso.setPrecoPago(associado.getCategoria().aplicarDescontoIngresso(lote.getPrecoBase()));
+        ingresso.setStatus(StatusIngresso.PAGO); // pagamento simulado: a compra já nasce paga
+        ingresso.setDhCompra(LocalDateTime.now());
+        ingresso.setCodigo(UUID.randomUUID().toString());
 
-        loteIngressoRepository.decrementarIngressosDisponiveis(lote.getId(), 1);
         ingressoRepository.save(ingresso);
     }
 

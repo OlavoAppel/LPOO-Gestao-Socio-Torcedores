@@ -18,18 +18,19 @@ public class HistoricoCategoria {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "HIST_ID")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "associado_id")
+    @JoinColumn(name = "HIST_ASSOCIADO", referencedColumnName = "ASSOCIADO_ID")
     private Associado associado;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "categoriaAnterior_id")
+    @JoinColumn(name = "HIST_CATEGORIAANTERIOR", referencedColumnName = "CAT_ID")
     private CategoriaSocio categoriaAnterior;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "categoriaNova_id")
+    @JoinColumn(name = "HIST_CATEGORIANOVA", referencedColumnName = "CAT_ID")
     private CategoriaSocio categoriaNova;
 
     @Column(name = "HIST_DATA")

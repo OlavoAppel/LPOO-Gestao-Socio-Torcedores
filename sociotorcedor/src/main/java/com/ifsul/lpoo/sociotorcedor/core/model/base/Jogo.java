@@ -35,8 +35,10 @@ public class Jogo {
     @JoinColumn(name = "JOG_TIMEFORA", referencedColumnName = "TME_ID")
     private Time fora;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    // lado inverso de LoteIngresso.jogo: os lotes vêm da coluna LOT_JOGO, sem tabela de ligação
+    @OneToMany(mappedBy = "jogo", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<LoteIngresso> loteIngressoList;
 
+    @Column(name = "JOG_CAMPEONATO")
     private String campeonato;
 }

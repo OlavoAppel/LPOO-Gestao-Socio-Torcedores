@@ -8,6 +8,7 @@ import com.ifsul.lpoo.sociotorcedor.core.dto.DashboardInfoCategoriaDTO;
 import com.ifsul.lpoo.sociotorcedor.core.dto.DashboardInfoDTO;
 import com.ifsul.lpoo.sociotorcedor.core.dto.DashboardInfoJogoDTO;
 import com.ifsul.lpoo.sociotorcedor.core.model.base.CategoriaSocio;
+import com.ifsul.lpoo.sociotorcedor.core.model.enumerator.StatusIngresso;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class AdminDashboardService {
 
-    private static final String STATUS_PAGO = "PAGO";
+    private static final StatusIngresso STATUS_PAGO = StatusIngresso.PAGO;
 
     private final AssociadoRepository associadoRepository;
     private final IngressoRepository ingressoRepository;
@@ -73,11 +74,11 @@ public class AdminDashboardService {
     public DashboardInfoJogoDTO getInformacaoJogos(Long jogoId) {
         DashboardInfoJogoDTO dto = new DashboardInfoJogoDTO();
 
-        Long vendidos = loteIngressoRepository.contaIngressosVendidosPorJogo(jogoId, "PAGO"); // futuramente ENUM
+        Long vendidos = loteIngressoRepository.contaIngressosVendidosPorJogo(jogoId, STATUS_PAGO);
         Long capacidade = loteIngressoRepository.somaCapacidadePorJogo(jogoId);
 
         dto.setIngressosVendidos(vendidos);
-        dto.setReceitaPorJogo(ingressoRepository.contaReceitaPorJogo(jogoId));
+        dto.setReceitaPorJogo(ingressoRepository.contaReceitaPorJogo(jogoId, STATUS_PAGO));
         dto.setOcupacaoJogoPorcentagem(DashboardInfoJogoDTO.calcularPorcentagem(vendidos, capacidade));
 
         return dto;

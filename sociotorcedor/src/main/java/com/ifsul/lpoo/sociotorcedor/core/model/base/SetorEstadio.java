@@ -12,19 +12,27 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 
+@Table(name = "SETOR_ESTADIO")
 @Entity
 public class SetorEstadio {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "SET_ID")
     private Long id;
 
+    @Column(name = "SET_CAPACIDADETOTAL")
     private Integer capacidadeTotal;
+    @Column(name = "SET_NOME")
     private String nome;
 
     @ManyToOne
+    @JoinColumn(name = "SET_ESTADIO", referencedColumnName = "EST_ID")
     private Estadio estadio;
 
     @ManyToMany
+    @JoinTable(name = "SETOR_CATEGORIA_PERMITIDA",
+            joinColumns = @JoinColumn(name = "SCP_SETOR", referencedColumnName = "SET_ID"),
+            inverseJoinColumns = @JoinColumn(name = "SCP_CATEGORIA", referencedColumnName = "CAT_ID"))
     private List<CategoriaSocio> sociosPermitidos;
 
 }

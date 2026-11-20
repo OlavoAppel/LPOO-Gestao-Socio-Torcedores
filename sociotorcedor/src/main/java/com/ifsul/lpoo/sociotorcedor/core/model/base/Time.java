@@ -24,7 +24,9 @@ public class Time {
     @Column(name = "TME_DIVISAO")
     private Integer divisao;
 
+    @Column(name = "TME_SIGLA")
     private String sigla;
+    @Column(name = "TME_ESCUDOPATH")
     private String escudoPath;
 
 //    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

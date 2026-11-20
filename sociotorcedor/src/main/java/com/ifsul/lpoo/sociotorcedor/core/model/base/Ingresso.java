@@ -1,5 +1,6 @@
 package com.ifsul.lpoo.sociotorcedor.core.model.base;
 
+import com.ifsul.lpoo.sociotorcedor.core.model.enumerator.StatusIngresso;
 import com.ifsul.lpoo.sociotorcedor.core.model.user.Associado;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,24 +20,27 @@ public class Ingresso {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ING_ID")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "associado_id")
+    @JoinColumn(name = "ING_ASSOCIADO", referencedColumnName = "ASSOCIADO_ID")
     private Associado associado;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "lote_id")
+    @JoinColumn(name = "ING_LOTE", referencedColumnName = "LOT_ID")
     private LoteIngresso lote;
 
-    //@Enumerated(EnumType.STRING)
-    private String status; // RESERVADO, PAGO, EXPIRADO, CANCELADO
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ING_STATUS")
+    private StatusIngresso status;
 
+    @Column(name = "ING_PRECOPAGO")
     private BigDecimal precoPago;      // snapshot do valor no momento da compra
     @Column(name = "ING_DATAHORACOMPRA")
     private LocalDateTime dhCompra;
 
-    @Column(unique = true)
-    private String codigo;             // UUID, é o que vai no "QR code" da entrada
+    @Column(name = "ING_CODIGO", unique = true)
+    private String codigo;             // UUID gerado na compra
 
 }

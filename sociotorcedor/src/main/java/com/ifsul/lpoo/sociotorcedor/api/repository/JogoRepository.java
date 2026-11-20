@@ -2,8 +2,11 @@ package com.ifsul.lpoo.sociotorcedor.api.repository;
 
 import com.ifsul.lpoo.sociotorcedor.core.model.base.Jogo;
 import com.ifsul.lpoo.sociotorcedor.core.dto.DashboardInfoJogoDTO;
+import com.ifsul.lpoo.sociotorcedor.core.model.enumerator.StatusIngresso;
 import org.springframework.data.jpa.repository.JpaRepository;
+import com.ifsul.lpoo.sociotorcedor.core.model.enumerator.StatusIngresso;
 import org.springframework.data.jpa.repository.Query;
+import com.ifsul.lpoo.sociotorcedor.core.model.enumerator.StatusIngresso;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
@@ -31,7 +34,7 @@ public interface JogoRepository extends JpaRepository<Jogo, Long> {
             order by j.dhJogo
             """)
     List<DashboardInfoJogoDTO> resumoPorJogo(@Param("desde") LocalDateTime desde,
-                                             @Param("status") String status);
+                                             @Param("status") StatusIngresso status);
 
 }
 

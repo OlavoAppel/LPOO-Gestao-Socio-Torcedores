@@ -38,7 +38,7 @@ public class Usuario implements Serializable, UserDetails {
     private String email;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "USER_ASSOCIADO", referencedColumnName = "ASSOC_ID")
+    @JoinColumn(name = "USER_ASSOCIADO", referencedColumnName = "ASSOCIADO_ID")
     private Associado associado;
 
     @Override
