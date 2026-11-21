@@ -1,0 +1,101 @@
+<!--
+  Comparação das categorias de sócio, usada em /planos (público) e em /sociotorcedor (logado, sem plano).
+  As colunas são as categorias pagas, da mais simples para a mais completa; a do sócio logado fica em laranja.
+-->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!--
+  Uso: <div th:replace="~{fragments/planos :: comparacao(${categorias}, ${exemplo}, ${beneficiosComparados}, ${idAtual})}"></div>
+  exemplo: JogoDetalheDTO do próximo jogo (ou null); idAtual: id da categoria do sócio logado (ou null).
+-->
+<div th:fragment="comparacao(categorias, exemplo, beneficios, idAtual)" class="relative -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+    <table class="w-full min-w-[20rem] border-collapse text-left">
+        <caption class="sr-only">Comparação das categorias de sócio: mensalidade, desconto, preços no próximo jogo e benefícios</caption>
+        <thead>
+        <tr class="border-b-2 border-ink align-bottom">
+            <td class="w-[34%] py-3 pr-3"></td>
+            <th scope="col" th:each="c : ${categorias}" class="px-2 py-3 text-right"
+                th:classappend="${c.id == idAtual} ? 'bg-accent/15'">
+                <span class="display block text-xl leading-tight sm:text-2xl" th:text="${c.nome}">Sócio Bronze</span>
+                <span th:if="${c.id == idAtual}" class="block text-sm font-bold">(seu plano)</span>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="border-b border-line">
+            <th scope="row" class="py-3 pr-3 font-semibold">Mensalidade</th>
+            <td th:each="c : ${categorias}" class="numero whitespace-nowrap px-2 py-3 text-right text-sm font-bold sm:text-base"
+                th:classappend="${c.id == idAtual} ? 'bg-accent/15'" th:text="${@formato.real(c.mensalidade)}">R$ 29,90</td>
+        </tr>
+        <tr class="border-b border-line">
+            <th scope="row" class="py-3 pr-3 font-semibold">Desconto em todos os ingressos</th>
+            <td th:each="c : ${categorias}" class="numero px-2 py-3 text-right display text-2xl leading-none"
+                th:classappend="${c.id == idAtual} ? 'bg-accent/15'" th:text="${@formato.porcentagem(c.descontoIngresso)}">10%</td>
+        </tr>
+        </tbody>
+
+        <!-- Preços reais do próximo jogo, calculados com o desconto de cada categoria -->
+        <tbody th:if="${exemplo != null and not #lists.isEmpty(exemplo.setores)}">
+        <tr>
+            <th scope="colgroup" th:colspan="${#lists.size(categorias) + 1}" class="pb-2 pt-7 text-left font-normal">
+                <span class="font-bold">Ingresso no próximo jogo</span>,
+                <span th:text="${exemplo.jogo.casa.sigla + ' × ' + exemplo.jogo.fora.sigla + ', ' + @formato.dataCurta(exemplo.jogo.dhJogo)}">SPFC × GRE, Sáb, 23 nov</span>
+            </th>
+        </tr>
+        <tr th:each="s : ${exemplo.setores}" class="border-b border-line">
+            <th scope="row" class="py-2.5 pr-3 font-normal">
+                <span class="block" th:text="${s.setor}">Cadeira Inferior</span>
+                <span class="block text-sm text-ink-muted" th:text="${'sem plano: ' + @formato.real(s.precoBase)}">sem plano: R$ 90,00</span>
+            </th>
+            <td th:each="p : ${s.precos.?[hierarquia > 0]}" class="numero whitespace-nowrap px-2 py-2.5 text-right text-sm sm:text-base"
+                th:classappend="${p.categoriaId == idAtual} ? 'bg-accent/15 font-bold'" th:text="${@formato.real(p.preco)}">R$ 81,00</td>
+        </tr>
+        </tbody>
+
+        <tbody th:if="${not #lists.isEmpty(beneficios)}">
+        <tr>
+            <th scope="colgroup" th:colspan="${#lists.size(categorias) + 1}" class="pb-2 pt-7 text-left font-bold">Benefícios</th>
+        </tr>
+        <tr th:each="b : ${beneficios}" class="border-b border-line">
+            <th scope="row" class="py-2.5 pr-3 font-normal">
+                <span class="block" th:text="${b.nome}">Camiseta do sócio</span>
+                <span th:if="${b.descricao}" class="hidden text-sm text-ink-muted sm:block" th:text="${b.descricao}">Descrição</span>
+            </th>
+            <td th:each="tem, i : ${b.porCategoria}" class="px-2 py-2.5 text-right"
+                th:classappend="${categorias[i.index].id == idAtual} ? 'bg-accent/15'">
+                <th:block th:if="${tem}">
+                    <svg th:replace="~{fragments/icones :: icone('check', 'ml-auto size-6 text-success')}"></svg>
+                    <span class="sr-only">Incluído</span>
+                </th:block>
+                <th:block th:unless="${tem}">
+                    <span class="text-ink-muted" aria-hidden="true">–</span>
+                    <span class="sr-only">Não incluído</span>
+                </th:block>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!--
+  Escolha do plano para quem está logado e ainda não é sócio. Um rádio por categoria e um botão:
+  funciona sem JavaScript e envia categoriaId para POST /sociotorcedor/associar.
+-->
+<form th:fragment="escolha(categorias)" th:action="@{/sociotorcedor/associar}" method="post" class="grid max-w-xl gap-4">
+    <fieldset class="grid gap-3">
+        <legend class="mb-3 text-lg font-bold">Escolha a sua categoria</legend>
+        <label th:each="c, i : ${categorias}" class="opcao-setor flex cursor-pointer items-center gap-4 px-4 py-3">
+            <input type="radio" name="categoriaId" th:value="${c.id}" required class="size-5 shrink-0 accent-accent">
+            <span class="grid flex-1 gap-0.5">
+                <span class="font-bold" th:text="${c.nome}">Sócio Bronze</span>
+                <span class="text-sm text-ink-muted"
+                      th:text="${@formato.porcentagem(c.descontoIngresso) + ' de desconto nos ingressos'}">10% de desconto nos ingressos</span>
+            </span>
+            <span class="numero text-right font-bold" th:text="${@formato.real(c.mensalidade) + ' por mês'}">R$ 29,90 por mês</span>
+        </label>
+    </fieldset>
+    <button type="submit" class="botao botao-primario justify-self-start">Associar-se</button>
+    <p class="text-sm text-ink-muted">Neste projeto não há cobrança: a associação vale na hora e o desconto já entra na próxima compra.</p>
+</form>
+
+</html>

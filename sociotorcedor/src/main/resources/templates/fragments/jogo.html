@@ -1,107 +1,48 @@
-<!--
-    Fragmentos de jogo (JogoDTO: id, dhJogo, nomeEstadio, campeonato, casa/fora com sigla e escudoPath).
-    Dias e meses saem de listas fixas em pt-BR, para não depender do idioma do navegador.
--->
+<!-- Peças de jogo usadas na página inicial, no calendário, na página do jogo e na compra. -->
 <html xmlns:th="http://www.thymeleaf.org">
 
-<!-- Placar do próximo jogo (hero da home). Uso: placar(${jogosData.proximoJogo}) -->
-<section th:fragment="placar(jogo)" class="placar" aria-labelledby="placar-titulo"
-         th:with="dia=${#strings.arraySplit('segunda,terça,quarta,quinta,sexta,sábado,domingo', ',')[jogo.dhJogo.dayOfWeek.value - 1]},
-                  mes=${#strings.arraySplit('janeiro,fevereiro,março,abril,maio,junho,julho,agosto,setembro,outubro,novembro,dezembro', ',')[jogo.dhJogo.monthValue - 1]},
-                  hora=${#temporals.format(jogo.dhJogo, 'HH:mm')},
-                  quando=${dia + ', ' + jogo.dhJogo.dayOfMonth + ' de ' + mes}">
-    <div class="conteudo py-8 md:py-12">
-        <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-            <h1 id="placar-titulo" class="text-3xl text-placar-ink md:text-4xl">Próximo jogo</h1>
-            <p class="text-lg text-placar-muted">
-                <span th:text="${jogo.campeonato}">Brasileirão 2026</span>,
-                <span th:text="${jogo.nomeEstadio}">MorumBIS</span>
-            </p>
-        </div>
+<!--
+  Confronto: escudos e siglas. A parte visual fica escondida dos leitores de tela, que recebem
+  os nomes completos ("São Paulo FC contra Grêmio").
+  Uso: <span th:replace="~{fragments/jogo :: confronto(${jogo}, 'size-10', 'display text-3xl')}"></span>
+-->
+<span th:fragment="confronto(jogo, classeEscudo, classeSigla)" class="inline-flex min-w-0 items-center">
+    <span class="sr-only" th:text="${jogo.casa.nome + ' contra ' + jogo.fora.nome}">São Paulo FC contra Grêmio</span>
+    <span class="inline-flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1" aria-hidden="true">
+        <img th:src="@{${jogo.casa.escudoPath}}" th:alt="${jogo.casa.nome}" th:class="${classeEscudo + ' shrink-0 object-contain'}"
+             width="48" height="48" decoding="async">
+        <span th:class="${classeSigla}" th:text="${jogo.casa.sigla}">SPFC</span>
+        <span th:class="${classeSigla + ' text-ink-muted'}">×</span>
+        <span th:class="${classeSigla}" th:text="${jogo.fora.sigla}">GRE</span>
+        <img th:src="@{${jogo.fora.escudoPath}}" th:alt="${jogo.fora.nome}" th:class="${classeEscudo + ' shrink-0 object-contain'}"
+             width="48" height="48" decoding="async">
+    </span>
+</span>
 
-        <p class="sr-only" th:text="${jogo.casa.sigla + ' contra ' + jogo.fora.sigla + ', ' + quando + ', às ' + hora}">
-            SPFC contra GRE, segunda, 23 de novembro, às 21:00</p>
-
-        <div class="placar-grade mt-6 rounded-lg border border-placar-muted/30 px-2 py-6 sm:px-6 md:py-10" aria-hidden="true">
-            <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-6">
-                <div class="flex flex-col items-center gap-3 md:flex-row md:justify-end md:gap-6">
-                    <img th:src="@{${jogo.casa.escudoPath}}" th:alt="${'Escudo ' + jogo.casa.sigla}"
-                         class="size-12 object-contain sm:size-16 md:size-20">
-                    <span class="led acende text-[clamp(2.5rem,10vw,6.5rem)]" style="--ordem: 0"
-                          th:text="${jogo.casa.sigla}">SPFC</span>
-                </div>
-                <div class="flex flex-col items-center text-center">
-                    <span class="led acende text-[clamp(2rem,8vw,5rem)]" style="--ordem: 2" th:text="${hora}">21:00</span>
-                    <span class="mt-2 hidden text-lg text-placar-muted sm:block" th:text="${quando}">segunda, 23 de novembro</span>
-                </div>
-                <div class="flex flex-col-reverse items-center gap-3 md:flex-row md:justify-start md:gap-6">
-                    <span class="led acende text-[clamp(2.5rem,10vw,6.5rem)]" style="--ordem: 1"
-                          th:text="${jogo.fora.sigla}">GRE</span>
-                    <img th:src="@{${jogo.fora.escudoPath}}" th:alt="${'Escudo ' + jogo.fora.sigla}"
-                         class="size-12 object-contain sm:size-16 md:size-20">
-                </div>
-            </div>
-            <p class="mt-4 text-center text-lg text-placar-muted sm:hidden" th:text="${quando}">segunda, 23 de novembro</p>
-        </div>
-
-        <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <a th:href="@{/ingressos(jogoId=${jogo.id})}" class="btn btn-compra px-7 text-lg">Comprar ingresso</a>
-            <a th:href="@{/jogos}" class="inline-flex min-h-11 items-center font-semibold text-placar-ink underline decoration-2 underline-offset-4">
-                Ver o calendário completo</a>
-        </div>
-    </div>
-</section>
-
-<!-- Linha de jogo (lista da home e calendário). "destaque" marca o próximo jogo.
-     A classe jogo-card e o data-mes são lidos pelo filtro de meses de jogos.html. -->
-<article th:fragment="linha(jogo, destaque)"
-         class="jogo-card painel grid grid-cols-[auto_1fr] items-start gap-x-4 gap-y-4 p-4 sm:grid-cols-[4.5rem_1fr_auto] sm:items-center sm:gap-x-6 sm:p-5"
-         th:classappend="${destaque} ? 'outline-2 -outline-offset-1 outline-brand'"
-         th:data-mes="${jogo.dhJogo.monthValue}"
-         th:with="dia=${#strings.arraySplit('seg,ter,qua,qui,sex,sáb,dom', ',')[jogo.dhJogo.dayOfWeek.value - 1]},
-                  mes=${#strings.arraySplit('jan,fev,mar,abr,mai,jun,jul,ago,set,out,nov,dez', ',')[jogo.dhJogo.monthValue - 1]},
-                  encerrado=${jogo.dhJogo.isBefore(#temporals.createNow())}">
-
-    <time class="flex w-16 flex-col items-center rounded-lg bg-surface-2 py-2 leading-none sm:w-auto sm:py-3"
-          th:datetime="${#temporals.format(jogo.dhJogo, 'yyyy-MM-dd''T''HH:mm')}">
-        <span class="numero text-3xl" th:text="${jogo.dhJogo.dayOfMonth}">23</span>
-        <span class="mt-1 font-bold" th:text="${mes}">nov</span>
+<!--
+  Linha do calendário: leva à página do jogo.
+  Uso: <a th:replace="~{fragments/jogo :: linha(${jogo}, ${destaque})}"></a>
+-->
+<a th:fragment="linha(jogo, destaque)" th:href="@{/jogos/{id}(id=${jogo.id})}"
+   th:with="encerrado=${jogo.dhJogo.isBefore(#temporals.createNow())}"
+   class="grid grid-cols-[3rem_minmax(0,1fr)_auto] items-center gap-x-4 border-b border-line py-4 pl-1 pr-1 text-ink no-underline hover:bg-surface-2 sm:grid-cols-[3.5rem_minmax(0,1fr)_auto]"
+   th:classappend="${encerrado} ? 'text-ink-muted'">
+    <time th:datetime="${@formato.iso(jogo.dhJogo)}" class="grid justify-items-center leading-none">
+        <span class="display text-2xl sm:text-3xl" th:text="${jogo.dhJogo.dayOfMonth}">23</span>
+        <span class="mt-1 text-sm font-semibold text-ink-muted" th:text="${@formato.diaSemana(jogo.dhJogo)}">sáb</span>
     </time>
-
-    <div class="min-w-0">
-        <p th:if="${destaque}" class="selo mb-2 bg-brand text-brand-ink">Próximo jogo</p>
-        <h3 class="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-2xl" th:classappend="${encerrado} ? 'text-ink-muted'">
-            <span class="inline-flex items-center gap-2">
-                <img th:src="@{${jogo.casa.escudoPath}}" th:alt="${'Escudo ' + jogo.casa.sigla}" class="size-8 object-contain">
-                <span th:text="${jogo.casa.sigla}">SPFC</span>
-            </span>
-            <span class="text-lg font-semibold text-ink-muted">x</span>
-            <span class="inline-flex items-center gap-2">
-                <span th:text="${jogo.fora.sigla}">GRE</span>
-                <img th:src="@{${jogo.fora.escudoPath}}" th:alt="${'Escudo ' + jogo.fora.sigla}" class="size-8 object-contain">
-            </span>
-        </h3>
-        <ul class="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-ink-muted">
-            <li class="inline-flex items-center gap-1.5">
-                <svg width="16" height="16" class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-                <span><span th:text="${dia}">seg</span>, <span th:text="${#temporals.format(jogo.dhJogo, 'HH:mm')}">21:00</span></span>
-            </li>
-            <li class="inline-flex items-center gap-1.5">
-                <svg width="16" height="16" class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-                <span th:text="${jogo.nomeEstadio}">MorumBIS</span>
-            </li>
-            <li class="inline-flex items-center gap-1.5">
-                <svg width="16" height="16" class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 6h3a3 3 0 0 1-3 4M7 6H4a3 3 0 0 0 3 4"/></svg>
-                <span th:text="${jogo.campeonato}">Brasileirão 2026</span>
-            </li>
-        </ul>
-    </div>
-
-    <div class="col-span-2 sm:col-span-1">
-        <a th:unless="${encerrado}" th:href="@{/ingressos(jogoId=${jogo.id})}"
-           class="btn btn-contorno w-full sm:w-auto">Comprar ingresso</a>
-        <p th:if="${encerrado}" class="font-semibold text-ink-muted">Jogo encerrado</p>
-    </div>
-</article>
+    <span class="grid min-w-0 gap-1.5">
+        <span th:replace="~{fragments/jogo :: confronto(${jogo}, 'size-7', 'display text-xl leading-none')}"></span>
+        <span class="text-sm text-ink-muted">
+            <span th:text="${@formato.hora(jogo.dhJogo) + ', ' + jogo.nomeEstadio + '.'}">21h, MorumBIS.</span>
+            <span th:text="${jogo.campeonato}">Brasileirão 2026</span>
+        </span>
+    </span>
+    <span class="flex items-center gap-1 text-sm font-bold">
+        <span th:if="${destaque and !encerrado}" class="text-brand">Próximo</span>
+        <span th:if="${encerrado}" class="font-semibold text-ink-muted">Encerrado</span>
+        <svg th:replace="~{fragments/icones :: icone('seguir', 'size-5 text-ink-muted')}"></svg>
+    </span>
+</a>
 
 </html>

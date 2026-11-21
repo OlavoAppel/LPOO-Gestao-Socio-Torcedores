@@ -1,0 +1,22 @@
+<!-- Rodapé. Uso: <footer th:replace="~{fragments/rodape :: rodape}"></footer> -->
+<footer th:fragment="rodape" class="mt-20 border-t border-line bg-surface" xmlns:th="http://www.thymeleaf.org">
+    <div class="moldura grid gap-8 py-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
+        <div class="flex max-w-prose gap-4">
+            <svg th:replace="~{fragments/marca :: brasao('h-14 w-auto shrink-0')}"></svg>
+            <p class="text-sm text-ink-muted">
+                <strong class="text-ink" th:text="#{clube.nome}">Esporte Clube Ventania</strong>
+                é um clube fictício, fundado em 1931 por funcionários de um campo de aviação, daí a biruta no brasão.
+                Foi criado para o trabalho de Linguagem de Programação Orientada a Objetos do IFSul.
+                Os escudos dos adversários pertencem aos respectivos clubes e aparecem aqui só para fins educacionais.
+            </p>
+        </div>
+        <nav aria-label="Rodapé">
+            <ul class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm md:grid-cols-1">
+                <li><a class="link" th:href="@{/jogos}">Calendário de jogos</a></li>
+                <li><a class="link" th:href="@{/planos}">Planos de sócio</a></li>
+                <li><a class="link" th:href="@{/noticias}">Notícias do clube</a></li>
+                <li><a class="link" th:href="@{/perfil}">Minha conta</a></li>
+            </ul>
+        </nav>
+    </div>
+</footer>

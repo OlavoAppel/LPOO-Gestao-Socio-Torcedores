@@ -1,0 +1,77 @@
+/*
+ * Paleta do Esporte Clube Ventania: ÚNICO lugar para trocar as cores do site.
+ *
+ * Cada token tem o valor do tema claro e o do escuro: light-dark(claro, escuro).
+ * O tema segue o sistema (color-scheme: light dark) até o torcedor escolher um no botão do topo;
+ * aí o atributo <html data-theme="light|dark"> fixa a escolha (ver static/js/theme.js).
+ * Este arquivo é CSS puro: mudar uma cor aqui NÃO exige recompilar o Tailwind.
+ * Os templates só usam os nomes semânticos (bg-surface, text-ink, bg-brand...), nunca hex.
+ *
+ * Contraste conferido (WCAG AA) nos dois temas: texto ink/ink-muted sobre bg, surface e surface-2;
+ * brand-ink sobre brand; accent-ink sobre accent; danger e success como texto; line-strong (borda de
+ * campo) a 3:1. As rampas das categorias passam no validador ordinal da skill de dataviz.
+ */
+:root {
+    color-scheme: light dark;
+
+    /* Superfícies e texto */
+    --bg:          light-dark(#F4F5FA, #0E1333);  /* nuvem / noite de jogo */
+    --surface:     light-dark(#FFFFFF, #161C44);
+    --surface-2:   light-dark(#EBEDF5, #1E2552);
+    --ink:         light-dark(#151A3A, #EDEFFA);  /* tinta */
+    --ink-muted:   light-dark(#4E5475, #A7ADD4);
+    --line:        light-dark(#D5D8E6, #2C3466);  /* divisórias */
+    --line-strong: light-dark(#7C82A3, #6770A6);  /* borda de campo de formulário (3:1) */
+
+    /* Marca e ações: azul é o clube; laranja é "o que é seu" (seu quadrado, seu preço, sua escolha) */
+    --brand:       light-dark(#28338C, #9AA8FF);  /* azul-tempestade */
+    --brand-ink:   light-dark(#FFFFFF, #0E1333);
+    --accent:      light-dark(#D96A09, #FF8B4D);  /* laranja-biruta */
+    --accent-ink:  light-dark(#151A3A, #0E1333);
+
+    /* Estados */
+    --danger:      light-dark(#B42318, #FF8A80);
+    --danger-ink:  light-dark(#FFFFFF, #0E1333);
+    --success:     light-dark(#13784A, #5BD39A);
+
+    /* Categorias de sócio (rampa de um tom só: Bronze, Prata, Ouro). Usada no mosaico e nos gráficos. */
+    --nivel-1:     light-dark(#9AA9E6, #3F4BA0);
+    --nivel-2:     light-dark(#5A6CD0, #6A7BE0);
+    --nivel-3:     light-dark(#28338C, #AEBBFF);
+
+    /* Gráficos do admin: barra principal, trilho do medidor e destaque */
+    --chart-1:     var(--brand);
+    --chart-track: light-dark(#DDE1EF, #262E62);
+    --chart-2:     var(--accent);
+
+    /* Cores fixas do brasão (não mudam com o tema; o brasão tem contorno branco próprio) */
+    --clube-azul:    #28338C;
+    --clube-laranja: #F07A1A;
+    --clube-branco:  #FFFFFF;
+    /* Arquibancada à noite, atrás do brasão em mosaico: o fundo e os assentos vazios */
+    --clube-noite:   #0E1333;
+    --clube-assento: #1B2255;
+}
+
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"]  { color-scheme: dark; }
+
+/*
+ * Exemplo de troca: Sport Club Jacarandá (roxo e amarelo-ipê). Para usar, substitua os valores acima.
+ *
+ *  --bg:          light-dark(#F7F5FA, #160F24);
+ *  --surface:     light-dark(#FFFFFF, #1F1633);
+ *  --surface-2:   light-dark(#EFEAF5, #2A1F44);
+ *  --ink:         light-dark(#1E1530, #F1ECF8);
+ *  --ink-muted:   light-dark(#5A4F6E, #B9AED0);
+ *  --line:        light-dark(#DCD5E6, #3A2D57);
+ *  --line-strong: light-dark(#857A9A, #7A6C99);
+ *  --brand:       light-dark(#4B2A86, #C7B2F2);
+ *  --brand-ink:   light-dark(#FFFFFF, #160F24);
+ *  --accent:      light-dark(#9A6A00, #F5C542);
+ *  --accent-ink:  light-dark(#FFFFFF, #160F24);
+ *  --nivel-1:     light-dark(#B9A6DE, #4A3278);
+ *  --nivel-2:     light-dark(#7C5BC0, #7E5FC4);
+ *  --nivel-3:     light-dark(#4B2A86, #C7B2F2);
+ *  --clube-azul:  #4B2A86;   --clube-laranja: #F5C542;
+ */

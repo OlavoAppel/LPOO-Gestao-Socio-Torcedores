@@ -1,6 +1,7 @@
 package com.ifsul.lpoo.sociotorcedor.api.controller;
 
 import com.ifsul.lpoo.sociotorcedor.api.service.AdminCadastroService;
+import com.ifsul.lpoo.sociotorcedor.api.service.AdminJogosService;
 import com.ifsul.lpoo.sociotorcedor.core.form.CadastroJogoForm;
 import com.ifsul.lpoo.sociotorcedor.core.form.CadastroLoteForm;
 import com.ifsul.lpoo.sociotorcedor.core.model.base.Jogo;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminCadastroController {
 
     private final AdminCadastroService adminCadastroService;
+    private final AdminJogosService adminJogosService; // só leitura: sugestões de campeonato
 
     @GetMapping("/jogo")
     public String formNovoJogo(Model model) {
@@ -65,6 +67,7 @@ public class AdminCadastroController {
     private void carregarOpcoesJogo(Model model) {
         model.addAttribute("times", adminCadastroService.listarTimes());
         model.addAttribute("estadios", adminCadastroService.listarEstadios());
+        model.addAttribute("campeonatos", adminJogosService.listarCampeonatos()); // extra: sugestões do campo
     }
 
     private void carregarTelaLotes(Long jogoId, Model model) {

@@ -4,26 +4,49 @@
     <th:block th:replace="~{fragments/head :: base('Ingresso comprado')}"/>
 </head>
 <body>
+<header th:replace="~{fragments/navegacao :: topo('jogos')}"></header>
 
-<div th:replace="~{fragments/navbar :: navbar('')}"></div>
+<main id="conteudo" class="moldura grid gap-8 py-10 md:py-16">
+    <header class="grid max-w-2xl gap-3">
+        <p class="flex items-center gap-2 font-bold text-success">
+            <svg th:replace="~{fragments/icones :: icone('check', 'size-6')}"></svg>
+            <span>Compra concluída</span>
+        </p>
+        <h1 class="display text-4xl sm:text-5xl">Ingresso comprado</h1>
+        <p class="text-lg text-ink-muted">Ele já está em Minha conta. Na entrada do estádio, apresente o código abaixo.</p>
+    </header>
 
-<main id="conteudo" class="conteudo flex max-w-3xl flex-col py-10 md:py-16">
-    <article class="ingresso">
-        <div class="flex flex-col gap-3 p-6 sm:p-8">
-            <h1 class="titulo-pagina">Ingresso comprado</h1>
-            <p class="apoio">
-                Ele já está em Minha conta, com o código para a entrada no estádio. Nos vemos na arquibancada!</p>
-        </div>
-        <div class="ingresso-canhoto items-start justify-center gap-4 sm:items-stretch">
-            <span class="carimbo self-center rounded-md border-[3px] border-success px-3 py-1 font-display text-2xl font-extrabold text-success [font-stretch:75%]"
-                  aria-hidden="true">Pago</span>
-            <a th:href="@{/perfil}" class="btn btn-principal w-full">Ver meus ingressos</a>
-            <a th:href="@{/jogos}" class="btn btn-contorno w-full">Ver outros jogos</a>
-        </div>
-    </article>
+    <!-- Comprovante: o ingresso comprado por último (só leitura) -->
+    <section th:if="${ingresso != null}" aria-label="Comprovante" class="comprovante grid max-w-2xl gap-6 rounded-controle border border-line bg-surface p-5 sm:p-8"
+             th:with="jogo=${ingresso.lote.jogo}">
+        <span th:replace="~{fragments/jogo :: confronto(${jogo}, 'size-10', 'display text-3xl leading-none')}"></span>
+        <dl class="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+            <div>
+                <dt class="text-sm text-ink-muted">Quando</dt>
+                <dd class="font-bold" th:text="${@formato.diaSemanaLongo(jogo.dhJogo) + ', ' + @formato.diaMes(jogo.dhJogo) + ', às ' + @formato.hora(jogo.dhJogo)}">Segunda-feira, 23 nov, às 21h</dd>
+            </div>
+            <div>
+                <dt class="text-sm text-ink-muted">Onde</dt>
+                <dd class="font-bold" th:text="${jogo.estadio.nome + ', ' + (ingresso.lote.setor != null ? ingresso.lote.setor.nome : ingresso.lote.nome)}">MorumBIS, Cadeira Inferior</dd>
+            </div>
+            <div>
+                <dt class="text-sm text-ink-muted">Valor pago</dt>
+                <dd class="numero font-bold" th:text="${@formato.real(ingresso.precoPago)}">R$ 67,50</dd>
+            </div>
+            <div>
+                <dt class="text-sm text-ink-muted">Código de entrada</dt>
+                <dd class="display numero text-4xl leading-none tracking-wider" th:text="${@formato.codigoCurto(ingresso.codigo)}">ABCD1234</dd>
+            </div>
+        </dl>
+    </section>
+
+    <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <a th:href="@{/perfil}" class="botao botao-primario">Ver meus ingressos</a>
+        <a th:href="@{/jogos}" class="link font-semibold">Ver outros jogos</a>
+    </div>
 </main>
 
-<footer th:replace="~{fragments/footer :: rodape}"></footer>
-
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('jogos')}"></nav>
 </body>
 </html>

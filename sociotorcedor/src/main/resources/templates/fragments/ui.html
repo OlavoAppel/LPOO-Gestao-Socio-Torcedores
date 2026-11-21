@@ -1,32 +1,46 @@
 <!-- Peças de interface reutilizadas pelas páginas. -->
 <html xmlns:th="http://www.thymeleaf.org">
 
-<!-- Cabeçalho de página: título e, opcionalmente, uma frase de apoio.
-     Uso: <header th:replace="~{fragments/ui :: cabecalho('Jogos', 'Frase de apoio')}"></header> -->
-<header th:fragment="cabecalho(titulo, apoio)" class="flex flex-col gap-2">
-    <h1 class="titulo-pagina" th:text="${titulo}">Título</h1>
-    <p class="apoio" th:if="${apoio}" th:text="${apoio}">Frase de apoio.</p>
+<!-- Cabeçalho de página. Uso: <header th:replace="~{fragments/ui :: cabecalho('Jogos', 'Frase de apoio ou null')}"></header> -->
+<header th:fragment="cabecalho(titulo, apoio)" class="grid max-w-3xl gap-3">
+    <h1 class="display text-3xl sm:text-4xl" th:text="${titulo}">Título</h1>
+    <p th:if="${apoio}" class="text-lg text-ink-muted" th:text="${apoio}">Frase de apoio</p>
 </header>
 
-<!-- Link de volta. Uso: <a th:replace="~{fragments/ui :: voltar(@{/jogos}, 'Voltar aos jogos')}"></a> -->
+<!-- Link de volta. Uso: <a th:replace="~{fragments/ui :: voltar(@{/jogos}, 'Calendário')}"></a> -->
 <a th:fragment="voltar(destino, texto)" th:href="${destino}"
-   class="inline-flex min-h-11 items-center gap-1.5 self-start font-semibold text-ink-muted hover:text-ink">
-    <svg width="16" height="16" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+   class="-ml-1.5 inline-flex min-h-11 items-center gap-1 rounded-controle pr-2 font-semibold text-ink-muted hover:text-ink">
+    <svg th:replace="~{fragments/icones :: icone('voltar', 'size-5')}"></svg>
     <span th:text="${texto}">Voltar</span>
 </a>
 
-<!-- Mensagens de retorno (flash "sucesso" e "erro"). Nada aparece quando ambas são nulas. -->
-<div th:fragment="alertas(sucesso, erro)" th:if="${sucesso != null or erro != null}" class="flex flex-col gap-2">
-    <p class="alerta alerta-ok" role="status" th:if="${sucesso}" th:text="${sucesso}">Tudo certo.</p>
-    <p class="alerta alerta-erro" role="alert" th:if="${erro}" th:text="${erro}">Algo deu errado.</p>
+<!-- Retorno de uma ação (flash "sucesso" e "erro"). Nada aparece quando os dois são nulos. -->
+<div th:fragment="alertas(sucesso, erro)" th:if="${sucesso != null or erro != null}" class="grid gap-3">
+    <p th:if="${sucesso}" role="status" class="aviso aviso-sucesso">
+        <svg th:replace="~{fragments/icones :: icone('check', 'size-6 shrink-0 text-success')}"></svg>
+        <span th:text="${sucesso}">Tudo certo.</span>
+    </p>
+    <p th:if="${erro}" role="alert" class="aviso aviso-erro">
+        <svg th:replace="~{fragments/icones :: icone('alerta', 'size-6 shrink-0 text-danger')}"></svg>
+        <span th:text="${erro}">Algo deu errado.</span>
+    </p>
 </div>
 
-<!-- Estado vazio: o que aconteceu e o que fazer. Ação opcional (link e texto). -->
-<div th:fragment="vazio(titulo, texto, destino, acao)" class="vazio">
-    <p class="font-display text-xl font-bold [font-stretch:75%]" th:text="${titulo}">Nada por aqui</p>
-    <p class="mx-auto mt-1 max-w-[48ch] text-ink-muted" th:text="${texto}">Explicação.</p>
-    <a th:if="${destino}" th:href="${destino}" class="btn btn-contorno mt-5" th:text="${acao}">Ação</a>
+<!-- Estado vazio: o que aconteceu e o que fazer agora. Ação opcional (destino e texto podem ser null). -->
+<div th:fragment="vazio(titulo, texto, destino, acao)" class="grid max-w-prose justify-items-start gap-2 border-l-4 border-line py-1 pl-4">
+    <p class="text-lg font-bold" th:text="${titulo}">Nada por aqui</p>
+    <p class="text-ink-muted" th:text="${texto}">Explicação</p>
+    <a th:if="${destino}" th:href="${destino}" class="botao botao-secundario mt-2" th:text="${acao}">Ação</a>
 </div>
+
+<!-- Valor em reais grande: o "R$" menor e tudo numa linha. Uso: <span th:replace="~{fragments/ui :: dinheiro(${valor})}"></span> -->
+<span th:fragment="dinheiro(valor)" class="whitespace-nowrap"><span class="mr-1 align-[0.55em] text-[0.45em]">R$</span><span
+        th:text="${@formato.decimal(valor)}">0,00</span></span>
+
+<!-- Aviso de recurso fictício: o dado é de demonstração e a ação ainda não existe. -->
+<p th:fragment="previa(texto)" class="inline-flex items-center gap-2 text-sm text-ink-muted">
+    <svg th:replace="~{fragments/icones :: icone('alerta', 'size-4 shrink-0')}"></svg>
+    <span th:text="${texto}">Prévia com dados de demonstração.</span>
+</p>
 
 </html>

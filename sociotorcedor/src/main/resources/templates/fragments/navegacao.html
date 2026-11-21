@@ -1,0 +1,91 @@
+<!--
+  Navegação. No celular, o topo só tem a marca e o tema; as seções ficam nas abas fixas embaixo.
+  Uso: <header th:replace="~{fragments/navegacao :: topo('jogos')}"></header> logo no começo do <body>
+       <nav th:replace="~{fragments/navegacao :: abas('jogos')}"></nav> no fim do <body>
+  O parâmetro marca a seção atual: inicio, jogos, socio, noticias, admin, conta ou ''.
+  "Sócio" leva a /planos para quem não entrou e a /sociotorcedor para quem entrou; admin não tem plano de sócio.
+-->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<header th:fragment="topo(ativo)" class="border-b border-line bg-surface">
+    <a href="#conteudo"
+       class="botao botao-primario sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50">Pular para o conteúdo</a>
+    <div class="moldura flex h-16 items-center gap-6">
+        <a th:replace="~{fragments/marca :: logotipo}"></a>
+        <nav aria-label="Principal" class="hidden items-center gap-1 md:flex">
+            <a th:href="@{/jogos}" class="nav-link" th:aria-current="${ativo == 'jogos'} ? 'page'">Jogos</a>
+            <a sec:authorize="isAnonymous()" th:href="@{/planos}" class="nav-link"
+               th:aria-current="${ativo == 'socio'} ? 'page'">Sócio</a>
+            <a sec:authorize="isAuthenticated() and !hasRole('ADMIN')" th:href="@{/sociotorcedor}" class="nav-link"
+               th:aria-current="${ativo == 'socio'} ? 'page'">Sócio</a>
+            <a th:href="@{/noticias}" class="nav-link" th:aria-current="${ativo == 'noticias'} ? 'page'">Notícias</a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" class="nav-link"
+               th:aria-current="${ativo == 'admin'} ? 'page'">Administração</a>
+        </nav>
+        <div class="ml-auto flex items-center gap-2">
+            <!-- Sem JavaScript o tema segue o sistema e o botão fica escondido (theme.js o mostra). -->
+            <button type="button" class="botao-icone" data-alternar-tema hidden aria-pressed="false" title="Tema escuro">
+                <svg th:replace="~{fragments/icones :: icone('lua', 'size-5 dark:hidden')}"></svg>
+                <svg th:replace="~{fragments/icones :: icone('sol', 'size-5 hidden dark:block')}"></svg>
+                <span class="sr-only">Tema escuro</span>
+            </button>
+            <a sec:authorize="isAnonymous()" th:href="@{/login}"
+               class="botao botao-secundario hidden min-h-10 py-1.5 md:inline-flex">Entrar</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/perfil}" class="nav-link hidden items-center gap-2 md:inline-flex"
+               th:aria-current="${ativo == 'conta'} ? 'page'">
+                <svg th:replace="~{fragments/icones :: icone('conta', 'size-5')}"></svg>
+                Minha conta
+            </a>
+        </div>
+    </div>
+</header>
+
+<nav th:fragment="abas(ativo)" aria-label="Seções"
+     class="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
+    <ul class="grid auto-cols-fr grid-flow-col">
+        <li>
+            <a th:href="@{/}" class="aba" th:aria-current="${ativo == 'inicio'} ? 'page'">
+                <svg th:replace="~{fragments/icones :: icone('inicio', 'size-6')}"></svg>
+                <span>Início</span>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/jogos}" class="aba" th:aria-current="${ativo == 'jogos'} ? 'page'">
+                <svg th:replace="~{fragments/icones :: icone('jogos', 'size-6')}"></svg>
+                <span>Jogos</span>
+            </a>
+        </li>
+        <li sec:authorize="isAnonymous()">
+            <a th:href="@{/planos}" class="aba" th:aria-current="${ativo == 'socio'} ? 'page'">
+                <svg th:replace="~{fragments/icones :: icone('socio', 'size-6')}"></svg>
+                <span>Sócio</span>
+            </a>
+        </li>
+        <li sec:authorize="isAuthenticated() and !hasRole('ADMIN')">
+            <a th:href="@{/sociotorcedor}" class="aba" th:aria-current="${ativo == 'socio'} ? 'page'">
+                <svg th:replace="~{fragments/icones :: icone('socio', 'size-6')}"></svg>
+                <span>Sócio</span>
+            </a>
+        </li>
+        <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/admin}" class="aba" th:aria-current="${ativo == 'admin'} ? 'page'">
+                <svg th:replace="~{fragments/icones :: icone('admin', 'size-6')}"></svg>
+                <span>Admin</span>
+            </a>
+        </li>
+        <li sec:authorize="isAnonymous()">
+            <a th:href="@{/login}" class="aba" th:aria-current="${ativo == 'conta'} ? 'page'">
+                <svg th:replace="~{fragments/icones :: icone('conta', 'size-6')}"></svg>
+                <span>Entrar</span>
+            </a>
+        </li>
+        <li sec:authorize="isAuthenticated()">
+            <a th:href="@{/perfil}" class="aba" th:aria-current="${ativo == 'conta'} ? 'page'">
+                <svg th:replace="~{fragments/icones :: icone('conta', 'size-6')}"></svg>
+                <span>Conta</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+</html>

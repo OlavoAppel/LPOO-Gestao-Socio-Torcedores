@@ -1,29 +1,77 @@
 <!--
-    Marca do clube (fictício). Para trocar de clube:
-    1. desenhe outro brasão no fragmento "brasao" abaixo;
-    2. troque os nomes em messages.properties (clube.*);
-    3. troque as cores --crest-* e a paleta em static/css/tema.css.
+  Marca do clube fictício (Esporte Clube Ventania): é o ÚNICO lugar com o desenho do brasão.
+  Para trocar de clube: este arquivo, o nome em messages.properties e as cores em static/css/paleta.css.
+  O ícone da aba (static/images/brasao.svg) é uma cópia deste desenho com as cores fixas: atualize junto.
+
+  O clube foi fundado em 1931 por funcionários de um campo de aviação; por isso a biruta laranja e branca.
+  As cores vêm dos tokens --clube-* (fixos nos dois temas; o contorno branco separa o brasão do fundo).
 -->
 <html xmlns:th="http://www.thymeleaf.org">
 
-<!-- Brasão: escudo azul-lagoa, faixa ondulada laranja (a lagoa), estrela e o L. Uso: brasao('size-10') -->
-<svg th:fragment="brasao(classe)" th:class="${classe}" width="40" height="48" viewBox="0 0 40 48" aria-hidden="true" focusable="false">
-    <path d="M3 3h34v19c0 12.5-8 19.5-17 23.5C11 41.5 3 34.5 3 22z"
-          style="fill: var(--crest-1); stroke: var(--crest-3); stroke-width: 2"/>
-    <path d="M4 14c5.3-3 10.7 3 16 0s10.7-3 16 0v6.5c-5.3-3-10.7 3-16 0s-10.7 3-16 0z"
-          style="fill: var(--crest-2)"/>
-    <path d="M20 4.6l1.25 2.55 2.8.4-2.03 1.98.48 2.8L20 11l-2.5 1.33.48-2.8-2.03-1.98 2.8-.4z"
-          style="fill: var(--crest-3)"/>
-    <path d="M15.5 25h4.2v10.8H27V40H15.5z" style="fill: var(--crest-3)"/>
+<!-- Brasão vetorial. Uso: <svg th:replace="~{fragments/marca :: brasao('h-9 w-auto')}"></svg> -->
+<svg th:fragment="brasao(classe)" th:class="${classe}" viewBox="0 0 64 72" aria-hidden="true" focusable="false">
+    <path class="fill-clube-branco" d="M5 3h54v31c0 18.2-12 30.6-27 36.6C17 64.6 5 52.2 5 34z"/>
+    <path class="fill-clube-azul" d="M8.5 6.5h47V34c0 16-10.4 26.9-23.5 32.3C19.4 60.9 8.5 50 8.5 34z"/>
+    <rect class="fill-clube-branco" x="14.8" y="13" width="2.6" height="35" rx="1.3"/>
+    <circle class="fill-clube-branco" cx="16.1" cy="12.6" r="2.5"/>
+    <path class="fill-clube-laranja" d="M17.4 16.8 26 19.1v12L17.4 31z"/>
+    <path class="fill-clube-branco" d="M26 19.1l8 2.2v10l-8-.2z"/>
+    <path class="fill-clube-laranja" d="M34 21.3l8 2.1v8L34 31.3z"/>
+    <path class="fill-clube-branco" d="M42 23.4l8 2.1v6L42 31.4z"/>
+    <path class="stroke-clube-branco" d="M21 42c5-3 10-3 15 0s10 3 15 0" fill="none" stroke-width="2.6" stroke-linecap="round"/>
 </svg>
 
-<!-- Logotipo completo (brasão + nome), usado na navbar e no rodapé -->
-<a th:fragment="logotipo" th:href="@{/}" class="flex shrink-0 items-center gap-2.5 rounded-md">
-    <svg th:replace="~{fragments/marca :: brasao('h-10 w-auto')}"></svg>
-    <span class="flex flex-col">
-        <span class="font-display text-xl leading-none text-ink [font-stretch:75%] font-extrabold" th:text="#{clube.curto}">Lagoa EC</span>
-        <span class="text-sm leading-tight text-ink-muted" th:text="#{clube.programa}">Sócio-torcedor</span>
-    </span>
+<!-- Logotipo do topo: brasão + nome curto, leva à página inicial -->
+<a th:fragment="logotipo" th:href="@{/}" class="-ml-1 flex shrink-0 items-center gap-2.5 rounded-controle py-1 pl-1 pr-2"
+   th:aria-label="${#messages.msg('clube.curto') + ', página inicial'}">
+    <svg th:replace="~{fragments/marca :: brasao('h-9 w-auto shrink-0')}"></svg>
+    <span class="display text-xl leading-none text-ink" th:text="#{clube.curto}">Ventania</span>
 </a>
+
+<!--
+  O brasão como a torcida o monta na arquibancada: um mosaico de 24 x 27 cartões, visto à noite
+  (o fundo escuro deixa os cartões brancos aparecerem).
+  Mapa desenhado à mão, uma linha por fileira da arquibancada:
+  a = azul, l = laranja, b = branco, . = assento sem cartão. Pode ser editado quadrado a quadrado.
+  Com a classe "mosaico-ola", as colunas se erguem em onda uma vez (desligado com movimento reduzido).
+-->
+<svg th:fragment="brasaoMosaico(classe)" th:class="${classe}" viewBox="0 0 24 27" role="img"
+     th:aria-label="${'Brasão do ' + #messages.msg('clube.nome') + ' montado em mosaico pela torcida'}"
+     th:with="linhas=${#strings.arraySplit(
+        '..bbbbbbbbbbbbbbbbbbbb..|' +
+        '..baaaaaaaaaaaaaaaaaab..|' +
+        '..baaaaaaaaaaaaaaaaaab..|' +
+        '..babbbaaaaaaaaaaaaaab..|' +
+        '..baabaaaaaaaaaaaaaaab..|' +
+        '..baabllllaaaaaaaaaaab..|' +
+        '..baabllllbbbaaaaaaaab..|' +
+        '..baabllllbbblllaaaaab..|' +
+        '..baabllllbbblllbbbaab..|' +
+        '..baabllllbbblllbbbaab..|' +
+        '..baabllllbbblllbbbaab..|' +
+        '..baabaaaaaaaaaaaaaaab..|' +
+        '..baabaaaaabbbbaaaaaab..|' +
+        '..baababbbbaaaabbbbaab..|' +
+        '..baabaaaaaaaaaaaaaaab..|' +
+        '..baaaaaaaaaaaaaaaaaab..|' +
+        '..baaabbbabbbababaaaab..|' +
+        '..baaabaaabaaababaaaab..|' +
+        '..bbaabbaabaaababaaabb..|' +
+        '...baabaaabaaababaaab...|' +
+        '...bbabbbabbbaabaaabb...|' +
+        '....bbaaaaaaaaaaaabb....|' +
+        '.....bbaaaaaaaaaabb.....|' +
+        '......bbaaaaaaaabb......|' +
+        '.......bbaaaaaabb.......|' +
+        '.........bbaabb.........|' +
+        '...........bb...........', '|')}">
+    <rect width="24" height="27" class="fill-clube-noite"/>
+    <g th:each="linha, fileira : ${linhas}" th:style="'--l:' + ${fileira.index}">
+        <rect th:each="c : ${#numbers.sequence(0, 23)}"
+              th:with="p=${#strings.substring(linha, c, c + 1)}"
+              th:x="${c + 0.07}" th:y="${fileira.index + 0.07}" width="0.86" height="0.86" rx="0.08"
+              th:class="${p == 'a'} ? 'fill-clube-azul' : (${p == 'l'} ? 'fill-clube-laranja' : (${p == 'b'} ? 'fill-clube-branco' : 'fill-clube-assento'))"/>
+    </g>
+</svg>
 
 </html>

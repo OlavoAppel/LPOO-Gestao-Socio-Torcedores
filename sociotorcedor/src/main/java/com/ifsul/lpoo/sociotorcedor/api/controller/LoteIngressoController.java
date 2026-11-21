@@ -1,5 +1,7 @@
 package com.ifsul.lpoo.sociotorcedor.api.controller;
 
+import com.ifsul.lpoo.sociotorcedor.api.service.IngressoConsultaService;
+import com.ifsul.lpoo.sociotorcedor.api.service.JogoDetalheService;
 import com.ifsul.lpoo.sociotorcedor.api.service.LoteIngressoService;
 import com.ifsul.lpoo.sociotorcedor.core.exception.CompraIngressoException;
 import com.ifsul.lpoo.sociotorcedor.core.model.compra.ContextoCompra;
@@ -22,6 +24,9 @@ import java.time.LocalDateTime;
 public class LoteIngressoController {
 
     private final LoteIngressoService loteIngressoService;
+    // só leitura: dados extras das telas de compra
+    private final JogoDetalheService jogoDetalheService;
+    private final IngressoConsultaService ingressoConsultaService;
 
     @GetMapping
     public String listarLotes(@RequestParam Long jogoId,
@@ -32,6 +37,8 @@ public class LoteIngressoController {
 
         model.addAttribute("lotes", loteIngressoService.findLotes(contexto));
         model.addAttribute("logado", usuario != null);
+        // extra (só leitura): a partida, o setor de cada lote, o estoque e o preço com o desconto do torcedor
+        model.addAttribute("jogo", jogoDetalheService.detalhar(jogoId, usuario).orElse(null));
         return "ingressos/lista";
     }
 
@@ -52,7 +59,12 @@ public class LoteIngressoController {
     }
 
     @GetMapping("/sucesso")
-    public String sucesso() {
+    public String sucesso(@AuthenticationPrincipal Usuario usuario, Model model) {
+        // extra (só leitura): o ingresso comprado por último, para mostrar setor, valor e código de entrada
+        if (usuario != null) {
+            ingressoConsultaService.ultimoDoUsuario(usuario.getUsername())
+                    .ifPresent(ingresso -> model.addAttribute("ingresso", ingresso));
+        }
         return "sucesso";
     }
 

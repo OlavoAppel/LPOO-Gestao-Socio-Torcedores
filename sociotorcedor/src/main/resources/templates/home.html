@@ -1,65 +1,103 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <th:block th:replace="~{fragments/head :: base('Início')}"/>
 </head>
 <body>
+<header th:replace="~{fragments/navegacao :: topo('inicio')}"></header>
 
-<div th:replace="~{fragments/navbar :: navbar('inicio')}"></div>
+<main id="conteudo" th:with="proximo=${jogosData.proximoJogo}">
 
-<main id="conteudo"
-      th:with="proximo=${jogosData.proximoJogo},
-               seguintes=${jogosData.jogosList == null ? null : jogosData.jogosList.?[dhJogo.isAfter(#temporals.createNow()) and (#root.proximo == null or id != #root.proximo.id)]}">
-
-    <th:block th:if="${proximo != null}">
-        <section th:replace="~{fragments/jogo :: placar(${proximo})}"></section>
-    </th:block>
-
-    <div class="conteudo flex flex-col gap-6 pt-10" th:if="${proximo == null}">
-        <h1 class="titulo-pagina">Próximo jogo</h1>
-        <div th:replace="~{fragments/ui :: vazio('Nenhum jogo marcado por enquanto',
-                'Assim que a próxima partida for cadastrada, ela aparece aqui com o horário e o estádio.',
-                @{/jogos}, 'Ver o calendário')}"></div>
-    </div>
-
-    <div class="conteudo grid gap-10 py-10 md:py-14 lg:grid-cols-[1fr_22rem] lg:gap-12">
-
-        <section aria-labelledby="titulo-seguintes" class="flex flex-col gap-4">
-            <div class="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 id="titulo-seguintes" class="titulo-secao">Jogos seguintes</h2>
-                <a th:href="@{/jogos}" class="link">Calendário completo</a>
+    <!-- Próximo jogo, ao lado do brasão montado em mosaico (a ola acontece uma vez, aqui) -->
+    <section class="border-b border-line bg-surface" aria-labelledby="titulo-inicio">
+        <div class="moldura grid md:grid-cols-12 md:items-center md:gap-10 md:py-14">
+            <div class="-mx-4 h-44 overflow-hidden sm:-mx-6 sm:h-56 md:order-2 md:col-span-5 md:mx-0 md:h-auto">
+                <svg th:replace="~{fragments/marca :: brasaoMosaico('mosaico-ola block h-auto w-full md:ml-auto md:max-w-md md:rounded-controle')}"></svg>
             </div>
-            <th:block th:if="${seguintes != null and not #lists.isEmpty(seguintes)}">
-                <th:block th:each="jogo, st : ${seguintes}" th:if="${st.index < 3}">
-                    <article th:replace="~{fragments/jogo :: linha(${jogo}, false)}"></article>
-                </th:block>
-            </th:block>
-            <p th:if="${seguintes == null or #lists.isEmpty(seguintes)}" class="text-ink-muted">
-                Ainda não há outros jogos marcados para este ano.</p>
-        </section>
 
-        <aside aria-labelledby="titulo-socio" class="painel flex flex-col gap-4 self-start p-6">
-            <h2 id="titulo-socio" class="titulo-secao">Seja sócio do <span th:text="#{clube.curto}">Lagoa EC</span></h2>
-            <ul class="flex flex-col gap-3">
-                <li class="flex gap-3">
-                    <svg width="20" height="20" class="mt-0.5 size-5 shrink-0 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-                    <span>Desconto em todos os ingressos, maior a cada categoria.</span>
-                </li>
-                <li class="flex gap-3">
-                    <svg width="20" height="20" class="mt-0.5 size-5 shrink-0 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-                    <span>Acesso a setores exclusivos, como o camarote.</span>
-                </li>
-                <li class="flex gap-3">
-                    <svg width="20" height="20" class="mt-0.5 size-5 shrink-0 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-                    <span>Brindes e experiências no clube.</span>
+            <div th:if="${proximo != null}" class="grid gap-6 py-8 md:order-1 md:col-span-7 md:py-0">
+                <p class="font-semibold text-ink-muted" th:text="${'Próximo jogo, pelo ' + proximo.campeonato}">Próximo jogo, pelo Brasileirão 2026</p>
+                <h1 id="titulo-inicio">
+                    <span th:replace="~{fragments/jogo :: confronto(${proximo}, 'size-11 sm:size-14', 'display text-3xl leading-none sm:text-4xl')}"></span>
+                </h1>
+                <p class="flex flex-wrap items-baseline gap-x-5 leading-none">
+                    <time th:datetime="${@formato.iso(proximo.dhJogo)}" class="display text-4xl sm:text-5xl"
+                          th:text="${@formato.dataCurta(proximo.dhJogo)}">Sáb, 23 nov</time>
+                    <span class="display text-6xl text-brand" th:text="${@formato.hora(proximo.dhJogo)}">21h</span>
+                </p>
+                <p class="flex items-center gap-2 text-lg">
+                    <svg th:replace="~{fragments/icones :: icone('estadio', 'size-6 shrink-0 text-ink-muted')}"></svg>
+                    <span th:text="${proximo.nomeEstadio}">MorumBIS</span>
+                </p>
+                <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+                    <a th:href="@{/ingressos(jogoId=${proximo.id})}" class="botao botao-primario">Comprar ingresso</a>
+                    <a th:href="@{/jogos/{id}(id=${proximo.id})}" class="link font-semibold">Ver setores e preços</a>
+                </div>
+            </div>
+
+            <div th:if="${proximo == null}" class="grid gap-4 py-8 md:order-1 md:col-span-7 md:py-0">
+                <h1 id="titulo-inicio" class="display text-4xl" th:text="#{clube.nome}">Esporte Clube Ventania</h1>
+                <div th:replace="~{fragments/ui :: vazio('Nenhum jogo marcado por enquanto',
+                        'Assim que a próxima partida for cadastrada, ela aparece aqui com o horário e o estádio.',
+                        @{/jogos}, 'Ver o calendário')}"></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="moldura grid gap-14 py-12 md:grid-cols-12 md:gap-10 md:py-16">
+        <!-- Jogos seguintes -->
+        <section aria-labelledby="titulo-seguintes" class="grid content-start gap-4 md:col-span-7">
+            <div class="flex items-baseline justify-between gap-4">
+                <h2 id="titulo-seguintes" class="display text-2xl">Próximos jogos</h2>
+                <a th:href="@{/jogos}" class="link text-sm font-semibold">Calendário completo</a>
+            </div>
+            <ul th:if="${not #lists.isEmpty(seguintes)}" class="border-t border-line">
+                <li th:each="jogo : ${seguintes}">
+                    <a th:replace="~{fragments/jogo :: linha(${jogo}, false)}"></a>
                 </li>
             </ul>
-            <a th:href="@{/sociotorcedor}" class="btn btn-principal">Conhecer os planos</a>
-        </aside>
+            <p th:if="${#lists.isEmpty(seguintes)}" class="text-ink-muted">Ainda não há outros jogos marcados para este ano.</p>
+        </section>
+
+        <!-- O mosaico da torcida: um quadrado por sócio -->
+        <section aria-labelledby="titulo-mosaico" class="grid content-start gap-5 md:col-span-5"
+                 th:with="convite=${mosaico.suaPosicao == null and !#authorization.expression('hasRole(''ADMIN'')')}">
+            <h2 id="titulo-mosaico" class="display text-2xl">O mosaico da torcida</h2>
+            <div th:replace="~{fragments/mosaico :: torcida(${mosaico}, ${convite})}"></div>
+            <div th:if="${convite and not #lists.isEmpty(planos)}" class="grid gap-3 border-t border-line pt-5">
+                <p th:with="menor=${#lists.sort(planos.![mensalidade])[0]},
+                            maior=${#lists.sort(planos.![descontoIngresso])[#lists.size(planos) - 1]}">
+                    Planos a partir de <strong class="numero" th:text="${@formato.real(menor) + ' por mês'}">R$ 29,90 por mês</strong>,
+                    com até <strong class="numero" th:text="${@formato.porcentagem(maior)}">40%</strong> de desconto nos ingressos.
+                </p>
+                <a th:href="@{/planos}" class="botao botao-secundario justify-self-start">Comparar os planos</a>
+            </div>
+            <a th:if="${mosaico.suaPosicao != null}" th:href="@{/sociotorcedor}" class="link justify-self-start font-semibold">Ver minha carteirinha</a>
+        </section>
     </div>
+
+    <!-- Notícias do clube (conteúdo de demonstração) -->
+    <section th:if="${not #lists.isEmpty(noticias)}" aria-labelledby="titulo-noticias" class="moldura grid gap-6">
+        <div class="flex items-baseline justify-between gap-4 border-b border-line pb-3">
+            <h2 id="titulo-noticias" class="display text-2xl">Notícias do clube</h2>
+            <a th:href="@{/noticias}" class="link text-sm font-semibold">Todas as notícias</a>
+        </div>
+        <ul class="grid gap-8 md:grid-cols-3 md:gap-10">
+            <li th:each="n : ${noticias}" class="grid content-start gap-2">
+                <p class="text-sm text-ink-muted">
+                    <span class="font-bold text-ink" th:text="${n.editoria}">Torcida</span>,
+                    <time th:datetime="${@formato.isoData(n.data)}" th:text="${@formato.diaMes(n.data)}">19 nov</time>
+                </p>
+                <h3 class="text-lg font-bold leading-snug">
+                    <a th:href="@{/noticias/{id}(id=${n.id})}" class="hover:underline" th:text="${n.titulo}">Título</a>
+                </h3>
+                <p class="text-ink-muted" th:text="${n.resumo}">Resumo</p>
+            </li>
+        </ul>
+    </section>
 </main>
 
-<footer th:replace="~{fragments/footer :: rodape}"></footer>
-
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('inicio')}"></nav>
 </body>
 </html>

@@ -11,6 +11,7 @@
 | Repository | Padrão de acesso a dados | Interfaces Spring Data JPA |
 | Injeção de dependência e beans singleton | Recursos de framework / princípios de projeto | Beans Spring (`@Service`, `@Component`, `@Bean`) |
 | Service Locator com campos estáticos | Padrão de acesso a serviços, usado como conveniência | `InjectionProvider` |
+| Interface com implementação de demonstração | Programação para interface (inversão de dependência) | `NoticiaService` e `FidelidadeService`, com implementações em `api/service/mock/` |
 
 ## Decisão: Factory para criar usuário e associado
 
@@ -234,6 +235,33 @@ InjectionProvider.getUsuarioRepository().save(usuario);
 
 `CategoriaSocio` é uma entidade (nome, mensalidade, desconto de ingresso, hierarquia), em vez de um enum, para que valores e descontos sejam alterados sem mudar código. `Associado.categoria` é uma associação `@ManyToOne`. A categoria "não associado" é a linha com `hierarquia = 0` (`CategoriaSocio.isNaoAssociado()`), criada pelo `DataSeeder`; `UsuarioFactory` a busca ao criar um usuário. Mudanças de categoria passam por `SocioTorcedorService`, que atualiza `dataAdesao` e grava `HistoricoCategoria`.
 
+## Decisão: interface com implementação de demonstração para recursos sem backend
+
+**Contexto:** o front novo tem telas que dependem de dados que o domínio ainda não tem, como notícias do clube e o programa de pontos do sócio. Criar entidades ou tabelas só para isso mudaria o banco, e deixar as telas de fora limitaria o produto ao que existe hoje.
+
+**Decisão:** cada recurso desses é uma **interface** em `api/service` (`NoticiaService`, `FidelidadeService`). A implementação atual fica em `api/service/mock/` (`NoticiaMockService`, `FidelidadeMockService`) e devolve DTOs fixos em memória. Os controllers recebem a interface pelo construtor e não conhecem a implementação.
+
+**Justificativa:** quando o backend implementar o recurso de verdade, basta criar outra classe que implemente a mesma interface e retirar a de demonstração. Controller e template continuam iguais. O mesmo princípio de depender de abstrações já aparece no projeto com `LoteValidationHandle`, em que o serviço conhece só a classe base da cadeia.
+
+**Exemplo — `api/controller/NoticiaController.java`:**
+
+```java
+@Controller
+@RequestMapping("/noticias")
+@RequiredArgsConstructor
+public class NoticiaController {
+    private final NoticiaService noticiaService; // interface; hoje o Spring injeta NoticiaMockService
+
+    @GetMapping
+    public String lista(Model model) {
+        model.addAttribute("noticias", noticiaService.listar());
+        return "noticias/lista";
+    }
+}
+```
+
+**Limite e regras de manutenção:** as implementações de demonstração não gravam nada e não criam entidades. Cada uma tem no topo um comentário dizendo o que simula e o que falta no backend. Na tela, um dado de demonstração que pareça real (como um saldo de pontos) vem marcado como prévia, e ações sem backend ficam desabilitadas. O roteiro de cada recurso está em `docs/front/dados-ficticios.md`; ao implementar um deles de verdade, atualize esse arquivo e esta seção.
+
 ## Regras para manter código e documento alinhados
 
 1. Ao criar um usuário, use `UsuarioFactory` para preservar a montagem e os valores iniciais num único ponto.
@@ -242,3 +270,4 @@ InjectionProvider.getUsuarioRepository().save(usuario);
 4. Preserve a separação entre controllers, services, repositories e templates.
 5. Para novas dependências de services e componentes, prefira injeção por construtor; não amplie o uso de acessos estáticos de `InjectionProvider`.
 6. Se a implementação mudar de modo que qualquer decisão acima deixe de ser verdadeira, atualize este documento na mesma alteração.
+7. Recurso de tela sem backend entra por uma interface em `api/service` com implementação em `api/service/mock/`, e é registrado em `docs/front/dados-ficticios.md`.

@@ -1,0 +1,395 @@
+/*
+ * Entrada do Tailwind CSS v4 (CLI standalone). Gera src/main/resources/static/css/app.css.
+ * Comando, dentro de sociotorcedor/ (ver README):
+ *   tailwindcss -i src/main/tailwind/app.css -o src/main/resources/static/css/app.css --minify
+ * Rode de novo sempre que mudar classes nos templates (ou use --watch enquanto edita).
+ *
+ * As CORES não ficam aqui: estão em static/css/paleta.css (CSS puro, trocar não exige recompilar).
+ * Aqui só ligamos cada token a um nome de utilitário (bg-surface, text-ink, bg-brand...).
+ */
+@import "tailwindcss" source(none);
+@source "../resources/templates";
+@source "../resources/static/js";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+    /* Desliga a paleta, as fontes, os tamanhos e os raios padrão: só valem os da marca. */
+    --color-*: initial;
+    --font-*: initial;
+    --text-*: initial;
+    --radius-*: initial;
+    --shadow-*: initial;
+
+    --font-texto: "Sofia Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Sofia Sans Extra Condensed", "Sofia Sans", "Arial Narrow", sans-serif;
+
+    /* Escala tipográfica clássica (12, 14, 17, 21, 24, 36, 48, 60, 72, 96 px) */
+    --text-xs: 0.75rem;     --text-xs--line-height: 1.4;
+    --text-sm: 0.875rem;    --text-sm--line-height: 1.45;
+    --text-base: 1.0625rem; --text-base--line-height: 1.55;
+    --text-lg: 1.3125rem;   --text-lg--line-height: 1.35;
+    --text-xl: 1.5rem;      --text-xl--line-height: 1.2;
+    --text-2xl: 2.25rem;    --text-2xl--line-height: 1.02;
+    --text-3xl: 3rem;       --text-3xl--line-height: 0.98;
+    --text-4xl: 3.75rem;    --text-4xl--line-height: 0.94;
+    --text-5xl: 4.5rem;     --text-5xl--line-height: 0.92;
+    --text-6xl: 6rem;       --text-6xl--line-height: 0.88;
+
+    /* Raio por hierarquia: quadrado do mosaico, controles e a carteirinha (cartão plástico) */
+    --radius-pastilha: 2px;
+    --radius-controle: 4px;
+    --radius-cartao: 14px;
+
+    --ease-erguer: cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+@theme inline {
+    --color-page: var(--bg);
+    --color-surface: var(--surface);
+    --color-surface-2: var(--surface-2);
+    --color-ink: var(--ink);
+    --color-ink-muted: var(--ink-muted);
+    --color-line: var(--line);
+    --color-line-strong: var(--line-strong);
+    --color-brand: var(--brand);
+    --color-brand-ink: var(--brand-ink);
+    --color-accent: var(--accent);
+    --color-accent-ink: var(--accent-ink);
+    --color-danger: var(--danger);
+    --color-danger-ink: var(--danger-ink);
+    --color-success: var(--success);
+    --color-nivel-1: var(--nivel-1);
+    --color-nivel-2: var(--nivel-2);
+    --color-nivel-3: var(--nivel-3);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-track: var(--chart-track);
+    --color-clube-azul: var(--clube-azul);
+    --color-clube-laranja: var(--clube-laranja);
+    --color-clube-branco: var(--clube-branco);
+    --color-clube-noite: var(--clube-noite);
+    --color-clube-assento: var(--clube-assento);
+}
+
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+        scroll-padding-top: 5rem;
+    }
+    body {
+        background-color: var(--bg);
+        color: var(--ink);
+        font-family: var(--font-texto);
+        font-size: var(--text-base);
+        line-height: var(--text-base--line-height);
+        -webkit-font-smoothing: antialiased;
+        min-height: 100dvh;
+    }
+    :focus-visible {
+        outline: 3px solid var(--brand);
+        outline-offset: 2px;
+    }
+    ::selection {
+        background: color-mix(in oklab, var(--accent) 35%, transparent);
+    }
+    /* No celular as abas ficam fixas embaixo: o rodapé (último bloco de toda página) reserva o espaço delas */
+    @media (max-width: 47.999rem) {
+        body > footer:last-of-type {
+            padding-bottom: calc(3.75rem + env(safe-area-inset-bottom));
+        }
+    }
+    h1, h2, h3 {
+        text-wrap: balance;
+    }
+    p, li, dd {
+        text-wrap: pretty;
+    }
+}
+
+@layer components {
+    /* Largura útil das páginas */
+    .moldura {
+        width: 100%;
+        max-width: 72rem;
+        margin-inline: auto;
+        padding-inline: 1rem;
+    }
+    @media (min-width: 40rem) { .moldura { padding-inline: 1.5rem; } }
+    @media (min-width: 64rem) { .moldura { padding-inline: 2rem; } }
+
+    /* Tipo condensado da marca: números grandes, siglas e títulos */
+    .display {
+        font-family: var(--font-display);
+        font-weight: 800;
+        letter-spacing: 0.004em;
+    }
+    .numero {
+        font-variant-numeric: tabular-nums lining-nums;
+    }
+
+    .link {
+        color: var(--brand);
+        text-decoration-line: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 0.2em;
+    }
+    .link:hover {
+        text-decoration-thickness: 2px;
+    }
+
+    /* Navegação: links do topo (desktop) e abas fixas (celular) */
+    .nav-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.75rem;
+        padding-inline: 0.75rem;
+        border-radius: var(--radius-controle);
+        font-weight: 600;
+        color: var(--ink-muted);
+        text-decoration: none;
+    }
+    .nav-link:hover {
+        color: var(--ink);
+        background-color: var(--surface-2);
+    }
+    .nav-link[aria-current="page"] {
+        color: var(--ink);
+        box-shadow: inset 0 -3px 0 var(--brand);
+        border-radius: 0;
+    }
+    .aba {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.125rem;
+        min-height: 3.75rem;
+        padding: 0.5rem 0.25rem 0.5rem;
+        font-size: var(--text-xs);
+        font-weight: 700;
+        color: var(--ink-muted);
+        text-decoration: none;
+    }
+    .aba[aria-current="page"] {
+        color: var(--brand);
+        box-shadow: inset 0 3px 0 var(--brand);
+    }
+
+    /* Botões. Uso: class="botao botao-primario" */
+    .botao {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 3rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: var(--radius-controle);
+        font-weight: 700;
+        line-height: 1.2;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 150ms, box-shadow 150ms, transform 100ms;
+    }
+    .botao:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+    .botao:disabled, .botao[aria-disabled="true"] {
+        cursor: not-allowed;
+        opacity: 0.55;
+    }
+    .botao-primario {
+        background-color: var(--brand);
+        color: var(--brand-ink);
+    }
+    .botao-primario:hover:not(:disabled) {
+        background-color: color-mix(in oklab, var(--brand) 84%, var(--ink));
+    }
+    .botao-secundario {
+        background-color: transparent;
+        color: var(--ink);
+        box-shadow: inset 0 0 0 1.5px var(--line-strong);
+    }
+    .botao-secundario:hover:not(:disabled) {
+        background-color: var(--surface-2);
+    }
+    .botao-perigo {
+        background-color: transparent;
+        color: var(--danger);
+        box-shadow: inset 0 0 0 1.5px currentColor;
+    }
+    .botao-perigo:hover:not(:disabled) {
+        background-color: color-mix(in oklab, var(--danger) 10%, transparent);
+    }
+    .botao-perigo-cheio {
+        background-color: var(--danger);
+        color: var(--danger-ink);
+    }
+    .botao-icone {
+        display: inline-grid;
+        place-items: center;
+        width: 2.75rem;
+        height: 2.75rem;
+        border-radius: var(--radius-controle);
+        color: var(--ink);
+        cursor: pointer;
+    }
+    .botao-icone:hover {
+        background-color: var(--surface-2);
+    }
+
+    /* Campos de formulário. Uso: div.campo > label.campo-rotulo + input.campo-entrada + p.campo-dica/.campo-erro */
+    .campo {
+        display: grid;
+        gap: 0.375rem;
+        align-content: start;
+    }
+    .campo-rotulo {
+        font-size: var(--text-sm);
+        font-weight: 700;
+    }
+    .campo-opcional {
+        font-weight: 400;
+        color: var(--ink-muted);
+    }
+    .campo-entrada {
+        width: 100%;
+        min-height: 3rem;
+        padding: 0.5rem 0.875rem;
+        border: 1.5px solid var(--line-strong);
+        border-radius: var(--radius-controle);
+        background-color: var(--surface);
+        color: var(--ink);
+        font-size: var(--text-base);
+    }
+    .campo-entrada:focus-visible {
+        outline: 3px solid var(--brand);
+        outline-offset: 1px;
+        border-color: var(--brand);
+    }
+    .campo-entrada.campo-invalido {
+        border-color: var(--danger);
+        border-width: 2px;
+    }
+    .campo-dica {
+        font-size: var(--text-sm);
+        color: var(--ink-muted);
+    }
+    .campo-erro {
+        font-size: var(--text-sm);
+        font-weight: 700;
+        color: var(--danger);
+    }
+
+    /* Mensagens de retorno */
+    .aviso {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+        padding: 0.875rem 1rem;
+        border-left: 4px solid var(--brand);
+        border-radius: var(--radius-controle);
+        background-color: var(--surface);
+    }
+    .aviso-sucesso { border-left-color: var(--success); }
+    .aviso-erro { border-left-color: var(--danger); }
+
+    /* Quadrados do mosaico: cada um conta algo real (um sócio, 10% de um lote...) */
+    .pastilha {
+        display: block;
+        aspect-ratio: 1;
+        border-radius: var(--radius-pastilha);
+    }
+    .pastilha-1 { background-color: var(--nivel-1); }
+    .pastilha-2 { background-color: var(--nivel-2); }
+    .pastilha-3 { background-color: var(--nivel-3); }
+    .pastilha-cheia { background-color: var(--chart-1); }
+    .pastilha-vazia { box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+    .pastilha-voce {
+        background-color: var(--accent);
+        box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink);
+        position: relative;
+        z-index: 1;
+    }
+    .pastilha-acende {
+        animation: acender 700ms var(--ease-erguer) 300ms both;
+    }
+
+    /* Opção de setor na compra: o laranja marca a sua escolha */
+    .opcao-setor {
+        border: 1.5px solid var(--line-strong);
+        border-radius: var(--radius-controle);
+        background-color: var(--surface);
+        transition: border-color 150ms, box-shadow 150ms;
+    }
+    .opcao-setor:has(input:checked) {
+        border-color: var(--accent);
+        box-shadow: inset 0 0 0 1.5px var(--accent);
+    }
+    .opcao-setor:has(input:focus-visible) {
+        outline: 3px solid var(--brand);
+        outline-offset: 2px;
+    }
+    .opcao-setor:has(input:disabled) {
+        border-style: dashed;
+        background-color: transparent;
+    }
+}
+
+/* A ola: o brasão em mosaico se ergue coluna a coluna, uma vez, ao abrir a página inicial */
+@keyframes erguer {
+    from { opacity: 0; transform: translateY(35%) scaleY(0.3); }
+    to   { opacity: 1; transform: none; }
+}
+/* Resposta a uma ação: o comprovante da compra sobe uma vez */
+@keyframes surgir {
+    from { opacity: 0; transform: translateY(0.75rem); }
+    to   { opacity: 1; transform: none; }
+}
+.comprovante {
+    animation: surgir 450ms var(--ease-erguer) 150ms both;
+}
+@keyframes acender {
+    0%   { transform: scale(0.2); opacity: 0; }
+    60%  { transform: scale(1.25); opacity: 1; }
+    100% { transform: none; }
+}
+.mosaico-ola g > rect {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: erguer 420ms var(--ease-erguer) both;
+    animation-delay: calc(var(--c, 0) * 26ms + var(--l, 0) * 9ms);
+}
+.mosaico-ola g > rect:nth-child(2)  { --c: 1; }
+.mosaico-ola g > rect:nth-child(3)  { --c: 2; }
+.mosaico-ola g > rect:nth-child(4)  { --c: 3; }
+.mosaico-ola g > rect:nth-child(5)  { --c: 4; }
+.mosaico-ola g > rect:nth-child(6)  { --c: 5; }
+.mosaico-ola g > rect:nth-child(7)  { --c: 6; }
+.mosaico-ola g > rect:nth-child(8)  { --c: 7; }
+.mosaico-ola g > rect:nth-child(9)  { --c: 8; }
+.mosaico-ola g > rect:nth-child(10) { --c: 9; }
+.mosaico-ola g > rect:nth-child(11) { --c: 10; }
+.mosaico-ola g > rect:nth-child(12) { --c: 11; }
+.mosaico-ola g > rect:nth-child(13) { --c: 12; }
+.mosaico-ola g > rect:nth-child(14) { --c: 13; }
+.mosaico-ola g > rect:nth-child(15) { --c: 14; }
+.mosaico-ola g > rect:nth-child(16) { --c: 15; }
+.mosaico-ola g > rect:nth-child(17) { --c: 16; }
+.mosaico-ola g > rect:nth-child(18) { --c: 17; }
+.mosaico-ola g > rect:nth-child(19) { --c: 18; }
+.mosaico-ola g > rect:nth-child(20) { --c: 19; }
+.mosaico-ola g > rect:nth-child(21) { --c: 20; }
+.mosaico-ola g > rect:nth-child(22) { --c: 21; }
+.mosaico-ola g > rect:nth-child(23) { --c: 22; }
+.mosaico-ola g > rect:nth-child(24) { --c: 23; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

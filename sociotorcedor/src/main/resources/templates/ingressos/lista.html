@@ -1,72 +1,92 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/head :: base('Ingressos')}"/>
+    <th:block th:replace="~{fragments/head :: base('Comprar ingresso')}"/>
 </head>
 <body>
+<header th:replace="~{fragments/navegacao :: topo('jogos')}"></header>
 
-<div th:replace="~{fragments/navbar :: navbar('jogos')}"></div>
+<!--
+  Compra: percorre os "lotes" do controller (validade, id e o campo loteId do POST) e busca em "jogo"
+  o setor, o estoque e o preço com o desconto da categoria de quem está comprando.
+-->
+<main id="conteudo" class="moldura grid gap-8 py-8 md:py-12"
+      th:with="assoc=${#authentication.principal.associado},
+               podeComprar=${assoc != null},
+               socio=${assoc != null and !assoc.categoria.naoAssociado},
+               algumDisponivel=${not #lists.isEmpty(lotes.?[valido()])}">
+    <div class="grid gap-4">
+        <th:block th:if="${jogo != null}">
+            <a th:replace="~{fragments/ui :: voltar(@{/jogos/{id}(id=${jogo.jogo.id})}, 'Detalhes do jogo')}"></a>
+        </th:block>
+        <h1 class="display text-3xl sm:text-4xl">Comprar ingresso</h1>
+        <div th:if="${jogo != null}" class="grid gap-1">
+            <span th:replace="~{fragments/jogo :: confronto(${jogo.jogo}, 'size-9', 'display text-2xl leading-none')}"></span>
+            <p class="text-ink-muted"
+               th:text="${@formato.diaSemanaLongo(jogo.jogo.dhJogo) + ', ' + @formato.diaMes(jogo.jogo.dhJogo) + ', às ' + @formato.hora(jogo.jogo.dhJogo) + '. ' + jogo.jogo.nomeEstadio + '.'}">
+                Segunda-feira, 23 nov, às 21h. MorumBIS.</p>
+        </div>
+    </div>
 
-<main id="conteudo" class="conteudo flex max-w-4xl flex-col gap-6 py-8 md:py-10"
-      th:with="semDesconto=${lotes.?[precoComDesconto() != null and precoComDesconto().compareTo(precoBase()) < 0].isEmpty()},
-               assoc=${#authentication.principal.associado},
-               socio=${assoc != null and assoc.categoria != null and !assoc.categoria.naoAssociado}">
-
-    <a th:replace="~{fragments/ui :: voltar(@{/jogos}, 'Voltar aos jogos')}"></a>
-
-    <header th:replace="~{fragments/ui :: cabecalho('Escolha seu setor',
-            'O preço mostrado já tem o desconto da sua categoria de sócio, quando houver.')}"></header>
-
-    <p th:if="${!socio and semDesconto and not #lists.isEmpty(lotes)}" class="painel flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
-        <span>Sócios pagam menos em todos os setores.</span>
-        <a th:href="@{/sociotorcedor}" class="link">Conhecer as categorias</a>
+    <p th:if="${socio}" class="aviso max-w-2xl">
+        <span>Seu desconto de <strong th:text="${assoc.categoria.nome}">Sócio Prata</strong>
+            (<span th:text="${@formato.porcentagem(assoc.categoria.descontoIngresso)}">25%</span>) já está nos preços abaixo.</span>
+    </p>
+    <p th:if="${podeComprar and !socio and not #lists.isEmpty(lotes)}" class="aviso max-w-2xl">
+        <span>Sócios pagam menos em todos os setores. <a class="link font-semibold" th:href="@{/planos}">Compare os planos</a>.</span>
+    </p>
+    <p th:unless="${podeComprar}" class="aviso aviso-erro max-w-2xl">
+        <span>Contas de administração não compram ingressos. Para comprar, entre com uma conta de torcedor.</span>
     </p>
 
-    <ul class="flex flex-col gap-4">
-        <li th:each="lote : ${lotes}"
-            th:with="comDesconto=${lote.precoComDesconto() != null and lote.precoComDesconto().compareTo(lote.precoBase()) < 0}">
-            <article class="ingresso">
-                <div class="flex flex-col justify-center gap-2 p-4 sm:p-6">
-                    <h2 class="text-2xl" th:classappend="${!lote.valido()} ? 'text-ink-muted'" th:text="${lote.nome()}">Cadeira Inferior</h2>
-                    <p th:if="${!lote.valido()}" class="flex items-start gap-2 font-semibold text-ink-muted">
-                        <svg width="20" height="20" class="mt-0.5 size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-                        <span th:text="${lote.motivo()}">Exclusivo para sócios Prata ou Ouro.</span>
-                    </p>
-                    <p th:if="${lote.valido() and comDesconto}" class="font-semibold text-success"
-                       th:text="${'Você economiza R$ ' + #numbers.formatDecimal(lote.precoBase().subtract(lote.precoComDesconto()), 1, 'POINT', 2, 'COMMA') + ' como sócio'}">
-                        Você economiza R$ 22,50 como sócio</p>
-                </div>
-
-                <div class="ingresso-canhoto justify-center">
-                    <p class="flex flex-wrap items-baseline gap-x-3">
-                        <th:block th:if="${comDesconto}">
-                            <span class="sr-only">Preço normal:</span>
-                            <s class="text-lg text-ink-muted"
-                               th:text="${'R$ ' + #numbers.formatDecimal(lote.precoBase(), 1, 'POINT', 2, 'COMMA')}">R$ 90,00</s>
-                            <span class="sr-only">Seu preço:</span>
-                        </th:block>
-                        <span class="numero text-3xl" th:classappend="${!lote.valido()} ? 'text-ink-muted'"
-                              th:text="${'R$ ' + #numbers.formatDecimal(lote.precoComDesconto() ?: lote.precoBase(), 1, 'POINT', 2, 'COMMA')}">R$ 67,50</span>
-                    </p>
-                    <form th:action="@{/ingressos/comprar}" method="post">
-                        <input type="hidden" name="loteId" th:value="${lote.id()}">
-                        <button type="submit" class="btn btn-compra w-full" th:disabled="${!lote.valido()}"
-                                th:text="${lote.valido()} ? 'Comprar ingresso' : 'Indisponível'">Comprar ingresso</button>
-                    </form>
-                </div>
-            </article>
-        </li>
-    </ul>
+    <form th:if="${jogo != null and not #lists.isEmpty(lotes)}" th:action="@{/ingressos/comprar}" method="post" class="grid max-w-2xl gap-6">
+        <fieldset class="grid gap-3">
+            <legend class="mb-3 text-lg font-bold">Escolha o setor</legend>
+            <!-- Mesma ordem da página do jogo (do setor mais barato ao mais caro). Para cada setor, o lote do
+                 controller (validade, id) é achado pelo id; o setor traz nome, estoque e o seu preço. -->
+            <th:block th:each="s : ${jogo.setores}" th:with="lote=${lotes.^[id() == #root.s.loteId]}">
+            <label th:if="${lote != null}"
+                   th:with="esgotado=${s.esgotado},
+                            liberado=${lote.valido() and !esgotado and podeComprar}"
+                   class="opcao-setor grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-4 gap-y-1 px-4 py-4"
+                   th:classappend="${liberado} ? '' : 'cursor-not-allowed'">
+                <input type="radio" name="loteId" th:value="${lote.id()}" required th:disabled="${!liberado}"
+                       class="mt-1 size-5 accent-accent">
+                <span class="grid gap-1.5">
+                    <span class="font-bold" th:text="${s.setor}">Cadeira Inferior</span>
+                    <span th:replace="~{fragments/mosaico :: medidor(${s})}"></span>
+                    <span th:if="${!lote.valido() and s.vendaAbreEm != null}" class="flex items-center gap-1.5 text-sm text-ink-muted">
+                        <svg th:replace="~{fragments/icones :: icone('cadeado', 'size-4 shrink-0')}"></svg>
+                        <span th:text="${'Venda a partir de ' + @formato.diaMesNumerico(s.vendaAbreEm) + ', às ' + @formato.hora(s.vendaAbreEm)}">Venda a partir de 09/11, às 21h</span>
+                    </span>
+                    <span th:if="${!lote.valido() and s.vendaAbreEm == null}" class="flex items-center gap-1.5 text-sm text-ink-muted">
+                        <svg th:replace="~{fragments/icones :: icone('cadeado', 'size-4 shrink-0')}"></svg>
+                        <span th:text="${lote.motivo()}">Motivo</span>
+                    </span>
+                </span>
+                <span class="grid justify-items-end text-right">
+                    <span class="numero display text-2xl leading-none"
+                          th:text="${@formato.real(s.seuPreco != null ? s.seuPreco : lote.precoBase())}">R$ 67,50</span>
+                    <s th:if="${s.comDesconto}" class="numero text-sm text-ink-muted"
+                       th:text="${@formato.real(s.precoBase)}">R$ 90,00</s>
+                </span>
+            </label>
+            </th:block>
+        </fieldset>
+        <div class="grid justify-items-start gap-3">
+            <button type="submit" class="botao botao-primario" th:disabled="${!algumDisponivel or !podeComprar}">Comprar ingresso</button>
+            <p class="text-sm text-ink-muted">O pagamento é simulado neste projeto: o ingresso sai pago na hora e fica em Minha conta, com o código de entrada.</p>
+        </div>
+    </form>
 
     <th:block th:if="${#lists.isEmpty(lotes)}">
         <div th:replace="~{fragments/ui :: vazio('Ainda não há ingressos à venda',
                 'Os setores deste jogo aparecem aqui quando a venda abrir. Enquanto isso, veja os outros jogos.',
                 @{/jogos}, 'Ver outros jogos')}"></div>
     </th:block>
-
 </main>
 
-<footer th:replace="~{fragments/footer :: rodape}"></footer>
-
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('jogos')}"></nav>
 </body>
 </html>

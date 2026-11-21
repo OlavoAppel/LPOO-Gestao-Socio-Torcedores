@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<!-- Página não encontrada (404) das telas novas. O controller define titulo, mensagem, destino e acao. -->
+<head>
+    <th:block th:replace="~{fragments/head :: base(${titulo})}"/>
+</head>
+<body>
+<header th:replace="~{fragments/navegacao :: topo('')}"></header>
+
+<main id="conteudo" class="moldura grid gap-6 py-16 md:py-24">
+    <h1 class="display text-4xl" th:text="${titulo}">Não encontrado</h1>
+    <p class="max-w-prose text-lg text-ink-muted" th:text="${mensagem}">Explicação</p>
+    <a th:href="@{${destino}}" class="botao botao-primario justify-self-start" th:text="${acao}">Voltar</a>
+</main>
+
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('')}"></nav>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!-- Ingresso comprado (entidade Ingresso, com lote, jogo, times, estádio e setor já carregados). -->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Uso: <article th:replace="~{fragments/ingresso :: linha(${i})}"></article> -->
+<article th:fragment="linha(i)"
+         th:with="st=${i.status.name()}, ativo=${st == 'PAGO' or st == 'RESERVADO'}, jogo=${i.lote.jogo}"
+         class="grid gap-4 border-b border-line py-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8">
+    <div class="grid min-w-0 gap-1.5">
+        <span th:replace="~{fragments/jogo :: confronto(${jogo}, 'size-7', 'display text-xl leading-none')}"></span>
+        <p class="text-sm text-ink-muted">
+            <time th:datetime="${@formato.iso(jogo.dhJogo)}"
+                  th:text="${@formato.dataCurta(jogo.dhJogo) + ', ' + @formato.hora(jogo.dhJogo)}">Seg, 23 nov, 21h</time>,
+            <span th:text="${jogo.estadio.nome + '.'}">MorumBIS.</span>
+            <span class="font-semibold text-ink" th:text="${i.lote.setor != null ? i.lote.setor.nome : i.lote.nome}">Cadeira Inferior</span>
+        </p>
+    </div>
+    <dl class="flex flex-wrap items-end gap-x-6 gap-y-2 sm:justify-end sm:text-right">
+        <div th:if="${ativo and i.codigo != null}">
+            <dt class="text-xs text-ink-muted">Código de entrada</dt>
+            <dd class="display numero text-2xl leading-none tracking-wider" th:text="${@formato.codigoCurto(i.codigo)}">ABCD1234</dd>
+        </div>
+        <div>
+            <dt class="text-xs text-ink-muted">Valor pago</dt>
+            <dd class="numero font-bold" th:text="${@formato.real(i.precoPago)}">R$ 67,50</dd>
+        </div>
+        <div>
+            <dt class="text-xs text-ink-muted">Situação</dt>
+            <dd class="flex items-center gap-1 font-bold sm:justify-end"
+                th:classappend="${st == 'PAGO'} ? 'text-success' : (${st == 'RESERVADO'} ? 'text-brand' : 'text-ink-muted')">
+                <th:block th:if="${st == 'PAGO'}"><svg th:replace="~{fragments/icones :: icone('check', 'size-4')}"></svg></th:block>
+                <span th:text="${st == 'PAGO'} ? 'Pago' : (${st == 'RESERVADO'} ? 'Reservado' : (${st == 'CANCELADO'} ? 'Cancelado' : 'Expirado'))">Pago</span>
+            </dd>
+        </div>
+    </dl>
+</article>
+
+</html>

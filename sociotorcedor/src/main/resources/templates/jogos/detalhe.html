@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/head :: base(${detalhe.jogo.casa.sigla + ' x ' + detalhe.jogo.fora.sigla})}"/>
+</head>
+<body>
+<header th:replace="~{fragments/navegacao :: topo('jogos')}"></header>
+
+<main id="conteudo" class="moldura grid gap-12 py-8 md:py-12" th:with="d=${detalhe}, jogo=${detalhe.jogo}">
+    <section aria-labelledby="titulo-jogo" class="grid gap-6">
+        <a th:replace="~{fragments/ui :: voltar(@{/jogos}, 'Calendário')}"></a>
+        <p class="font-semibold text-ink-muted" th:text="${jogo.campeonato}">Brasileirão 2026</p>
+        <h1 id="titulo-jogo">
+            <span th:replace="~{fragments/jogo :: confronto(${jogo}, 'size-12 sm:size-16', 'display text-4xl leading-none sm:text-5xl')}"></span>
+        </h1>
+        <p class="-mt-2 text-lg text-ink-muted" aria-hidden="true" th:text="${jogo.casa.nome + ' × ' + jogo.fora.nome}">São Paulo FC × Grêmio</p>
+        <ul class="grid gap-2 text-lg">
+            <li class="flex items-center gap-3">
+                <svg th:replace="~{fragments/icones :: icone('jogos', 'size-6 shrink-0 text-ink-muted')}"></svg>
+                <time th:datetime="${@formato.iso(jogo.dhJogo)}"
+                      th:text="${@formato.diaSemanaLongo(jogo.dhJogo) + ', ' + jogo.dhJogo.dayOfMonth + ' de ' + #strings.toLowerCase(@formato.nomeMes(jogo.dhJogo.monthValue)) + ', às ' + @formato.hora(jogo.dhJogo)}">Sábado, 23 de novembro, às 21h</time>
+            </li>
+            <li class="flex items-center gap-3">
+                <svg th:replace="~{fragments/icones :: icone('estadio', 'size-6 shrink-0 text-ink-muted')}"></svg>
+                <span th:text="${jogo.nomeEstadio}">MorumBIS</span>
+            </li>
+        </ul>
+
+        <!-- Situação da venda e o próximo passo -->
+        <div class="grid max-w-2xl justify-items-start gap-3">
+            <th:block th:if="${d.encerrado}">
+                <p class="aviso">Este jogo já aconteceu. A venda de ingressos está encerrada.</p>
+            </th:block>
+            <th:block th:if="${!d.encerrado and d.algumEmVenda}">
+                <a sec:authorize="isAnonymous()" th:href="@{/ingressos(jogoId=${jogo.id})}" class="botao botao-primario">Entrar para comprar</a>
+                <p sec:authorize="isAnonymous()" class="text-ink-muted">Ainda não tem conta?
+                    <a class="link font-semibold" th:href="@{/cadastro}">Criar conta</a></p>
+                <th:block sec:authorize="isAuthenticated()">
+                    <a th:if="${d.podeComprar}" th:href="@{/ingressos(jogoId=${jogo.id})}" class="botao botao-primario">Comprar ingresso</a>
+                    <p th:unless="${d.podeComprar}" class="aviso">Contas de administração não compram ingressos. Para comprar, entre com uma conta de torcedor.</p>
+                </th:block>
+            </th:block>
+            <th:block th:if="${!d.encerrado and !d.algumEmVenda}">
+                <p th:if="${d.proximaAbertura != null}" class="aviso"
+                   th:text="${'A venda abre ' + @formato.dataLonga(d.proximaAbertura) + ', às ' + @formato.hora(d.proximaAbertura) + '.'}">A venda abre sábado, 9 de novembro, às 21h.</p>
+                <p th:if="${d.proximaAbertura == null and #lists.isEmpty(d.setores)}" class="aviso">Ainda não há ingressos à venda para este jogo.</p>
+                <p th:if="${d.proximaAbertura == null and not #lists.isEmpty(d.setores)}" class="aviso">No momento nenhum setor está à venda. Os motivos estão na tabela abaixo.</p>
+            </th:block>
+        </div>
+    </section>
+
+    <!-- Escada de preços: o que cada categoria paga em cada setor -->
+    <section th:unless="${#lists.isEmpty(d.setores)}" aria-labelledby="titulo-precos" class="grid gap-5">
+        <div class="grid max-w-2xl gap-2">
+            <h2 id="titulo-precos" class="display text-2xl">Setores e preços</h2>
+            <p class="text-ink-muted">
+                Quanto cada categoria paga em cada setor, em reais, com o desconto de sócio aplicado.
+                <th:block th:if="${d.suaCategoria != null}">A coluna em laranja é a sua.</th:block>
+            </p>
+        </div>
+        <!-- Uma lista de setores; em cada um, os preços por categoria (2 x 2 no celular, em colunas no desktop). -->
+        <div th:style="'--colunas:' + ${#lists.size(d.categorias)}">
+            <div aria-hidden="true"
+                 class="hidden border-b-2 border-ink pb-2 text-sm font-bold md:grid md:grid-cols-[minmax(0,1.5fr)_minmax(0,4fr)] md:gap-4">
+                <span>Setor</span>
+                <span class="grid grid-cols-[repeat(var(--colunas),minmax(0,1fr))] gap-2">
+                    <span th:each="c : ${d.categorias}" class="px-3 text-right">
+                        <span th:text="${c.nome}">Sócio Bronze</span>
+                        <span th:if="${c.suaCategoria}" class="block">(você)</span>
+                    </span>
+                </span>
+            </div>
+            <ul class="border-t-2 border-ink md:border-t-0">
+                <li th:each="s : ${d.setores}"
+                    class="grid gap-3 border-b border-line py-4 md:grid-cols-[minmax(0,1.5fr)_minmax(0,4fr)] md:items-start md:gap-4">
+                    <div class="grid justify-items-start gap-1.5">
+                        <h3 class="font-bold" th:text="${s.setor}">Arquibancada Popular</h3>
+                        <span th:replace="~{fragments/mosaico :: medidor(${s})}"></span>
+                        <span th:if="${!s.emVenda and s.vendaAbreEm != null}" class="text-sm text-ink-muted"
+                              th:text="${'Venda a partir de ' + @formato.diaMesNumerico(s.vendaAbreEm) + ', às ' + @formato.hora(s.vendaAbreEm)}">Venda a partir de 09/11, às 21h</span>
+                        <span th:if="${!s.emVenda and s.vendaAbreEm == null and !d.encerrado}" class="text-sm text-ink-muted" th:text="${s.motivo}">Motivo</span>
+                    </div>
+                    <dl class="grid grid-cols-2 gap-2 md:grid-cols-[repeat(var(--colunas),minmax(0,1fr))]">
+                        <div th:each="p : ${s.precos}" class="rounded-controle px-3 py-2 md:text-right"
+                             th:classappend="${p.suaCategoria} ? 'bg-accent/15 font-bold md:py-1' : 'bg-surface md:bg-transparent md:py-0'">
+                            <dt class="text-sm text-ink-muted md:sr-only">
+                                <span th:text="${p.categoria}">Sócio Bronze</span><span th:if="${p.suaCategoria}"> (você)</span>
+                            </dt>
+                            <dd class="numero whitespace-nowrap" th:text="${@formato.real(p.preco)}">R$ 36,00</dd>
+                        </div>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <a sec:authorize="isAuthenticated()" th:if="${!d.encerrado and d.algumEmVenda and d.podeComprar}"
+               th:href="@{/ingressos(jogoId=${jogo.id})}" class="botao botao-primario">Comprar ingresso</a>
+            <a th:if="${d.suaCategoria == null or #strings.equals(d.suaCategoria, d.categorias[0].nome)}"
+               sec:authorize="!hasRole('ADMIN')" th:href="@{/planos}" class="link font-semibold">Quer pagar menos? Compare os planos de sócio</a>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('jogos')}"></nav>
+</body>
+</html>

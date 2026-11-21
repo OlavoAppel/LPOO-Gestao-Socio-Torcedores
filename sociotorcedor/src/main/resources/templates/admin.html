@@ -1,47 +1,80 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/head :: base('Painel administrativo')}"/>
+    <th:block th:replace="~{fragments/head :: base('Administração')}"/>
 </head>
 <body>
+<header th:replace="~{fragments/navegacao :: topo('admin')}"></header>
 
-<div th:replace="~{fragments/navbar :: navbar('admin')}"></div>
-
-<main id="conteudo" class="conteudo flex max-w-3xl flex-col gap-8 py-10">
-    <header class="flex flex-col gap-2">
-        <h1 class="titulo-pagina">Painel administrativo</h1>
-        <p class="apoio">Olá, <span th:text="${#authentication.principal.username}">admin</span>. O que você quer fazer?</p>
+<main id="conteudo" class="moldura grid gap-12 py-10 md:py-14"
+      th:with="proximos=${jogos.?[!encerrado]}, encerrados=${jogos.?[encerrado]}">
+    <header class="flex flex-wrap items-end justify-between gap-6">
+        <div class="grid gap-2">
+            <h1 class="display text-3xl sm:text-4xl">Administração</h1>
+            <p class="text-ink-muted">Jogos, lotes de ingressos e os números do mês.</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <a th:href="@{/admin/cadastro/jogo}" class="botao botao-primario">
+                <svg th:replace="~{fragments/icones :: icone('mais', 'size-5')}"></svg>
+                Cadastrar jogo
+            </a>
+            <a th:href="@{/admin/metricas}" class="botao botao-secundario">
+                <svg th:replace="~{fragments/icones :: icone('grafico', 'size-5')}"></svg>
+                Ver métricas
+            </a>
+        </div>
     </header>
 
-    <ul class="painel divide-y divide-line overflow-hidden">
-        <li>
-            <a th:href="@{/admin/cadastro/jogo}" class="group flex items-center gap-4 p-5 hover:bg-surface-2 sm:p-6">
-                <span class="grid size-12 shrink-0 place-items-center rounded-lg bg-brand text-brand-ink" aria-hidden="true">
-                    <svg width="24" height="24" class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>
-                </span>
-                <span class="min-w-0 flex-1">
-                    <span class="block font-display text-2xl font-bold [font-stretch:75%]">Cadastrar jogo</span>
-                    <span class="block text-ink-muted">Registre a partida e, em seguida, os lotes de ingressos de cada setor.</span>
-                </span>
-                <svg width="20" height="20" class="size-5 shrink-0 text-ink-muted group-hover:text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-            </a>
-        </li>
-        <li>
-            <a th:href="@{/admin/metricas}" class="group flex items-center gap-4 p-5 hover:bg-surface-2 sm:p-6">
-                <span class="grid size-12 shrink-0 place-items-center rounded-lg bg-surface-2 text-brand" aria-hidden="true">
-                    <svg width="24" height="24" class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
-                </span>
-                <span class="min-w-0 flex-1">
-                    <span class="block font-display text-2xl font-bold [font-stretch:75%]">Ver métricas</span>
-                    <span class="block text-ink-muted">Sócios por categoria, novos associados, ocupação e receita dos próximos jogos.</span>
-                </span>
-                <svg width="20" height="20" class="size-5 shrink-0 text-ink-muted group-hover:text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-            </a>
-        </li>
-    </ul>
+    <!-- Números do mês: uma faixa só, a receita em destaque -->
+    <section aria-labelledby="titulo-numeros">
+        <h2 id="titulo-numeros" class="sr-only">Números do mês</h2>
+        <dl class="grid gap-px overflow-hidden rounded-controle border border-line bg-line sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(4,minmax(0,1fr))]">
+            <div class="grid gap-1 bg-surface p-5">
+                <dt class="text-sm text-ink-muted">Receita de ingressos no mês</dt>
+                <dd class="display numero text-4xl leading-none"><span th:replace="~{fragments/ui :: dinheiro(${dashboardInfo.receitaIngressos})}"></span></dd>
+            </div>
+            <div class="grid gap-1 bg-surface p-5">
+                <dt class="text-sm text-ink-muted">Ingressos vendidos no mês</dt>
+                <dd class="display numero text-3xl leading-none" th:text="${@formato.inteiro(dashboardInfo.ingressosVendidos)}">87</dd>
+            </div>
+            <div class="grid gap-1 bg-surface p-5">
+                <dt class="text-sm text-ink-muted">Sócios</dt>
+                <dd class="display numero text-3xl leading-none" th:text="${@formato.inteiro(dashboardInfo.associadosTotal)}">35</dd>
+            </div>
+            <div class="grid gap-1 bg-surface p-5">
+                <dt class="text-sm text-ink-muted">Novos sócios no mês</dt>
+                <dd class="display numero text-3xl leading-none" th:text="${@formato.inteiro(dashboardInfo.novosAssociadosMesAtual)}">12</dd>
+            </div>
+            <div class="grid gap-1 bg-surface p-5">
+                <dt class="text-sm text-ink-muted">Arrecadação total</dt>
+                <dd class="display numero text-3xl leading-none"><span th:replace="~{fragments/ui :: dinheiro(${dashboardInfo.ganhosTotais})}"></span></dd>
+            </div>
+        </dl>
+    </section>
+
+    <section aria-labelledby="titulo-proximos" class="grid gap-4">
+        <div class="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 id="titulo-proximos" class="display text-2xl">Próximos jogos</h2>
+            <p class="text-sm text-ink-muted">Sem lote, o setor não vende ingressos.</p>
+        </div>
+        <div th:replace="~{fragments/admin :: tabelaJogos(${proximos}, 'Próximos jogos: lotes cadastrados e vendas')}"></div>
+        <th:block th:if="${#lists.isEmpty(proximos)}">
+            <div th:replace="~{fragments/ui :: vazio('Nenhum jogo marcado', 'Cadastre a próxima partida para abrir a venda de ingressos.', @{/admin/cadastro/jogo}, 'Cadastrar jogo')}"></div>
+        </th:block>
+    </section>
+
+    <details th:unless="${#lists.isEmpty(encerrados)}" class="group min-w-0">
+        <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 font-bold [&::-webkit-details-marker]:hidden">
+            <svg th:replace="~{fragments/icones :: icone('seguir', 'size-5 transition-transform group-open:rotate-90')}"></svg>
+            <span th:text="${'Jogos já disputados (' + #lists.size(encerrados) + ')'}">Jogos já disputados (10)</span>
+        </summary>
+        <div class="mt-4">
+            <div th:replace="~{fragments/admin :: tabelaJogos(${encerrados}, 'Jogos já disputados: lotes e vendas')}"></div>
+        </div>
+    </details>
 </main>
 
-<footer th:replace="~{fragments/footer :: rodape}"></footer>
-
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('admin')}"></nav>
 </body>
 </html>

@@ -1,36 +1,46 @@
-<!-- Carteirinha de sócio (Associado: nome, categoria, id, dataAdesao). Usa as cores fixas do brasão,
-     iguais nos dois temas, como um cartão físico. Uso: carteirinha(${assoc}) -->
-<section th:fragment="carteirinha(assoc)" aria-label="Carteirinha de sócio"
-         class="relative isolate flex aspect-[1.586] w-full max-w-sm flex-col justify-between overflow-hidden rounded-2xl bg-crest-1 p-5 text-crest-3 shadow-lg ring-1 ring-crest-3/15"
-         xmlns:th="http://www.thymeleaf.org">
-    <!-- faixa ondulada do brasão atravessando o cartão -->
-    <svg width="320" height="36" class="absolute inset-x-0 top-[38%] -z-10 h-9 w-full" viewBox="0 0 320 36" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0 10c40-12 80 12 120 0s80-12 120 0 60 8 80 2v24c-20 6-40-2-80-14s-80 12-120 0S40 14 0 26z" style="fill: var(--crest-2)"/>
-    </svg>
-
-    <div class="flex items-center gap-3">
-        <svg th:replace="~{fragments/marca :: brasao('h-11 w-auto')}"></svg>
-        <p class="leading-tight">
-            <span class="block font-display text-lg font-extrabold [font-stretch:75%]" th:text="#{clube.nome}">Lagoa Esporte Clube</span>
-            <span class="block text-sm opacity-85" th:text="#{clube.programa}">Sócio-torcedor</span>
-        </p>
+<!--
+  Carteirinha digital do sócio. Cores fixas do clube (como um cartão de verdade, não muda com o tema).
+  Os três quadrados no canto são as categorias: acendem até a do sócio. Todos os dados são reais.
+  Uso: <section th:replace="~{fragments/carteirinha :: carteirinha(${carteirinha}, ${acender})}"></section>
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+<section th:fragment="carteirinha(c, acender)" aria-label="Carteirinha de sócio"
+         class="relative grid aspect-[1.586] w-full max-w-sm content-between overflow-hidden rounded-cartao bg-clube-azul p-5 text-clube-branco shadow-[inset_0_0_0_1px_rgb(255_255_255/0.14)] sm:p-6">
+    <div class="flex items-start justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <svg th:replace="~{fragments/marca :: brasao('h-11 w-auto shrink-0')}"></svg>
+            <p class="grid leading-tight">
+                <span class="display text-lg" th:text="#{clube.nome}">Esporte Clube Ventania</span>
+                <span class="text-sm opacity-80" th:text="#{clube.programa}">Sócio Ventania</span>
+            </p>
+        </div>
+        <span class="grid grid-cols-3 gap-1 pt-1" aria-hidden="true">
+            <span th:each="n : ${#numbers.sequence(1, 3)}" class="pastilha size-3"
+                  th:classappend="${n <= c.nivel} ? 'bg-clube-branco' : 'shadow-[inset_0_0_0_1.5px_rgb(255_255_255/0.45)]'"></span>
+        </span>
     </div>
 
-    <div>
-        <p class="truncate font-display text-2xl font-bold [font-stretch:75%]" th:text="${assoc.nome}">Ana Souza</p>
-        <dl class="mt-2 grid grid-cols-3 gap-3 text-sm">
-            <div>
-                <dt class="opacity-85">Categoria</dt>
-                <dd class="font-bold" th:text="${assoc.categoria.nome}">Sócio Prata</dd>
-            </div>
-            <div>
-                <dt class="opacity-85">Matrícula</dt>
-                <dd class="font-bold tabular-nums" th:text="${#numbers.formatInteger(assoc.id, 6)}">000012</dd>
-            </div>
-            <div th:if="${assoc.dataAdesao != null}">
-                <dt class="opacity-85">Sócio desde</dt>
-                <dd class="font-bold tabular-nums" th:text="${#temporals.format(assoc.dataAdesao, 'MM/yyyy')}">10/2026</dd>
-            </div>
-        </dl>
+    <div class="grid gap-1">
+        <p class="display text-2xl leading-none sm:text-3xl" th:text="${c.nome}">Ana Silva</p>
+        <p class="text-sm font-bold text-clube-laranja" th:text="${c.categoria}">Sócio Prata</p>
     </div>
+
+    <dl class="flex flex-wrap items-end justify-between gap-x-4 gap-y-1 text-sm">
+        <div>
+            <dt class="opacity-80">Número</dt>
+            <dd class="numero font-bold" th:text="${@formato.numeroSocio(c.numero)}">000014</dd>
+        </div>
+        <div th:if="${c.socioDesde != null}">
+            <dt class="opacity-80">Sócio desde</dt>
+            <dd class="numero font-bold" th:text="${@formato.mesAno(c.socioDesde)}">03/2026</dd>
+        </div>
+        <div th:if="${c.posicaoMosaico != null}">
+            <dt class="opacity-80">No mosaico</dt>
+            <dd class="flex items-center gap-1.5">
+                <span class="pastilha size-3 bg-clube-laranja" th:classappend="${acender} ? 'pastilha-acende'" aria-hidden="true"></span>
+                <span class="numero font-bold" th:text="${c.posicaoMosaico + 'º de ' + c.totalMosaico}">14º de 35</span>
+            </dd>
+        </div>
+    </dl>
 </section>
+</html>

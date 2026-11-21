@@ -1,6 +1,7 @@
 package com.ifsul.lpoo.sociotorcedor.api.repository;
 
 import com.ifsul.lpoo.sociotorcedor.core.dto.DashboardInfoCategoriaDTO;
+import com.ifsul.lpoo.sociotorcedor.core.dto.MembroMosaicoDTO;
 import com.ifsul.lpoo.sociotorcedor.core.model.user.Associado;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,6 +12,16 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface AssociadoRepository extends JpaRepository<Associado, Long> {
+
+    // Mosaico da torcida (só leitura): sócios ativos na ordem de adesão, só com id e hierarquia da categoria.
+    @Query("""
+            select new com.ifsul.lpoo.sociotorcedor.core.dto.MembroMosaicoDTO(a.id, c.hierarquia)
+            from Associado a
+            join a.categoria c
+            where c.hierarquia > :naoAssociado
+            order by a.dataAdesao asc nulls last, a.id asc
+            """)
+    List<MembroMosaicoDTO> listarMembrosDoMosaico(@Param("naoAssociado") Integer naoAssociado);
 
     // Query derivada: o Spring monta o SQL só pelo nome do método.
     // Lê-se: count where categoria.hierarquia > :hierarquia

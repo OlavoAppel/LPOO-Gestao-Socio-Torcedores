@@ -1,102 +1,83 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <th:block th:replace="~{fragments/head :: base('Minha conta')}"/>
 </head>
 <body>
+<header th:replace="~{fragments/navegacao :: topo('conta')}"></header>
 
-<div th:replace="~{fragments/navbar :: navbar('')}"></div>
+<main id="conteudo" class="moldura grid gap-12 py-10 md:py-14"
+      th:with="usuario=${#authentication.principal},
+               assoc=${usuario.associado},
+               socio=${assoc != null and !assoc.categoria.naoAssociado},
+               agora=${#temporals.createNow()},
+               proximos=${ingressos.?[lote.jogo.dhJogo.isAfter(#root.agora) and (status.name() == 'PAGO' or status.name() == 'RESERVADO')]},
+               anteriores=${ingressos.?[!(lote.jogo.dhJogo.isAfter(#root.agora) and (status.name() == 'PAGO' or status.name() == 'RESERVADO'))]}">
+    <header class="grid gap-3">
+        <h1 class="display text-3xl sm:text-4xl"
+            th:text="${assoc != null and assoc.nome != null} ? ${'Olá, ' + @formato.primeiroNome(assoc.nome)} : 'Minha conta'">Olá, Ana</h1>
+        <p th:if="${socio}" class="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <span class="font-bold" th:text="${assoc.categoria.nome}">Sócio Prata</span>
+            <a th:href="@{/sociotorcedor}" class="link font-semibold">Ver carteirinha e benefícios</a>
+        </p>
+        <p th:if="${assoc != null and !socio}" class="text-ink-muted">
+            Você ainda não é sócio. <a th:href="@{/planos}" class="link font-semibold">Compare os planos</a> e pague menos nos ingressos.
+        </p>
+        <p sec:authorize="hasRole('ADMIN')" class="text-ink-muted">
+            Conta de administração. <a th:href="@{/admin}" class="link font-semibold">Ir para o painel</a>
+        </p>
+    </header>
 
-<main id="conteudo" class="conteudo flex flex-col gap-8 py-10"
-      th:with="assoc=${#authentication.principal.associado},
-               socio=${assoc != null and assoc.categoria != null and !assoc.categoria.naoAssociado}">
-
-    <header th:replace="~{fragments/ui :: cabecalho('Minha conta', null)}"></header>
-
-    <div class="grid items-start gap-10 lg:grid-cols-[24rem_1fr] lg:gap-12">
-
-        <!-- Associação e dados -->
-        <div class="flex flex-col gap-6">
-            <th:block th:if="${socio}">
-                <section th:replace="~{fragments/carteirinha :: carteirinha(${assoc})}"></section>
-                <a th:href="@{/sociotorcedor}" class="btn btn-contorno self-start">Gerenciar associação</a>
+    <section aria-labelledby="titulo-ingressos" class="grid gap-4">
+        <h2 id="titulo-ingressos" class="display text-2xl">Meus próximos jogos</h2>
+        <div th:unless="${#lists.isEmpty(proximos)}" class="border-t border-line">
+            <th:block th:each="i : ${proximos}">
+                <article th:replace="~{fragments/ingresso :: linha(${i})}"></article>
             </th:block>
-
-            <section th:unless="${socio}" class="painel flex flex-col gap-3 p-6" aria-labelledby="titulo-nao-socio">
-                <h2 id="titulo-nao-socio" class="text-2xl">Você ainda não é sócio</h2>
-                <p class="text-ink-muted">Com uma categoria de sócio, seus ingressos ficam mais baratos e você ganha a carteirinha do clube.</p>
-                <a th:href="@{/sociotorcedor}" class="btn btn-principal self-start">Ver categorias de sócio</a>
-            </section>
-
-            <section class="painel p-6" aria-labelledby="titulo-dados">
-                <h2 id="titulo-dados" class="text-2xl">Dados da conta</h2>
-                <dl class="mt-4 flex flex-col">
-                    <dt class="text-sm text-ink-muted">Usuário</dt>
-                    <dd class="min-w-0 font-semibold [overflow-wrap:anywhere]" th:text="${#authentication.principal.username}">usuario</dd>
-
-                    <dt class="mt-3 text-sm text-ink-muted">E-mail</dt>
-                    <dd class="min-w-0 font-semibold [overflow-wrap:anywhere]" th:text="${#authentication.principal.email} ?: 'Não informado'">email@exemplo.com</dd>
-
-                    <dt class="mt-3 text-sm text-ink-muted">Nome</dt>
-                    <dd class="min-w-0 font-semibold [overflow-wrap:anywhere]" th:text="${assoc?.nome} ?: 'Não informado'">Nome</dd>
-
-                    <dt class="mt-3 text-sm text-ink-muted">Associação</dt>
-                    <dd class="font-semibold" th:text="${assoc?.categoria?.nome} ?: 'Não associado'">Não associado</dd>
-                </dl>
-            </section>
         </div>
+        <th:block th:if="${#lists.isEmpty(proximos)}">
+            <div th:replace="~{fragments/ui :: vazio('Nenhum ingresso para os próximos jogos',
+                    'Quando você comprar um, ele aparece aqui com o código para a entrada no estádio.',
+                    @{/jogos}, 'Ver os próximos jogos')}"></div>
+        </th:block>
 
-        <!-- Ingressos -->
-        <section class="flex flex-col gap-4" aria-labelledby="titulo-ingressos">
-            <h2 id="titulo-ingressos" class="titulo-secao">Meus ingressos</h2>
+        <details th:unless="${#lists.isEmpty(anteriores)}" class="group mt-4">
+            <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 font-bold [&::-webkit-details-marker]:hidden">
+                <svg th:replace="~{fragments/icones :: icone('seguir', 'size-5 transition-transform group-open:rotate-90')}"></svg>
+                <span th:text="${'Ingressos anteriores, cancelados ou expirados (' + #lists.size(anteriores) + ')'}">Ingressos anteriores (6)</span>
+            </summary>
+            <div class="mt-2 border-t border-line">
+                <th:block th:each="i : ${anteriores}">
+                    <article th:replace="~{fragments/ingresso :: linha(${i})}"></article>
+                </th:block>
+            </div>
+        </details>
+    </section>
 
-            <ul class="flex flex-col gap-4" th:if="${not #lists.isEmpty(ingressos)}">
-                <li th:each="i : ${ingressos}"
-                    th:with="st=${i.status.name()}, ativo=${st == 'PAGO' or st == 'RESERVADO'}">
-                    <article class="ingresso">
-                        <div class="flex min-w-0 flex-col gap-1 p-4 sm:p-5">
-                            <p class="text-sm text-ink-muted" th:text="${i.lote.jogo.campeonato} ?: 'Jogo'">Brasileirão 2026</p>
-                            <h3 class="text-2xl" th:classappend="${!ativo} ? 'text-ink-muted'"
-                                th:text="${i.lote.jogo.casa.nome + ' x ' + i.lote.jogo.fora.nome}">São Paulo FC x Grêmio</h3>
-                            <dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-                                <dt class="text-ink-muted">Quando</dt>
-                                <dd th:text="${#temporals.format(i.lote.jogo.dhJogo, 'dd/MM/yyyy') + ', ' + #temporals.format(i.lote.jogo.dhJogo, 'HH:mm')}">23/11/2026, 21:00</dd>
-                                <dt class="text-ink-muted">Estádio</dt>
-                                <dd th:text="${i.lote.jogo.estadio.nome}">MorumBIS</dd>
-                                <dt class="text-ink-muted">Setor</dt>
-                                <dd>
-                                    <span th:text="${i.lote.setor != null ? i.lote.setor.nome : i.lote.nome}">Cadeira Inferior</span>
-                                    <span th:if="${i.lote.setor != null and i.lote.nome != i.lote.setor.nome}"
-                                          class="text-ink-muted" th:text="${'(' + i.lote.nome + ')'}">(Lote 1)</span>
-                                </dd>
-                            </dl>
-                        </div>
-                        <div class="ingresso-canhoto">
-                            <span class="selo self-start" th:classappend="${st == 'PAGO'} ? 'selo-ok' : 'selo-neutro'"
-                                  th:text="${st == 'PAGO' ? 'Confirmado' : (st == 'RESERVADO' ? 'Reservado' : (st == 'CANCELADO' ? 'Cancelado' : 'Expirado'))}">Confirmado</span>
-                            <span class="numero text-2xl"
-                                  th:text="${'R$ ' + #numbers.formatDecimal(i.precoPago ?: 0, 1, 'POINT', 2, 'COMMA')}">R$ 67,50</span>
-                            <p th:if="${i.codigo != null and ativo}" class="text-sm text-ink-muted">Código de entrada
-                                <span class="block font-display text-xl font-bold tracking-wider text-ink tabular-nums"
-                                      th:text="${#strings.toUpperCase(#strings.substring(i.codigo, 0, 8))}">ABCD1234</span>
-                            </p>
-                            <p th:if="${i.dhCompra != null}" class="text-sm text-ink-muted"
-                               th:text="${'Comprado em ' + #temporals.format(i.dhCompra, 'dd/MM/yyyy')}">Comprado em 10/11/2026</p>
-                        </div>
-                    </article>
-                </li>
-            </ul>
-
-            <th:block th:if="${#lists.isEmpty(ingressos)}">
-                <div th:replace="~{fragments/ui :: vazio('Você ainda não tem ingressos',
-                        'Quando comprar um, ele aparece aqui com o código para a entrada no estádio.',
-                        @{/jogos}, 'Ver os próximos jogos')}"></div>
+    <section aria-labelledby="titulo-dados" class="grid max-w-2xl gap-4">
+        <h2 id="titulo-dados" class="display text-2xl">Dados da conta</h2>
+        <dl class="grid border-t border-line sm:grid-cols-[12rem_minmax(0,1fr)]">
+            <dt class="pt-3 text-sm text-ink-muted sm:border-b sm:border-line sm:py-3">Usuário</dt>
+            <dd class="border-b border-line pb-3 font-semibold sm:py-3" th:text="${usuario.username}">ana.silva</dd>
+            <dt class="pt-3 text-sm text-ink-muted sm:border-b sm:border-line sm:py-3">E-mail</dt>
+            <dd class="border-b border-line pb-3 font-semibold sm:py-3" th:text="${usuario.email} ?: 'Não informado'">ana@email.com</dd>
+            <th:block th:if="${assoc != null}">
+                <dt class="pt-3 text-sm text-ink-muted sm:border-b sm:border-line sm:py-3">Nome</dt>
+                <dd class="border-b border-line pb-3 font-semibold sm:py-3" th:text="${assoc.nome} ?: 'Não informado'">Ana Silva</dd>
+                <dt class="pt-3 text-sm text-ink-muted sm:border-b sm:border-line sm:py-3">Categoria</dt>
+                <dd class="border-b border-line pb-3 font-semibold sm:py-3" th:text="${assoc.categoria.nome}">Não associado</dd>
             </th:block>
-        </section>
-    </div>
+        </dl>
+        <form th:action="@{/logout}" method="post" class="mt-2">
+            <button type="submit" class="botao botao-secundario">
+                <svg th:replace="~{fragments/icones :: icone('sair', 'size-5')}"></svg>
+                Sair da conta
+            </button>
+        </form>
+    </section>
 </main>
 
-<footer th:replace="~{fragments/footer :: rodape}"></footer>
-
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('conta')}"></nav>
 </body>
 </html>

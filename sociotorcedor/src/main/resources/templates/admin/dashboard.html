@@ -4,152 +4,139 @@
     <th:block th:replace="~{fragments/head :: base('Métricas')}"/>
 </head>
 <body>
+<header th:replace="~{fragments/navegacao :: topo('admin')}"></header>
 
-<div th:replace="~{fragments/navbar :: navbar('admin')}"></div>
+<!--
+  Gráficos desenhados no servidor com HTML e CSS: leem as cores dos tokens (paleta.css), funcionam sem
+  JavaScript e as tabelas são a versão acessível. Barras finas, ponta de dado arredondada, 2px entre segmentos.
+-->
+<main id="conteudo" class="moldura grid gap-12 py-10 md:py-14"
+      th:with="maxReceita=${@formato.maximo(jogosInfo.![receitaPorJogo])}">
+    <header class="grid gap-3">
+        <a th:replace="~{fragments/ui :: voltar(@{/admin}, 'Administração')}"></a>
+        <h1 class="display text-3xl sm:text-4xl">Métricas</h1>
+        <p class="text-ink-muted">Sócios e vendas de ingressos. Os números "no mês" contam só o mês atual.</p>
+    </header>
 
-<main id="conteudo" class="conteudo flex flex-col gap-10 py-8 md:py-10">
-    <div class="flex flex-col gap-3">
-        <a th:replace="~{fragments/ui :: voltar(@{/admin}, 'Painel administrativo')}"></a>
-        <header th:replace="~{fragments/ui :: cabecalho('Métricas',
-                'Sócios e ingressos. Os números “no mês” contam só o mês atual.')}"></header>
-    </div>
-
-    <!-- Indicadores: uma faixa só, contagens primeiro e valores em reais depois -->
-    <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line lg:grid-cols-5">
-        <div class="flex flex-col-reverse justify-end gap-1 bg-surface p-5">
-            <dt class="text-ink-muted">Sócios no total</dt>
-            <dd class="numero text-2xl sm:text-3xl" th:text="${dashboardInfo.associadosTotal ?: 0}">0</dd>
-        </div>
-        <div class="flex flex-col-reverse justify-end gap-1 bg-surface p-5">
-            <dt class="text-ink-muted">Novos sócios no mês</dt>
-            <dd class="numero text-2xl sm:text-3xl" th:text="${dashboardInfo.novosAssociadosMesAtual ?: 0}">0</dd>
-        </div>
-        <div class="flex flex-col-reverse justify-end gap-1 bg-surface p-5">
-            <dt class="text-ink-muted">Ingressos vendidos no mês</dt>
-            <dd class="numero text-2xl sm:text-3xl" th:text="${dashboardInfo.ingressosVendidos ?: 0}">0</dd>
-        </div>
-        <div class="flex flex-col-reverse justify-end gap-1 bg-surface p-5">
-            <dt class="text-ink-muted">Receita de ingressos no mês</dt>
-            <dd class="numero text-2xl sm:text-3xl"
-                th:text="${'R$ ' + #numbers.formatDecimal(dashboardInfo.receitaIngressos ?: 0, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</dd>
-        </div>
-        <div class="col-span-2 lg:col-span-1 flex flex-col-reverse justify-end gap-1 bg-surface p-5">
-            <dt class="text-ink-muted">Arrecadação total</dt>
-            <dd class="numero text-2xl sm:text-3xl text-brand"
-                th:text="${'R$ ' + #numbers.formatDecimal(dashboardInfo.ganhosTotais ?: 0, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</dd>
-        </div>
-    </dl>
-
-    <!-- Sócios por categoria: gráfico e tabela (a tabela é a versão em texto do gráfico) -->
-    <section class="flex flex-col gap-4" aria-labelledby="titulo-categorias">
-        <h2 id="titulo-categorias" class="titulo-secao">Sócios por categoria</h2>
-
-        <div th:if="${not #lists.isEmpty(categoriasInfo)}" class="grid gap-4 lg:grid-cols-[22rem_1fr]">
-            <figure class="painel flex flex-col gap-3 p-5">
-                <figcaption class="text-ink-muted">Quantos sócios cada categoria reúne.</figcaption>
-                <div class="relative h-72">
-                    <canvas id="grafico-categorias" role="img" aria-label="Participação de cada categoria no total de sócios. Os números estão na tabela ao lado."></canvas>
-                </div>
-            </figure>
-
-            <div class="painel self-start overflow-x-auto">
-                <table class="tabela" id="tabela-categorias">
-                    <caption class="sr-only">Sócios por categoria</caption>
-                    <thead>
-                    <tr>
-                        <th scope="col">Categoria</th>
-                        <th scope="col" class="num">Sócios</th>
-                        <th scope="col" class="num">Novos no mês</th>
-                        <th scope="col" class="num">Participação</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="c : ${categoriasInfo}"
-                        th:data-nome="${c.nomeCategoria}"
-                        th:data-total="${c.totalAssociados ?: 0}"
-                        th:data-novos="${c.novosAssociadosMesAtual ?: 0}"
-                        th:with="pct=${dashboardInfo.associadosTotal != null and dashboardInfo.associadosTotal > 0 and c.totalAssociados != null} ? ${c.totalAssociados * 100.0 / dashboardInfo.associadosTotal} : 0">
-                        <th scope="row" class="font-semibold" th:text="${c.nomeCategoria}">Categoria</th>
-                        <td class="num" th:text="${c.totalAssociados ?: 0}">0</td>
-                        <td class="num" th:text="${c.novosAssociadosMesAtual ?: 0}">0</td>
-                        <td class="num" th:text="${#numbers.formatDecimal(pct, 1, 'POINT', 1, 'COMMA') + '%'}">0%</td>
-                    </tr>
-                    </tbody>
-                </table>
+    <section aria-labelledby="titulo-numeros">
+        <h2 id="titulo-numeros" class="sr-only">Números gerais</h2>
+        <dl class="grid gap-px overflow-hidden rounded-controle border border-line bg-line sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(4,minmax(0,1fr))]">
+            <div class="grid gap-1 bg-surface p-5">
+                <dt class="text-sm text-ink-muted">Arrecadação total</dt>
+                <dd class="display numero text-4xl leading-none"><span th:replace="~{fragments/ui :: dinheiro(${dashboardInfo.ganhosTotais})}"></span></dd>
+                <dd class="text-xs text-ink-muted">Todos os ingressos pagos mais uma mensalidade de cada sócio ativo</dd>
             </div>
-        </div>
+            <div class="grid gap-1 bg-surface p-5">
+                <dt class="text-sm text-ink-muted">Receita de ingressos no mês</dt>
+                <dd class="display numero text-3xl leading-none"><span th:replace="~{fragments/ui :: dinheiro(${dashboardInfo.receitaIngressos})}"></span></dd>
+            </div>
+            <div class="grid gap-1 bg-surface p-5">
+                <dt class="text-sm text-ink-muted">Ingressos vendidos no mês</dt>
+                <dd class="display numero text-3xl leading-none" th:text="${@formato.inteiro(dashboardInfo.ingressosVendidos)}">87</dd>
+            </div>
+            <div class="grid gap-1 bg-surface p-5">
+                <dt class="text-sm text-ink-muted">Sócios</dt>
+                <dd class="display numero text-3xl leading-none" th:text="${@formato.inteiro(dashboardInfo.associadosTotal)}">35</dd>
+            </div>
+            <div class="grid gap-1 bg-surface p-5">
+                <dt class="text-sm text-ink-muted">Novos sócios no mês</dt>
+                <dd class="display numero text-3xl leading-none" th:text="${@formato.inteiro(dashboardInfo.novosAssociadosMesAtual)}">12</dd>
+            </div>
+        </dl>
+    </section>
 
+    <!-- Sócios por categoria: barra segmentada fina (o todo) + tabela com os números -->
+    <section aria-labelledby="titulo-categorias" class="grid max-w-3xl gap-5">
+        <h2 id="titulo-categorias" class="display text-2xl">Sócios por categoria</h2>
+        <th:block th:if="${dashboardInfo.associadosTotal != null and dashboardInfo.associadosTotal > 0}">
+            <div class="flex h-3 gap-[2px] overflow-hidden rounded-r-[4px]" aria-hidden="true">
+                <th:block th:each="c, i : ${categoriasInfo}">
+                    <span th:if="${c.totalAssociados != null and c.totalAssociados > 0}" class="basis-0"
+                          th:classappend="${'pastilha-' + (i.index < 2 ? i.index + 1 : 3)}"
+                          th:style="'flex-grow:' + ${c.totalAssociados}"
+                          th:title="${c.nomeCategoria + ': ' + c.totalAssociados}"></span>
+                </th:block>
+            </div>
+        </th:block>
+        <table th:if="${not #lists.isEmpty(categoriasInfo)}" class="w-full border-collapse text-left">
+            <caption class="sr-only">Sócios por categoria, novos no mês e participação no total</caption>
+            <thead>
+            <tr class="border-b-2 border-ink text-sm">
+                <th scope="col" class="py-2 pr-4 font-bold">Categoria</th>
+                <th scope="col" class="py-2 pr-4 text-right font-bold">Sócios</th>
+                <th scope="col" class="py-2 pr-4 text-right font-bold">Novos no mês</th>
+                <th scope="col" class="py-2 text-right font-bold">Participação</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c, i : ${categoriasInfo}" class="border-b border-line">
+                <th scope="row" class="py-3 pr-4 font-normal">
+                    <span class="flex items-center gap-2">
+                        <span class="pastilha size-3.5 shrink-0" th:classappend="${'pastilha-' + (i.index < 2 ? i.index + 1 : 3)}" aria-hidden="true"></span>
+                        <span th:text="${c.nomeCategoria}">Sócio Bronze</span>
+                    </span>
+                </th>
+                <td class="numero py-3 pr-4 text-right" th:text="${@formato.inteiro(c.totalAssociados)}">18</td>
+                <td class="numero py-3 pr-4 text-right" th:text="${@formato.inteiro(c.novosAssociadosMesAtual)}">5</td>
+                <td class="numero py-3 text-right" th:text="${@formato.fracao(c.totalAssociados, dashboardInfo.associadosTotal)}">51,4%</td>
+            </tr>
+            </tbody>
+        </table>
         <th:block th:if="${#lists.isEmpty(categoriasInfo)}">
-            <div th:replace="~{fragments/ui :: vazio('Ainda não há sócios para contar',
-                    'Os números por categoria aparecem quando o primeiro torcedor se associar.', null, null)}"></div>
+            <div th:replace="~{fragments/ui :: vazio('Ainda não há categorias de sócio', 'As categorias aparecem aqui assim que forem cadastradas.', null, null)}"></div>
         </th:block>
     </section>
 
-    <!-- Próximos jogos -->
-    <section class="flex flex-col gap-4" aria-labelledby="titulo-jogos">
-        <h2 id="titulo-jogos" class="titulo-secao">Próximos jogos</h2>
-
-        <th:block th:if="${not #lists.isEmpty(jogosInfo)}">
-            <div class="grid gap-4 lg:grid-cols-2">
-                <figure class="painel flex flex-col gap-3 p-5">
-                    <figcaption>
-                        <span class="block font-display text-xl font-bold [font-stretch:75%]">Ocupação</span>
-                        <span class="text-ink-muted">Ingressos vendidos sobre a capacidade dos lotes.</span>
-                    </figcaption>
-                    <div class="relative h-[var(--chart-h)]" th:style="'--chart-h:' + ${60 + #lists.size(jogosInfo) * 38} + 'px'">
-                        <canvas id="grafico-ocupacao" role="img" aria-label="Ocupação em porcentagem de cada jogo futuro. Os números estão na tabela abaixo."></canvas>
-                    </div>
-                </figure>
-                <figure class="painel flex flex-col gap-3 p-5">
-                    <figcaption>
-                        <span class="block font-display text-xl font-bold [font-stretch:75%]">Receita</span>
-                        <span class="text-ink-muted">Arrecadação com ingressos de cada jogo.</span>
-                    </figcaption>
-                    <div class="relative h-[var(--chart-h)]" th:style="'--chart-h:' + ${60 + #lists.size(jogosInfo) * 38} + 'px'">
-                        <canvas id="grafico-receita" role="img" aria-label="Receita de ingressos de cada jogo futuro. Os números estão na tabela abaixo."></canvas>
-                    </div>
-                </figure>
-            </div>
-
-            <div class="painel overflow-x-auto">
-                <table class="tabela" id="tabela-jogos">
-                    <caption class="sr-only">Vendas dos próximos jogos</caption>
-                    <thead>
-                    <tr>
-                        <th scope="col">Jogo</th>
-                        <th scope="col" class="num">Ingressos vendidos</th>
-                        <th scope="col" class="num">Ocupação</th>
-                        <th scope="col" class="num">Receita</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="j : ${jogosInfo}"
-                        th:data-titulo="${j.titulo}"
-                        th:data-ocupacao="${j.ocupacaoJogoPorcentagem ?: 0}"
-                        th:data-vendidos="${j.ingressosVendidos ?: 0}"
-                        th:data-receita="${j.receitaPorJogo ?: 0}">
-                        <th scope="row" class="font-semibold whitespace-nowrap" th:text="${j.titulo}">SPFC x GRE</th>
-                        <td class="num" th:text="${j.ingressosVendidos ?: 0}">0</td>
-                        <td class="num" th:text="${#numbers.formatDecimal(j.ocupacaoJogoPorcentagem ?: 0, 1, 'POINT', 1, 'COMMA') + '%'}">0%</td>
-                        <td class="num" th:text="${'R$ ' + #numbers.formatDecimal(j.receitaPorJogo ?: 0, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </th:block>
-
+    <!-- Próximos jogos: ocupação (medidor) e receita (barra) por jogo, cada uma com a sua escala -->
+    <section aria-labelledby="titulo-jogos" class="grid gap-5">
+        <div class="grid gap-1">
+            <h2 id="titulo-jogos" class="display text-2xl">Vendas dos próximos jogos</h2>
+            <p class="text-sm text-ink-muted">Ocupação: ingressos pagos sobre os postos à venda nos lotes. Receita: soma dos ingressos pagos.</p>
+        </div>
+        <div th:if="${not #lists.isEmpty(jogosInfo)}" class="relative -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            <table class="w-full min-w-[36rem] border-collapse text-left">
+                <caption class="sr-only">Ingressos vendidos, ocupação e receita de cada jogo futuro</caption>
+                <thead>
+                <tr class="border-b-2 border-ink text-sm">
+                    <th scope="col" class="py-2 pr-4 font-bold">Jogo</th>
+                    <th scope="col" class="py-2 pr-4 text-right font-bold">Vendidos</th>
+                    <th scope="col" class="w-1/4 py-2 pr-4 font-bold">Ocupação</th>
+                    <th scope="col" class="w-1/3 py-2 font-bold">Receita</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="j : ${jogosInfo}" class="border-b border-line">
+                    <th scope="row" class="display py-3 pr-4 text-lg font-normal" th:text="${j.titulo}">SPFC x GRE</th>
+                    <td class="numero py-3 pr-4 text-right" th:text="${@formato.inteiro(j.ingressosVendidos)}">38</td>
+                    <td class="py-3 pr-4">
+                        <span class="flex items-center gap-2" th:title="${@formato.porcentagem(j.ocupacaoJogoPorcentagem) + ' de ocupação'}">
+                            <span class="h-2.5 min-w-16 flex-1 overflow-hidden rounded-pastilha bg-chart-track" aria-hidden="true">
+                                <span class="block h-full rounded-r-[4px] bg-chart-1"
+                                      th:style="'width:' + ${@formato.proporcao(j.ocupacaoJogoPorcentagem, 100)} + '%'"></span>
+                            </span>
+                            <span class="numero w-14 text-right text-sm" th:text="${@formato.porcentagem(j.ocupacaoJogoPorcentagem)}">38%</span>
+                        </span>
+                    </td>
+                    <td class="py-3">
+                        <span class="flex items-center gap-2" th:title="${@formato.real(j.receitaPorJogo)}">
+                            <span class="h-3 min-w-16 flex-1" aria-hidden="true">
+                                <span class="block h-full rounded-r-[4px] bg-chart-1"
+                                      th:style="'width:' + ${@formato.proporcao(j.receitaPorJogo, maxReceita)} + '%'"></span>
+                            </span>
+                            <span class="numero w-24 text-right text-sm" th:text="${@formato.real(j.receitaPorJogo)}">R$ 1.230,00</span>
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
         <th:block th:if="${#lists.isEmpty(jogosInfo)}">
-            <div th:replace="~{fragments/ui :: vazio('Nenhum jogo futuro',
-                    'Cadastre um jogo para acompanhar vendas e ocupação por aqui.',
-                    @{/admin/cadastro/jogo}, 'Cadastrar jogo')}"></div>
+            <div th:replace="~{fragments/ui :: vazio('Nenhum jogo futuro', 'Cadastre um jogo para acompanhar as vendas e a ocupação por aqui.', @{/admin/cadastro/jogo}, 'Cadastrar jogo')}"></div>
         </th:block>
     </section>
 </main>
 
-<footer th:replace="~{fragments/footer :: rodape}"></footer>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script th:src="@{/js/dashboard.js}"></script>
-
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('admin')}"></nav>
 </body>
 </html>

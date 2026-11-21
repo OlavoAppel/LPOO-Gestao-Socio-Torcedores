@@ -1,20 +1,37 @@
 stateDiagram-v2
 direction LR
 state "Início (/)" as Inicio
+state "Jogos (/jogos)" as Jogos
+state "Jogo (/jogos/id)" as Jogo
+state "Compra (/ingressos)" as Compra
+state "Ingresso comprado (/ingressos/sucesso)" as Sucesso
+state "Planos (/planos)" as Planos
+state "Minha associação (/sociotorcedor)" as Socio
+state "Minha conta (/perfil)" as Perfil
+state "Notícias (/noticias)" as Noticias
 state "Login (/login)" as Login
 state "Cadastro (/cadastro)" as Cadastro
-state "Jogos (/jogos)" as Jogos
-state "Ingressos (/ingressos)" as Ingressos
-state "Perfil (/perfil)" as Perfil
-state "Admin (/admin)" as Admin
+state "Administração (/admin)" as Admin
+state "Métricas (/admin/metricas)" as Metricas
+state "Cadastro de jogo (/admin/cadastro/jogo)" as NovoJogo
+state "Lotes do jogo (/admin/cadastro/id/lotes)" as Lotes
 [*] --> Inicio
-Inicio --> Login : botão Entrar
-Login --> Cadastro : link Cadastre-se
+Inicio --> Jogos : aba Jogos
+Inicio --> Compra : Comprar ingresso
+Jogos --> Jogo : linha do jogo
+Jogo --> Compra : Comprar ingresso
+Compra --> Login : sem login
+Login --> Compra : depois de entrar
+Compra --> Sucesso : Comprar ingresso
+Sucesso --> Perfil : Ver meus ingressos
+Inicio --> Planos : Comparar os planos
+Planos --> Socio : Entrar para se associar
+Inicio --> Noticias : Notícias do clube
+Login --> Cadastro : Criar conta
 Cadastro --> Login : cadastro feito
-Login --> Inicio : login correto
-Inicio --> Jogos : link Jogos
-Jogos --> Ingressos : botão do próximo jogo
-Inicio --> Perfil : menu do avatar
-Inicio --> Admin : menu do avatar (só ADMIN)
-Perfil --> Login : Sair
-Admin --> Login : Sair
+Perfil --> Login : Sair da conta
+Inicio --> Admin : aba Admin (só ADMIN)
+Admin --> Metricas : Ver métricas
+Admin --> NovoJogo : Cadastrar jogo
+NovoJogo --> Lotes : Salvar
+Admin --> Lotes : Lotes

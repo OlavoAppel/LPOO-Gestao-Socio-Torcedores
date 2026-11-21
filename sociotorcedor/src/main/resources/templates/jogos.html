@@ -4,92 +4,67 @@
     <th:block th:replace="~{fragments/head :: base('Jogos')}"/>
 </head>
 <body>
+<header th:replace="~{fragments/navegacao :: topo('jogos')}"></header>
 
-<div th:replace="~{fragments/navbar :: navbar('jogos')}"></div>
-
-<main id="conteudo" class="conteudo flex flex-col gap-6 py-10"
-      th:with="proximoId=${jogosData.proximoJogo != null ? jogosData.proximoJogo.id : null}">
-
+<main id="conteudo" class="moldura grid gap-10 py-10 md:py-14"
+      th:with="proximoId=${jogosData.proximoJogo != null ? jogosData.proximoJogo.id : null},
+               totalEncerrados=${#aggregates.sum(encerradosPorMes.![jogos.size()]) ?: 0}">
     <header th:replace="~{fragments/ui :: cabecalho('Calendário de jogos',
-            'Escolha o mês para ver as partidas da temporada. Abrimos no mês do próximo jogo.')}"></header>
+            'Escolha um jogo para ver os setores, os preços de cada categoria de sócio e comprar o ingresso.')}"></header>
 
-    <div th:replace="~{fragments/ui :: alertas(null, ${erro})}"></div>
+    <!-- A compra recusada volta para cá com o motivo dado pelo backend (flash "erro") -->
+    <p th:if="${erro}" role="alert" class="aviso aviso-erro max-w-3xl">
+        <svg th:replace="~{fragments/icones :: icone('alerta', 'size-6 shrink-0 text-danger')}"></svg>
+        <span>
+            <strong class="block">A compra não foi concluída.</strong>
+            <span th:text="${erro}">Motivo</span>
+        </span>
+    </p>
 
-    <!-- Meses: o script abaixo filtra a lista por data-mes -->
-    <nav class="meses-nav -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 md:flex-wrap md:overflow-visible"
-         aria-label="Filtrar jogos por mês"
-         th:data-mes-inicial="${jogosData.proximoJogo != null} ? ${jogosData.proximoJogo.dhJogo.monthValue}">
-        <button type="button" class="mes-item group" data-mes="1" aria-pressed="false">Janeiro</button>
-        <button type="button" class="mes-item group" data-mes="2" aria-pressed="false">Fevereiro</button>
-        <button type="button" class="mes-item group" data-mes="3" aria-pressed="false">Março</button>
-        <button type="button" class="mes-item group" data-mes="4" aria-pressed="false">Abril</button>
-        <button type="button" class="mes-item group" data-mes="5" aria-pressed="false">Maio</button>
-        <button type="button" class="mes-item group" data-mes="6" aria-pressed="false">Junho</button>
-        <button type="button" class="mes-item group" data-mes="7" aria-pressed="false">Julho</button>
-        <button type="button" class="mes-item group" data-mes="8" aria-pressed="false">Agosto</button>
-        <button type="button" class="mes-item group" data-mes="9" aria-pressed="false">Setembro</button>
-        <button type="button" class="mes-item group" data-mes="10" aria-pressed="false">Outubro</button>
-        <button type="button" class="mes-item group" data-mes="11" aria-pressed="false">Novembro</button>
-        <button type="button" class="mes-item group" data-mes="12" aria-pressed="false">Dezembro</button>
+    <!-- Atalhos para os meses com jogos (links internos: funcionam sem JavaScript) -->
+    <nav th:if="${#lists.size(proximosPorMes) > 1}" aria-label="Meses com jogos" class="-mx-1 flex flex-wrap gap-2">
+        <a th:each="m : ${proximosPorMes}" th:href="${'#' + m.ancora}"
+           class="botao botao-secundario min-h-10 px-4 py-1.5 text-sm"
+           th:text="${@formato.nomeMes(m.mes)}">Novembro</a>
     </nav>
 
-    <!-- Lista: sem JavaScript, todos os jogos do ano aparecem -->
-    <div class="jogos-list flex flex-col gap-3">
-        <th:block th:each="jogo : ${jogosData.jogosList}">
-            <article th:replace="~{fragments/jogo :: linha(${jogo}, ${jogo.id == proximoId})}"></article>
+    <section aria-labelledby="titulo-proximos" class="grid gap-8">
+        <h2 id="titulo-proximos" class="sr-only">Próximos jogos</h2>
+        <section th:each="m : ${proximosPorMes}" th:id="${m.ancora}" class="grid gap-2"
+                 th:attr="aria-labelledby=${'titulo-' + m.ancora}">
+            <h3 th:id="${'titulo-' + m.ancora}" class="display text-xl text-ink-muted"
+                th:text="${@formato.nomeMes(m.mes) + ' de ' + m.ano}">Novembro de 2026</h3>
+            <ul class="border-t border-line">
+                <li th:each="jogo : ${m.jogos}">
+                    <a th:replace="~{fragments/jogo :: linha(${jogo}, ${jogo.id == proximoId})}"></a>
+                </li>
+            </ul>
+        </section>
+        <th:block th:if="${#lists.isEmpty(proximosPorMes)}">
+            <div th:replace="~{fragments/ui :: vazio('Nenhum jogo marcado por enquanto',
+                    'Os próximos jogos da temporada aparecem aqui assim que forem cadastrados.', null, null)}"></div>
         </th:block>
+    </section>
 
-        <div id="no-games-msg" hidden>
-            <div th:replace="~{fragments/ui :: vazio('Nenhum jogo neste mês',
-                    'Os meses marcados com um ponto têm partidas. Escolha um deles para ver os jogos.', null, null)}"></div>
+    <details th:if="${not #lists.isEmpty(encerradosPorMes)}" class="group border-t border-line pt-6">
+        <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 font-bold [&::-webkit-details-marker]:hidden">
+            <svg th:replace="~{fragments/icones :: icone('seguir', 'size-5 transition-transform group-open:rotate-90')}"></svg>
+            <span th:text="${'Jogos já disputados (' + totalEncerrados + ')'}">Jogos já disputados (10)</span>
+        </summary>
+        <div class="mt-4 grid gap-8">
+            <section th:each="m : ${encerradosPorMes}" class="grid gap-2">
+                <h3 class="display text-xl text-ink-muted" th:text="${@formato.nomeMes(m.mes) + ' de ' + m.ano}">Outubro de 2026</h3>
+                <ul class="border-t border-line">
+                    <li th:each="jogo : ${m.jogos}">
+                        <a th:replace="~{fragments/jogo :: linha(${jogo}, false)}"></a>
+                    </li>
+                </ul>
+            </section>
         </div>
-    </div>
-
+    </details>
 </main>
 
-<footer th:replace="~{fragments/footer :: rodape}"></footer>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var botoes = document.querySelectorAll('.meses-nav .mes-item');
-        var cards = document.querySelectorAll('.jogo-card');
-        var vazio = document.getElementById('no-games-msg');
-        var nav = document.querySelector('.meses-nav');
-
-        // marca meses que têm jogos (ponto visível + texto para leitor de tela)
-        cards.forEach(function (c) {
-            var b = document.querySelector('.mes-item[data-mes="' + c.dataset.mes + '"]');
-            if (b && !b.classList.contains('has-games')) {
-                b.classList.add('has-games');
-                b.insertAdjacentHTML('beforeend', '<span class="sr-only">, tem jogos</span>');
-            }
-        });
-
-        function mostrar(mes) {
-            var achou = 0;
-            botoes.forEach(function (b) {
-                var ativo = b.dataset.mes === mes;
-                b.classList.toggle('active', ativo);
-                b.setAttribute('aria-pressed', ativo ? 'true' : 'false');
-            });
-            cards.forEach(function (c) {
-                var visivel = c.dataset.mes === mes;
-                c.hidden = !visivel;
-                if (visivel) achou++;
-            });
-            vazio.hidden = achou > 0;
-        }
-
-        botoes.forEach(function (b) {
-            b.addEventListener('click', function () { mostrar(b.dataset.mes); });
-        });
-
-        // mês inicial: o do próximo jogo; se não houver, o mês atual
-        mostrar(nav.dataset.mesInicial || String(new Date().getMonth() + 1));
-        var ativo = document.querySelector('.mes-item.active');
-        if (ativo && ativo.scrollIntoView) ativo.scrollIntoView({ inline: 'center', block: 'nearest' });
-    });
-</script>
-
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('jogos')}"></nav>
 </body>
 </html>

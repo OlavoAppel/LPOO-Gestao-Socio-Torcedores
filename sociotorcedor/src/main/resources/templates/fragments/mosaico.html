@@ -1,0 +1,58 @@
+<!--
+  O mosaico como dado: cada quadrado conta algo real.
+  - torcida: um quadrado por sócio ativo, na ordem de adesão, no tom da categoria; o seu em laranja.
+  - medidor: 10 quadrados de um lote de ingressos; cada um vale 10% e fica cheio enquanto houver lugar.
+  A grade é escondida dos leitores de tela; o texto ao lado diz os mesmos números.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Uso: <div th:replace="~{fragments/mosaico :: torcida(${mosaico}, ${convite})}"></div>
+     convite = true mostra um lugar vazio no fim ("o seu lugar") para quem ainda não é sócio. -->
+<div th:fragment="torcida(mosaico, convite)" class="grid gap-5">
+    <div th:unless="${mosaico.vazio}" aria-hidden="true"
+         class="grid grid-cols-[repeat(auto-fill,0.875rem)] gap-[3px] sm:grid-cols-[repeat(auto-fill,1rem)]">
+        <span th:each="p : ${mosaico.pecas}" class="pastilha"
+              th:classappend="${p.seu} ? 'pastilha-voce' : ${'pastilha-' + p.nivel}"></span>
+        <span th:if="${convite}" class="pastilha pastilha-vazia"></span>
+    </div>
+    <p th:if="${mosaico.vazio}" class="text-ink-muted">Ninguém se associou ainda. O primeiro quadrado pode ser o seu.</p>
+
+    <div th:unless="${mosaico.vazio}" class="grid gap-3">
+        <p>
+            <strong class="display text-2xl leading-none" th:text="${@formato.inteiro(mosaico.totalSocios)}">31</strong>
+            <span th:text="${mosaico.totalSocios == 1} ? 'sócio forma o mosaico.' : 'sócios formam o mosaico.'">sócios formam o mosaico.</span>
+            <span th:if="${mosaico.sociosPorPeca == 1}">Cada quadrado é um torcedor, na ordem em que se associou.</span>
+            <span th:if="${mosaico.sociosPorPeca > 1}"
+                  th:text="${'Cada quadrado representa ' + mosaico.sociosPorPeca + ' torcedores, na ordem em que se associaram.'}">Cada quadrado representa 3 torcedores.</span>
+            <strong th:if="${mosaico.suaPosicao != null}"
+                    th:text="${'O seu é o ' + mosaico.suaPosicao + 'º, em laranja.'}">O seu é o 14º, em laranja.</strong>
+            <span th:if="${mosaico.suaPosicao == null and convite}">O quadrado vazio no fim é o lugar do próximo sócio.</span>
+        </p>
+        <ul class="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+            <li th:each="n : ${mosaico.niveis}" class="flex items-center gap-2">
+                <span class="pastilha size-3.5" th:classappend="${'pastilha-' + n.nivel}" aria-hidden="true"></span>
+                <span th:text="${n.categoria}">Sócio Bronze</span>
+                <span class="numero font-bold" th:text="${@formato.inteiro(n.total)}">18</span>
+            </li>
+            <li th:if="${mosaico.suaPosicao != null}" class="flex items-center gap-2">
+                <span class="pastilha pastilha-voce size-3.5" aria-hidden="true"></span>
+                <span>Você</span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Uso: <span th:replace="~{fragments/mosaico :: medidor(${setor})}"></span> (SetorOfertaDTO) -->
+<span th:fragment="medidor(setor)" class="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+    <span class="grid grid-cols-[repeat(10,0.5rem)] gap-[2px]" aria-hidden="true">
+        <span th:each="i : ${#numbers.sequence(1, 10)}" class="pastilha"
+              th:classappend="${i <= setor.quadradosDisponiveis} ? 'pastilha-cheia' : 'pastilha-vazia'"></span>
+    </span>
+    <span class="text-sm text-ink-muted">
+        <th:block th:if="${setor.esgotado}">Esgotado</th:block>
+        <th:block th:unless="${setor.esgotado}"
+                  th:text="${'Restam ' + @formato.inteiro(setor.disponiveis) + ' de ' + @formato.inteiro(setor.total)}">Restam 12 de 40</th:block>
+    </span>
+</span>
+
+</html>

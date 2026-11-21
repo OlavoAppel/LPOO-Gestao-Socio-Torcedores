@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/head :: base('Planos de sócio')}"/>
+</head>
+<body>
+<header th:replace="~{fragments/navegacao :: topo('socio')}"></header>
+
+<main id="conteudo" class="moldura grid gap-14 py-10 md:py-14"
+      th:with="assoc=${#authorization.expression('isAuthenticated()')} ? ${#authentication.principal.associado} : null,
+               idAtual=${assoc != null and !assoc.categoria.naoAssociado} ? ${assoc.categoria.id} : null">
+    <header class="grid max-w-3xl gap-4">
+        <h1 class="display text-4xl sm:text-5xl" th:text="${'Seja sócio do ' + #messages.msg('clube.curto')}">Seja sócio do Ventania</h1>
+        <p class="text-lg text-ink-muted">
+            Sócio paga menos em todos os setores, ganha a carteirinha do clube e vira um quadrado no mosaico da torcida.
+            Compare as categorias e escolha a que combina com quantas vezes você vai ao estádio.
+        </p>
+    </header>
+
+    <section aria-labelledby="titulo-comparacao" class="grid gap-6">
+        <h2 id="titulo-comparacao" class="sr-only">Comparação das categorias</h2>
+        <div th:replace="~{fragments/planos :: comparacao(${categorias}, ${exemplo}, ${beneficiosComparados}, ${idAtual})}"></div>
+
+        <!-- Próximo passo, conforme quem está olhando -->
+        <div class="grid max-w-2xl justify-items-start gap-3">
+            <th:block sec:authorize="isAnonymous()">
+                <a th:href="@{/sociotorcedor}" class="botao botao-primario">Entrar para se associar</a>
+                <p class="text-ink-muted">Ainda não tem conta? <a class="link font-semibold" th:href="@{/cadastro}">Criar conta</a>.
+                    Depois de entrar, você escolhe a categoria e a associação vale na hora.</p>
+            </th:block>
+            <th:block sec:authorize="isAuthenticated()">
+                <a th:if="${assoc != null and idAtual == null}" th:href="@{/sociotorcedor}" class="botao botao-primario">Escolher minha categoria</a>
+                <p th:if="${idAtual != null}" class="aviso">
+                    <span>Você já é <strong th:text="${assoc.categoria.nome}">Sócio Prata</strong>.
+                        Sua carteirinha e seus benefícios estão em <a class="link font-semibold" th:href="@{/sociotorcedor}">Minha associação</a>.</span>
+                </p>
+                <p th:if="${assoc == null}" class="aviso">Contas de administração não se associam.</p>
+            </th:block>
+        </div>
+    </section>
+
+    <section aria-labelledby="titulo-mosaico" class="grid gap-5 border-t border-line pt-10 md:grid-cols-12 md:gap-10">
+        <div class="grid content-start gap-3 md:col-span-5">
+            <h2 id="titulo-mosaico" class="display text-2xl">O mosaico da torcida</h2>
+            <p class="text-ink-muted">Cada sócio é um quadrado, no tom da sua categoria, na ordem em que se associou. É assim que a torcida monta o brasão na arquibancada: cartão por cartão.</p>
+        </div>
+        <div class="md:col-span-7">
+            <div th:replace="~{fragments/mosaico :: torcida(${mosaico}, ${idAtual == null and assoc != null or #authorization.expression('isAnonymous()')})}"></div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('socio')}"></nav>
+</body>
+</html>

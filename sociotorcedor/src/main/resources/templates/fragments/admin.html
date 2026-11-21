@@ -1,0 +1,56 @@
+<!-- Peças das telas de administração. -->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Tabela de jogos do painel (usada para os próximos e para os já disputados) -->
+<th:block th:fragment="tabelaJogos(lista, legenda)">
+    <div th:unless="${#lists.isEmpty(lista)}" class="relative -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <table class="w-full min-w-[40rem] border-collapse text-left">
+            <caption class="sr-only" th:text="${legenda}">Jogos</caption>
+            <thead>
+            <tr class="border-b-2 border-ink text-sm">
+                <th scope="col" class="py-2 pr-4 font-bold">Data</th>
+                <th scope="col" class="py-2 pr-4 font-bold">Jogo</th>
+                <th scope="col" class="py-2 pr-4 font-bold">Lotes</th>
+                <th scope="col" class="py-2 pr-4 text-right font-bold">Vendidos</th>
+                <th scope="col" class="py-2 pr-4 font-bold">Ocupação</th>
+                <th scope="col" class="py-2 font-bold"><span class="sr-only">Ação</span></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${lista}" class="border-b border-line align-middle">
+                <td class="whitespace-nowrap py-3 pr-4">
+                    <time th:datetime="${@formato.iso(a.jogo.dhJogo)}" class="numero font-semibold"
+                          th:text="${@formato.diaMesNumerico(a.jogo.dhJogo)}">23/11</time>
+                    <span class="block text-sm text-ink-muted" th:text="${@formato.hora(a.jogo.dhJogo)}">21h</span>
+                </td>
+                <th scope="row" class="py-3 pr-4 font-normal">
+                    <span th:replace="~{fragments/jogo :: confronto(${a.jogo}, 'size-6', 'display text-lg leading-none')}"></span>
+                    <span class="block text-sm text-ink-muted" th:text="${a.jogo.nomeEstadio + ', ' + a.jogo.campeonato}">MorumBIS, Brasileirão 2026</span>
+                </th>
+                <td class="py-3 pr-4">
+                    <span class="numero font-semibold" th:text="${a.lotes + ' de ' + a.setoresNoEstadio}">4 de 4</span>
+                    <span th:if="${!a.lotesCompletos and !a.encerrado}" class="flex items-center gap-1 text-sm font-semibold text-danger">
+                        <svg th:replace="~{fragments/icones :: icone('alerta', 'size-4 shrink-0')}"></svg>
+                        <span th:text="${a.setoresNoEstadio - a.lotes == 1} ? 'Falta 1 setor' : ${'Faltam ' + (a.setoresNoEstadio - a.lotes) + ' setores'}">Faltam 2 setores</span>
+                    </span>
+                </td>
+                <td class="numero py-3 pr-4 text-right" th:text="${@formato.inteiro(a.vendidos)}">38</td>
+                <td class="py-3 pr-4">
+                    <span class="flex items-center gap-2" th:title="${@formato.porcentagem(a.ocupacao) + ' dos ingressos postos à venda'}">
+                        <span class="h-2.5 w-24 overflow-hidden rounded-pastilha bg-chart-track" aria-hidden="true">
+                            <span class="block h-full rounded-r-[4px] bg-chart-1" th:style="'width:' + ${a.ocupacao > 100 ? 100 : a.ocupacao} + '%'"></span>
+                        </span>
+                        <span class="numero text-sm" th:text="${@formato.porcentagem(a.ocupacao)}">38%</span>
+                    </span>
+                </td>
+                <td class="py-3 text-right">
+                    <a th:href="@{/admin/cadastro/{id}/lotes(id=${a.jogo.id})}" class="link whitespace-nowrap font-semibold"
+                       th:text="${a.encerrado} ? 'Ver lotes' : 'Lotes'">Lotes</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</th:block>
+
+</html>

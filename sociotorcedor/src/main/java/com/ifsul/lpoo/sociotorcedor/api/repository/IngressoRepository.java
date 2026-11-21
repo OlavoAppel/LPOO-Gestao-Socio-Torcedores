@@ -13,6 +13,21 @@ import java.time.LocalDateTime;
 
 public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
 
+    // Ingressos de um usuário do mais recente para o mais antigo pela data da compra (tela de compra concluída).
+    @Query("""
+            select i from Ingresso i
+            join fetch i.lote l
+            join fetch l.jogo j
+            join fetch j.casa
+            join fetch j.fora
+            join fetch j.estadio
+            left join fetch l.setor
+            where i.associado.id = (select u.associado.id from Usuario u where u.username = :username)
+            order by i.dhCompra desc, i.id desc
+            """)
+    java.util.List<Ingresso> buscarDoUsuarioPorCompraRecente(@Param("username") String username,
+                                                             org.springframework.data.domain.Limit limite);
+
     // coalesce: sum() devolve null quando não há linhas; assim devolvemos 0.
     @Query("select coalesce(sum(i.precoPago), 0) from Ingresso i where i.status = :status")
     BigDecimal somarReceitaPorStatus(@Param("status") StatusIngresso status);

@@ -16,6 +16,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/login", "/cadastro").permitAll()
                 .requestMatchers("/", "/jogos").permitAll()
+                // telas públicas novas (só leitura): página do jogo, comparação de planos e notícias
+                .requestMatchers("/jogos/*", "/planos", "/noticias", "/noticias/*").permitAll()
 
                 .requestMatchers("/perfil").hasAnyRole("ADMIN", "USER")
                 .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")

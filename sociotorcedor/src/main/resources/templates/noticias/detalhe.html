@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: base(${noticia.titulo})}"/>
+</head>
+<body>
+<header th:replace="~{fragments/navegacao :: topo('noticias')}"></header>
+
+<main id="conteudo" class="moldura grid gap-12 py-8 md:py-12">
+    <article class="grid max-w-3xl gap-6" aria-labelledby="titulo-noticia">
+        <a th:replace="~{fragments/ui :: voltar(@{/noticias}, 'Notícias')}"></a>
+        <header class="grid gap-4">
+            <p class="text-sm text-ink-muted">
+                <span class="font-bold text-ink" th:text="${noticia.editoria}">Torcida</span>,
+                <time th:datetime="${@formato.isoData(noticia.data)}" th:text="${@formato.dataLonga(noticia.data)}">quinta-feira, 19 de novembro</time>
+            </p>
+            <h1 id="titulo-noticia" class="display text-3xl sm:text-4xl" th:text="${noticia.titulo}">Título</h1>
+            <p class="text-lg text-ink-muted" th:text="${noticia.resumo}">Resumo</p>
+        </header>
+        <div class="grid max-w-prose gap-5 text-lg leading-relaxed">
+            <p th:each="paragrafo : ${noticia.paragrafos}" th:text="${paragrafo}">Parágrafo</p>
+        </div>
+        <p th:replace="~{fragments/ui :: previa('Notícia de demonstração do clube fictício.')}"></p>
+    </article>
+
+    <section th:if="${not #lists.isEmpty(outras)}" aria-labelledby="titulo-outras" class="grid max-w-3xl gap-4 border-t border-line pt-8">
+        <h2 id="titulo-outras" class="display text-2xl">Outras notícias</h2>
+        <ul class="grid gap-4">
+            <li th:each="n : ${outras}">
+                <a th:href="@{/noticias/{id}(id=${n.id})}" class="link font-semibold" th:text="${n.titulo}">Título</a>
+                <span class="text-sm text-ink-muted" th:text="${', ' + @formato.diaMes(n.data)}">, 12 nov</span>
+            </li>
+        </ul>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('noticias')}"></nav>
+</body>
+</html>

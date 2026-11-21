@@ -1,215 +1,29 @@
-<!-- Cabeçalho comum. Uso: <th:block th:replace="~{fragments/head :: base('Título da página')}"/> -->
+<!-- Cabeçalho comum. Uso, dentro de <head>: <th:block th:replace="~{fragments/head :: base('Título')}"/> -->
 <th:block th:fragment="base(titulo)" xmlns:th="http://www.thymeleaf.org">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${titulo} + ' | ' + #{clube.curto}">Lagoa EC</title>
-
-    <!-- aplica o tema salvo antes de pintar, evitando clarão -->
+    <!-- Lê o token CSRF logo no começo: cria a sessão antes de a resposta começar a ser enviada.
+         Sem isso, páginas com formulário podem falhar com "Cannot create a session after the response has been committed". -->
+    <meta name="_csrf" th:content="${_csrf?.token}">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title th:text="${titulo} + ' | ' + #{clube.curto}">Ventania</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/brasao.svg}">
+    <!-- Tema escolhido pelo torcedor (salvo no navegador) ou o do sistema. Roda antes de pintar para não piscar. -->
     <script>
         (function () {
-            try {
-                var t = localStorage.getItem('theme');
-                if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                document.documentElement.setAttribute('data-theme', t);
-            } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+            var t = null;
+            try { t = localStorage.getItem('tema'); } catch (e) { }
+            if (t !== 'dark' && t !== 'light') {
+                t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', t);
         })();
     </script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700&amp;family=Saira:wdth,wght@62.5..100,500..800&amp;display=swap">
-
-    <!-- paleta, fontes e marca: o único lugar a editar para trocar de clube -->
-    <link rel="stylesheet" th:href="@{/css/tema.css}">
-
-    <!-- Tailwind v4 compilado no navegador (o projeto não tem Node) -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.14/dist/index.global.js"></script>
-    <style type="text/tailwindcss">
-        @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
-
-        /* sem cores nem tamanhos padrão do Tailwind: só os nomes semânticos abaixo */
-        @theme {
-            --color-*: initial;
-            --text-*: initial;
-
-            /* escala tipográfica (12 14 16 18 21 24 36 48 72) */
-            --text-xs: 0.75rem;     --text-xs--line-height: 1.4;
-            --text-sm: 0.875rem;    --text-sm--line-height: 1.45;
-            --text-base: 1rem;      --text-base--line-height: 1.55;
-            --text-lg: 1.125rem;    --text-lg--line-height: 1.5;
-            --text-xl: 1.3125rem;   --text-xl--line-height: 1.25;
-            --text-2xl: 1.5rem;     --text-2xl--line-height: 1.15;
-            --text-3xl: 2.25rem;    --text-3xl--line-height: 1.05;
-            --text-4xl: 3rem;       --text-4xl--line-height: 1;
-            --text-5xl: 4.5rem;     --text-5xl--line-height: 0.9;
-        }
-
-        @theme inline {
-            --color-bg: var(--bg);
-            --color-surface: var(--surface);
-            --color-surface-2: var(--surface-2);
-            --color-line: var(--line);
-            --color-line-strong: var(--line-strong);
-            --color-ink: var(--ink);
-            --color-ink-muted: var(--ink-muted);
-            --color-brand: var(--brand);
-            --color-brand-hover: var(--brand-hover);
-            --color-brand-ink: var(--brand-ink);
-            --color-accent: var(--accent);
-            --color-accent-hover: var(--accent-hover);
-            --color-accent-ink: var(--accent-ink);
-            --color-focus: var(--focus);
-            --color-danger: var(--danger);
-            --color-danger-bg: var(--danger-bg);
-            --color-success: var(--success);
-            --color-success-bg: var(--success-bg);
-            --color-placar: var(--placar);
-            --color-placar-ink: var(--placar-ink);
-            --color-placar-muted: var(--placar-muted);
-            --color-led: var(--led);
-            --color-crest-1: var(--crest-1);
-            --color-crest-2: var(--crest-2);
-            --color-crest-3: var(--crest-3);
-
-            --font-display: var(--fonte-titulo);
-            --font-body: var(--fonte-texto);
-        }
-
-        @layer base {
-            body {
-                @apply flex min-h-dvh flex-col bg-bg font-body text-base text-ink antialiased;
-            }
-            h1, h2, h3 {
-                @apply font-display text-ink;
-                font-stretch: 75%;
-                font-weight: 750;
-                text-wrap: balance;
-            }
-            :where(input, select, textarea, button) { font: inherit; }
-        }
-
-        @layer components {
-            .conteudo { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
-            .titulo-pagina { @apply text-3xl md:text-4xl; font-stretch: 62.5%; font-weight: 800; }
-            .titulo-secao { @apply text-2xl md:text-3xl; }
-            .apoio { @apply max-w-[60ch] text-lg text-ink-muted; }
-            .link { @apply font-semibold text-brand underline decoration-2 underline-offset-4 hover:decoration-[3px]; }
-            .numero { @apply font-display tabular-nums; font-stretch: 75%; font-weight: 750; }
-
-            /* botões: altura mínima de 44px para toque */
-            .btn {
-                @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-5 py-2 text-center font-bold leading-tight transition-colors duration-150
-                       disabled:cursor-not-allowed disabled:border-transparent disabled:bg-surface-2 disabled:text-ink-muted;
-            }
-            .btn-principal { @apply bg-brand text-brand-ink enabled:hover:bg-brand-hover; }
-            .btn-compra { @apply bg-accent text-accent-ink enabled:hover:bg-accent-hover; }
-            .btn-contorno { @apply border-2 border-line-strong text-ink enabled:hover:border-ink enabled:hover:bg-surface-2; }
-            a.btn-principal:hover { @apply bg-brand-hover; }
-            a.btn-compra:hover { @apply bg-accent-hover; }
-            a.btn-contorno:hover { @apply border-ink bg-surface-2; }
-
-            .painel { @apply rounded-xl border border-line bg-surface; }
-
-            /* formulários */
-            .campo { @apply flex min-w-0 flex-col gap-1.5; }
-            .rotulo { @apply font-bold text-ink; }
-            .entrada {
-                @apply min-h-11 w-full rounded-md border border-line-strong bg-surface px-3 py-2 text-base text-ink placeholder:text-ink-muted;
-            }
-            .entrada-invalida { @apply border-2 border-danger; }
-            .erro-campo { @apply text-sm font-semibold text-danger; }
-            .dica { @apply text-sm text-ink-muted; }
-
-            .alerta { @apply rounded-lg border-l-4 px-4 py-3 font-semibold; }
-            .alerta-erro { @apply border-danger bg-danger-bg text-danger; }
-            .alerta-ok { @apply border-success bg-success-bg text-success; }
-
-            .selo { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-bold whitespace-nowrap; }
-            .selo-ok { @apply bg-success-bg text-success; }
-            .selo-neutro { @apply bg-surface-2 text-ink-muted; }
-
-            .vazio { @apply rounded-xl border-2 border-dashed border-line px-5 py-10 text-center; }
-
-            .tabela { @apply w-full border-collapse text-left; }
-            .tabela thead th { @apply border-b-2 border-line px-4 py-2.5 text-sm font-bold text-ink-muted; }
-            .tabela tbody :is(th, td) { @apply border-b border-line px-4 py-3; }
-            .tabela tbody tr:last-child :is(th, td) { @apply border-b-0; }
-            .tabela .num { @apply text-right tabular-nums whitespace-nowrap; }
-
-            .nav-link {
-                @apply rounded-md px-2.5 py-2 font-semibold text-ink-muted hover:text-ink
-                       aria-[current=page]:text-ink aria-[current=page]:underline aria-[current=page]:decoration-focus
-                       aria-[current=page]:decoration-[3px] aria-[current=page]:underline-offset-8;
-            }
-            .menu-item { @apply block w-full rounded-md px-3 py-2 text-left font-semibold text-ink hover:bg-surface-2; }
-
-            /* filtro de meses (jogos.html): aria-pressed marca o mês escolhido, o ponto indica mês com jogos.
-               "relative" prende o texto sr-only dentro da faixa rolável (senão ele estica a página no celular). */
-            .mes-item {
-                @apply relative inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-line bg-surface px-4 font-semibold text-ink-muted
-                       hover:border-line-strong hover:text-ink
-                       aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-brand-ink;
-            }
-            .mes-item.has-games::after { content: ""; @apply size-2 rounded-full bg-accent; }
-
-            /* Ingresso de papel: canhoto separado por picote, com os dois furos na linha.
-               Só para o que é ingresso de verdade (lotes, ingressos comprados, confirmação). */
-            .ingresso {
-                @apply relative grid overflow-hidden rounded-[10px] border border-line bg-surface sm:grid-cols-[1fr_auto];
-            }
-            .ingresso-canhoto {
-                @apply relative flex flex-col gap-3 border-t-2 border-dashed border-line p-4
-                       sm:min-w-56 sm:border-t-0 sm:border-l-2 sm:p-5;
-            }
-            .ingresso-canhoto::before,
-            .ingresso-canhoto::after {
-                content: "";
-                @apply absolute size-5 rounded-full border border-line bg-bg;
-                top: -0.6875rem;
-            }
-            .ingresso-canhoto::before { left: -0.6875rem; }
-            .ingresso-canhoto::after { right: -0.6875rem; }
-            @media (width >= 40rem) {
-                .ingresso-canhoto::after { top: auto; bottom: -0.6875rem; right: auto; left: -0.6875rem; }
-            }
-
-            /* Placar do próximo jogo: letreiro em matriz de pontos, como os placares de estádio */
-            .placar { @apply bg-placar text-placar-ink; }
-            .placar-grade {
-                background-image: radial-gradient(circle, color-mix(in srgb, var(--placar-ink) 9%, transparent) 1.3px, transparent 1.7px);
-                background-size: 8px 8px;
-            }
-            .led {
-                @apply font-display text-led;
-                font-stretch: 75%;
-                font-weight: 800;
-                line-height: 0.9;
-                letter-spacing: 0.04em;
-                -webkit-mask-image: radial-gradient(circle, #000 0.034em, transparent 0.041em);
-                mask-image: radial-gradient(circle, #000 0.034em, transparent 0.041em);
-                -webkit-mask-size: 0.085em 0.085em;
-                mask-size: 0.085em 0.085em;
-            }
-            /* a única sequência de entrada do site: as lâmpadas do placar acendem em ordem */
-            .acende {
-                animation: acender 0.7s linear both;
-                animation-delay: calc(var(--ordem, 0) * 140ms + 150ms);
-            }
-        }
-
-        /* confirmação de compra: o canhoto recebe o carimbo (resposta à ação do torcedor) */
-        .carimbo { rotate: -8deg; animation: carimbar 0.35s cubic-bezier(0.3, 1.6, 0.6, 1) 0.2s both; }
-        @keyframes carimbar {
-            from { opacity: 0; scale: 1.8; }
-            to   { opacity: 1; scale: 1; }
-        }
-
-        @keyframes acender {
-            0%   { opacity: 0.06; }
-            30%  { opacity: 1; }
-            40%  { opacity: 0.3; }
-            55%  { opacity: 1; }
-            100% { opacity: 1; }
-        }
-    </style>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Sofia+Sans:ital,wght@0,400..800;1,400..600&amp;family=Sofia+Sans+Extra+Condensed:wght@600..900&amp;display=swap">
+    <!-- Paleta (único lugar das cores) e o CSS gerado pelo Tailwind -->
+    <link rel="stylesheet" th:href="@{/css/paleta.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script th:src="@{/js/theme.js}" defer></script>
 </th:block>

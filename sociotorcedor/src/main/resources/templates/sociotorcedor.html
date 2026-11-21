@@ -1,91 +1,160 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/head :: base('Seja sócio')}"/>
+    <th:block th:replace="~{fragments/head :: base('Minha associação')}"/>
 </head>
 <body>
+<header th:replace="~{fragments/navegacao :: topo('socio')}"></header>
 
-<div th:replace="~{fragments/navbar :: navbar('socio')}"></div>
-
-<main id="conteudo" class="conteudo flex flex-col gap-8 py-10"
+<main id="conteudo" class="moldura grid gap-14 py-10 md:py-14"
       th:with="assoc=${#authentication.principal.associado},
-               socio=${#authentication.principal.associado != null and #authentication.principal.associado.categoria != null and !#authentication.principal.associado.categoria.naoAssociado}">
+               socio=${assoc != null and !assoc.categoria.naoAssociado},
+               idAtual=${socio} ? ${assoc.categoria.id} : null,
+               acabouDeAssociar=${socio and sucesso != null}">
 
-    <header th:replace="~{fragments/ui :: cabecalho('Seja sócio',
-            'Escolha uma categoria. Quanto mais alta, maior o desconto nos ingressos e mais setores você pode comprar.')}"></header>
+    <header class="grid max-w-3xl gap-4">
+        <h1 class="display text-4xl sm:text-5xl" th:text="${socio} ? 'Minha associação' : ${'Seja sócio do ' + #messages.msg('clube.curto')}">Minha associação</h1>
+        <div th:replace="~{fragments/ui :: alertas(${sucesso}, ${erro})}"></div>
+    </header>
 
-    <div th:replace="~{fragments/ui :: alertas(${sucesso}, ${erro})}"></div>
+    <!-- ============ Já é sócio ============ -->
+    <th:block th:if="${socio}">
+        <section aria-labelledby="titulo-carteirinha" class="grid gap-8 md:grid-cols-12 md:gap-12">
+            <h2 id="titulo-carteirinha" class="sr-only">Carteirinha e benefícios</h2>
+            <div class="md:col-span-5">
+                <section th:replace="~{fragments/carteirinha :: carteirinha(${carteirinha}, ${acabouDeAssociar})}"></section>
+            </div>
+            <div class="grid content-start gap-4 md:col-span-7">
+                <p class="text-lg">
+                    Você é <strong th:text="${assoc.categoria.nome}">Sócio Prata</strong> e paga
+                    <strong th:text="${@formato.porcentagem(assoc.categoria.descontoIngresso)}">25%</strong> a menos em todos os ingressos.
+                </p>
+                <th:block th:if="${not #lists.isEmpty(beneficiosAtuais)}">
+                    <h3 class="font-bold">Seus benefícios</h3>
+                    <ul class="grid gap-3 border-t border-line pt-3">
+                        <li th:each="b : ${beneficiosAtuais}" class="flex gap-3">
+                            <svg th:replace="~{fragments/icones :: icone('check', 'mt-0.5 size-5 shrink-0 text-success')}"></svg>
+                            <span>
+                                <strong class="block" th:text="${b.nome}">Camiseta do sócio</strong>
+                                <span th:if="${b.descricao}" class="text-ink-muted" th:text="${b.descricao}">Descrição</span>
+                            </span>
+                        </li>
+                    </ul>
+                </th:block>
+                <a th:href="@{/jogos}" class="botao botao-primario justify-self-start">Ver jogos e comprar com desconto</a>
+            </div>
+        </section>
 
-    <!-- Já é sócio: carteirinha, benefícios e cancelamento -->
-    <section th:if="${socio}" class="painel grid gap-8 p-6 md:grid-cols-[auto_1fr] md:p-8" aria-labelledby="titulo-socio">
-        <section th:replace="~{fragments/carteirinha :: carteirinha(${assoc})}"></section>
-        <div class="flex flex-col gap-4">
-            <h2 id="titulo-socio" class="titulo-secao">Você é <span th:text="${assoc.categoria.nome}">Sócio Prata</span></h2>
-            <th:block th:if="${not #lists.isEmpty(beneficiosAtuais)}">
-                <h3 class="text-xl">Seus benefícios</h3>
-                <ul class="flex flex-col gap-2.5">
-                    <li th:each="b : ${beneficiosAtuais}" class="flex gap-3">
-                        <svg width="20" height="20" class="mt-0.5 size-5 shrink-0 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-                        <span><strong th:text="${b.nome}">Benefício</strong><span th:if="${b.descricao}" class="text-ink-muted" th:text="${'. ' + b.descricao}"></span></span>
+        <section aria-labelledby="titulo-mosaico" class="grid gap-5 md:grid-cols-12 md:gap-12">
+            <div class="grid content-start gap-3 md:col-span-5">
+                <h2 id="titulo-mosaico" class="display text-2xl">Seu lugar no mosaico</h2>
+                <p class="text-ink-muted">Cada sócio é um quadrado, na ordem em que se associou. O seu é o laranja.</p>
+            </div>
+            <div class="md:col-span-7">
+                <div th:replace="~{fragments/mosaico :: torcida(${mosaico}, false)}"></div>
+            </div>
+        </section>
+
+        <!-- Programa de pontos: prévia com dados de demonstração (FidelidadeService) -->
+        <section th:if="${pontos != null}" aria-labelledby="titulo-pontos" class="grid gap-6 border-t border-line pt-10 md:grid-cols-12 md:gap-12">
+            <div class="grid content-start gap-3 md:col-span-5">
+                <h2 id="titulo-pontos" class="display text-2xl">Pontos do sócio</h2>
+                <th:block th:if="${pontos.previa}">
+                    <p th:replace="~{fragments/ui :: previa('Prévia com dados de demonstração: o programa de pontos ainda não está no ar.')}"></p>
+                </th:block>
+                <p class="flex items-baseline gap-2">
+                    <span class="display numero text-5xl leading-none" th:text="${@formato.inteiro(pontos.saldo)}">1.240</span>
+                    <span class="font-semibold text-ink-muted">pontos</span>
+                </p>
+                <h3 class="mt-2 font-bold">Últimos lançamentos</h3>
+                <ul class="grid border-t border-line">
+                    <li th:each="m : ${pontos.extrato}" class="flex items-baseline justify-between gap-4 border-b border-line py-2.5">
+                        <span>
+                            <span th:text="${m.descricao}">Mensalidade paga em dia</span>
+                            <time class="block text-sm text-ink-muted" th:datetime="${@formato.isoData(m.data)}" th:text="${@formato.dataNumerica(m.data)}">17/11/2026</time>
+                        </span>
+                        <span class="numero font-bold text-success" th:text="${'+' + @formato.inteiro(m.pontos)}">+120</span>
                     </li>
                 </ul>
-            </th:block>
-            <form th:action="@{/sociotorcedor/revogarassociacao}" method="post" class="mt-auto pt-2"
-                  onsubmit="return confirm('Cancelar sua associação? Você perde os descontos de sócio a partir de agora.');">
-                <button type="submit" class="btn btn-contorno text-danger">Cancelar associação</button>
-            </form>
-        </div>
-    </section>
-
-    <!-- Categorias, da mais simples para a mais completa -->
-    <section class="flex flex-col gap-4" aria-labelledby="titulo-categorias">
-        <h2 id="titulo-categorias" class="titulo-secao" th:text="${socio} ? 'Todas as categorias' : 'Categorias'">Categorias</h2>
-        <p th:if="${socio}" class="text-ink-muted">Para trocar de categoria, cancele a atual e associe-se de novo.</p>
-
-        <ul class="grid gap-4 md:grid-cols-3">
-            <li th:each="cat : ${categorias}"
-                th:with="atual=${socio and assoc.categoria.id == cat.id}"
-                class="painel flex flex-col gap-5 p-6"
-                th:classappend="${atual} ? 'outline-2 -outline-offset-1 outline-brand'">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <h3 class="text-2xl" th:text="${cat.nome}">Sócio Prata</h3>
-                    <span th:if="${atual}" class="selo bg-brand text-brand-ink">Seu plano</span>
-                </div>
-
-                <p class="flex items-baseline gap-2">
-                    <span class="numero text-5xl leading-none text-brand"
-                          th:text="${#numbers.formatDecimal(cat.descontoIngresso ?: 0, 1, 0, 'COMMA') + '%'}">25%</span>
-                    <span class="font-semibold leading-tight">de desconto<br>nos ingressos</span>
-                </p>
-
-                <p class="border-y border-line py-3">
-                    <span class="numero text-2xl" th:text="${'R$ ' + #numbers.formatDecimal(cat.mensalidade, 1, 'POINT', 2, 'COMMA')}">R$ 59,90</span>
-                    <span class="text-ink-muted">por mês</span>
-                </p>
-
-                <ul class="flex flex-col gap-2.5" th:if="${not #lists.isEmpty(cat.beneficios)}">
-                    <th:block th:each="b : ${cat.beneficios}">
-                        <li th:if="${b.descontoIngresso == null or b.descontoIngresso.signum() == 0}" class="flex gap-3">
-                            <svg width="20" height="20" class="mt-0.5 size-5 shrink-0 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-                            <span><strong th:text="${b.nome}">Camiseta do sócio</strong><span th:if="${b.descricao}" class="block text-ink-muted" th:text="${b.descricao}"></span></span>
-                        </li>
-                    </th:block>
+            </div>
+            <div class="grid content-start gap-3 md:col-span-7">
+                <h3 class="font-bold">Para trocar seus pontos</h3>
+                <ul class="grid gap-3">
+                    <li th:each="r : ${pontos.recompensas}"
+                        class="grid gap-3 rounded-controle border border-line bg-surface p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                        <span>
+                            <strong class="block" th:text="${r.nome}">Copo da torcida</strong>
+                            <span class="text-sm text-ink-muted" th:text="${r.descricao}">Descrição</span>
+                        </span>
+                        <span class="flex items-center gap-4 sm:justify-end">
+                            <span class="numero whitespace-nowrap font-bold" th:text="${@formato.inteiro(r.custo) + ' pontos'}">800 pontos</span>
+                            <button type="button" class="botao botao-secundario min-h-10 px-3 py-1.5 text-sm" th:disabled="${!r.resgatavel}"
+                                    th:attr="aria-describedby=${r.resgatavel} ? null : 'resgate-em-breve'">Resgatar</button>
+                        </span>
+                    </li>
                 </ul>
+                <p id="resgate-em-breve" class="text-sm text-ink-muted">O resgate ainda não está disponível. Ele entra junto com o programa de pontos.</p>
+            </div>
+        </section>
+    </th:block>
 
-                <form th:action="@{/sociotorcedor/associar}" method="post" class="mt-auto">
-                    <input type="hidden" name="categoriaId" th:value="${cat.id}">
-                    <button type="submit" class="btn btn-principal w-full" th:disabled="${socio}">
-                        <th:block th:if="${!socio}">Associar-se<span class="sr-only" th:text="${' ao ' + cat.nome}"> ao Sócio Prata</span></th:block>
-                        <th:block th:if="${socio}" th:text="${atual} ? 'Seu plano atual' : 'Cancele o plano atual para trocar'">Seu plano atual</th:block>
-                    </button>
-                </form>
+    <!-- ============ Ainda não é sócio ============ -->
+    <th:block th:unless="${socio}">
+        <section aria-labelledby="titulo-planos" class="grid gap-8">
+            <h2 id="titulo-planos" class="sr-only">Categorias de sócio</h2>
+            <p class="max-w-3xl text-lg text-ink-muted">
+                Sócio paga menos em todos os setores, ganha a carteirinha do clube e vira um quadrado no mosaico da torcida.
+            </p>
+            <div th:replace="~{fragments/planos :: comparacao(${categorias}, ${exemplo}, ${beneficiosComparados}, null)}"></div>
+            <th:block th:if="${assoc != null}">
+                <form th:replace="~{fragments/planos :: escolha(${categorias})}"></form>
+            </th:block>
+            <p th:if="${assoc == null}" class="aviso max-w-2xl">Contas de administração não se associam.</p>
+        </section>
+
+        <section aria-labelledby="titulo-mosaico-convite" class="grid gap-5 border-t border-line pt-10 md:grid-cols-12 md:gap-12">
+            <div class="grid content-start gap-3 md:col-span-5">
+                <h2 id="titulo-mosaico-convite" class="display text-2xl">O mosaico da torcida</h2>
+                <p class="text-ink-muted">Ao se associar, você ganha o seu quadrado, no tom da categoria escolhida.</p>
+            </div>
+            <div class="md:col-span-7">
+                <div th:replace="~{fragments/mosaico :: torcida(${mosaico}, ${assoc != null})}"></div>
+            </div>
+        </section>
+    </th:block>
+
+    <!-- Histórico de categorias (sócio ou ex-sócio) -->
+    <section th:if="${historico != null and not #lists.isEmpty(historico)}" aria-labelledby="titulo-historico"
+             class="grid max-w-2xl gap-4 border-t border-line pt-10">
+        <h2 id="titulo-historico" class="display text-2xl">Histórico da associação</h2>
+        <ol class="grid border-t border-line">
+            <li th:each="h : ${historico}" class="grid gap-1 border-b border-line py-3 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-4">
+                <time class="numero text-ink-muted" th:datetime="${@formato.isoData(h.data)}" th:text="${@formato.dataNumerica(h.data)}">03/2026</time>
+                <span>
+                    <th:block th:if="${h.hierarquiaPara != null and h.hierarquiaPara > 0}">Passou de <span th:text="${h.de}">Não associado</span> para <strong th:text="${h.para}">Sócio Bronze</strong></th:block>
+                    <th:block th:unless="${h.hierarquiaPara != null and h.hierarquiaPara > 0}">Cancelou o plano <strong th:text="${h.de}">Sócio Bronze</strong></th:block>
+                </span>
             </li>
-        </ul>
+        </ol>
     </section>
 
+    <!-- Trocar ou cancelar: em dois passos, sem depender de JavaScript -->
+    <section th:if="${socio}" aria-labelledby="titulo-cancelar" class="grid max-w-2xl gap-4 border-t border-line pt-10">
+        <h2 id="titulo-cancelar" class="display text-2xl">Trocar ou cancelar</h2>
+        <p class="text-ink-muted">Para trocar de categoria, cancele a atual e escolha outra em seguida. Sem cancelar, a troca não é possível.</p>
+        <details class="group">
+            <summary class="botao botao-perigo list-none [&::-webkit-details-marker]:hidden">Cancelar associação</summary>
+            <div class="mt-4 grid justify-items-start gap-4 rounded-controle border border-line bg-surface p-5">
+                <p>Ao cancelar, você perde o desconto de sócio a partir de agora e o seu quadrado sai do mosaico. Dá para se associar de novo quando quiser.</p>
+                <form th:action="@{/sociotorcedor/revogarassociacao}" method="post">
+                    <button type="submit" class="botao botao-perigo-cheio">Confirmar cancelamento</button>
+                </form>
+            </div>
+        </details>
+    </section>
 </main>
 
-<footer th:replace="~{fragments/footer :: rodape}"></footer>
-
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('socio')}"></nav>
 </body>
 </html>

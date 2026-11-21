@@ -1,49 +1,72 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <!-- Gera o token CSRF (e a sessão) antes do cabeçalho grande ser enviado ao navegador;
-         sem isto o formulário falha com "Cannot create a session after the response has been committed". -->
-    <meta name="_csrf" th:content="${_csrf.token}">
     <th:block th:replace="~{fragments/head :: base('Entrar')}"/>
 </head>
 <body>
+<header th:replace="~{fragments/navegacao :: topo('conta')}"></header>
 
-<div th:replace="~{fragments/navbar :: navbar('')}"></div>
+<main id="conteudo" class="moldura grid gap-14 py-10 md:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] md:gap-20 md:py-16">
+    <section aria-labelledby="titulo-entrar" class="grid content-start gap-6">
+        <header class="grid gap-2">
+            <h1 id="titulo-entrar" class="display text-3xl sm:text-4xl">Entrar</h1>
+            <p class="text-ink-muted">Use o usuário e a senha que você escolheu no cadastro.</p>
+        </header>
 
-<main id="conteudo" class="conteudo flex justify-center py-10 md:py-16">
-    <div class="painel flex w-full max-w-md flex-col gap-6 p-6 sm:p-8">
-        <header th:replace="~{fragments/ui :: cabecalho('Entrar',
-                'Acesse sua conta para comprar ingressos e cuidar da sua associação.')}"></header>
+        <p th:if="${param.error}" id="login-erro" role="alert" class="aviso aviso-erro">
+            <svg th:replace="~{fragments/icones :: icone('alerta', 'size-6 shrink-0 text-danger')}"></svg>
+            <span>Usuário ou senha incorretos. Confira os dois campos e tente de novo.</span>
+        </p>
+        <p th:if="${param.logout}" role="status" class="aviso aviso-sucesso">
+            <svg th:replace="~{fragments/icones :: icone('check', 'size-6 shrink-0 text-success')}"></svg>
+            <span>Você saiu da sua conta.</span>
+        </p>
+        <p th:if="${sucesso}" role="status" class="aviso aviso-sucesso">
+            <svg th:replace="~{fragments/icones :: icone('check', 'size-6 shrink-0 text-success')}"></svg>
+            <span th:text="${sucesso}">Cadastro realizado! Entre com seu usuário e senha.</span>
+        </p>
 
-        <div class="flex flex-col gap-2" th:if="${param.error != null or param.logout != null or sucesso != null}">
-            <p th:if="${param.error}" class="alerta alerta-erro" role="alert">
-                Usuário ou senha incorretos. Confira os dois campos e tente de novo.</p>
-            <p th:if="${param.logout}" class="alerta alerta-ok" role="status">Você saiu da sua conta.</p>
-            <p th:if="${sucesso}" class="alerta alerta-ok" role="status" th:text="${sucesso}"></p>
-        </div>
-
-        <form th:action="@{/login}" method="post" class="flex flex-col gap-5">
+        <form th:action="@{/login}" method="post" class="grid gap-5" th:with="recusado=${param.error != null}">
             <div class="campo">
-                <label for="login-user" class="rotulo">Usuário</label>
-                <input type="text" id="login-user" name="username" class="entrada"
-                       autocomplete="username" autocapitalize="none" required autofocus>
+                <label for="login-usuario" class="campo-rotulo">Usuário</label>
+                <input id="login-usuario" name="username" type="text" class="campo-entrada"
+                       th:classappend="${recusado} ? 'campo-invalido'"
+                       th:attr="aria-invalid=${recusado} ? 'true' : null, aria-describedby=${recusado} ? 'login-erro' : null"
+                       autocomplete="username" autocapitalize="none" spellcheck="false" required>
             </div>
-
             <div class="campo">
-                <label for="login-pass" class="rotulo">Senha</label>
-                <input type="password" id="login-pass" name="password" class="entrada"
+                <label for="login-senha" class="campo-rotulo">Senha</label>
+                <input id="login-senha" name="password" type="password" class="campo-entrada"
+                       th:classappend="${recusado} ? 'campo-invalido'"
+                       th:attr="aria-invalid=${recusado} ? 'true' : null, aria-describedby=${recusado} ? 'login-erro' : null"
                        autocomplete="current-password" required>
             </div>
-
-            <button type="submit" class="btn btn-principal w-full">Entrar</button>
+            <button type="submit" class="botao botao-primario sm:justify-self-start">Entrar</button>
         </form>
 
-        <p class="border-t border-line pt-5 text-ink-muted">
-            Ainda não tem conta? <a th:href="@{/cadastro}" class="link">Criar conta</a></p>
-    </div>
+        <p class="text-ink-muted">Ainda não tem conta? <a class="link font-semibold" th:href="@{/cadastro}">Criar conta</a></p>
+    </section>
+
+    <aside aria-labelledby="titulo-por-que" class="grid content-start gap-5 md:border-l md:border-line md:pl-12">
+        <h2 id="titulo-por-que" class="display text-2xl">Com a conta, você</h2>
+        <ul class="grid max-w-md gap-4">
+            <li class="flex gap-3">
+                <svg th:replace="~{fragments/icones :: icone('cadeira', 'size-6 shrink-0 text-brand')}"></svg>
+                <span>compra ingresso para qualquer jogo à venda e escolhe o setor;</span>
+            </li>
+            <li class="flex gap-3">
+                <svg th:replace="~{fragments/icones :: icone('socio', 'size-6 shrink-0 text-brand')}"></svg>
+                <span>pode se associar e pagar menos em todos os setores;</span>
+            </li>
+            <li class="flex gap-3">
+                <svg th:replace="~{fragments/icones :: icone('check', 'size-6 shrink-0 text-brand')}"></svg>
+                <span>guarda seus ingressos com o código de entrada no estádio.</span>
+            </li>
+        </ul>
+    </aside>
 </main>
 
-<footer th:replace="~{fragments/footer :: rodape}"></footer>
-
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('conta')}"></nav>
 </body>
 </html>

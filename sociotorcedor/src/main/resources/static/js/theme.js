@@ -1,51 +1,40 @@
-// Alternância de tema claro/escuro e menu do perfil (usado pela navbar).
+// Tema claro/escuro. O botão do topo ([data-alternar-tema]) alterna e salva a escolha no navegador.
+// Sem escolha salva, o tema segue o sistema e acompanha se ele mudar. O script do <head>
+// (fragments/head.html) já aplicou o tema antes de a página pintar; aqui só ligamos o botão.
+// Sem JavaScript, o botão continua escondido e as cores seguem o sistema (paleta.css usa light-dark()).
 (function () {
-    var root = document.documentElement;
+    var raiz = document.documentElement;
+    var sistema = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
-    function currentTheme() {
-        return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    function salvo() {
+        try { return localStorage.getItem('tema'); } catch (e) { return null; }
     }
 
-    function applyTheme(t) {
-        root.setAttribute('data-theme', t);
-        try { localStorage.setItem('theme', t); } catch (e) { /* sem storage: vale só nesta página */ }
-        var btn = document.getElementById('themeToggle');
-        if (btn) {
-            btn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
-            btn.setAttribute('aria-label', t === 'dark' ? 'Usar tema claro' : 'Usar tema escuro');
+    function atual() {
+        return raiz.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function aplicar(tema, guardar) {
+        raiz.setAttribute('data-theme', tema);
+        if (guardar) {
+            try { localStorage.setItem('tema', tema); } catch (e) { /* sem armazenamento: vale só nesta página */ }
         }
-        // avisa quem desenha com cores calculadas (ex.: gráficos do dashboard)
-        document.dispatchEvent(new CustomEvent('themechange', { detail: t }));
+        document.querySelectorAll('[data-alternar-tema]').forEach(function (botao) {
+            botao.hidden = false;
+            botao.setAttribute('aria-pressed', tema === 'dark' ? 'true' : 'false');
+        });
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        var toggle = document.getElementById('themeToggle');
-        if (toggle) {
-            applyTheme(currentTheme());
-            toggle.addEventListener('click', function () {
-                applyTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+        aplicar(atual(), false);
+        document.querySelectorAll('[data-alternar-tema]').forEach(function (botao) {
+            botao.addEventListener('click', function () {
+                aplicar(atual() === 'dark' ? 'light' : 'dark', true);
             });
-        }
-
-        var menuBtn = document.getElementById('userMenuBtn');
-        var menu = document.getElementById('profileDropdown');
-        if (menuBtn && menu) {
-            menuBtn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                var open = menu.classList.toggle('active');
-                menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-            });
-            document.addEventListener('click', function (e) {
-                if (!menu.contains(e.target)) {
-                    menu.classList.remove('active');
-                    menuBtn.setAttribute('aria-expanded', 'false');
-                }
-            });
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    menu.classList.remove('active');
-                    menuBtn.setAttribute('aria-expanded', 'false');
-                }
+        });
+        if (sistema && sistema.addEventListener) {
+            sistema.addEventListener('change', function (e) {
+                if (!salvo()) aplicar(e.matches ? 'dark' : 'light', false);
             });
         }
     });

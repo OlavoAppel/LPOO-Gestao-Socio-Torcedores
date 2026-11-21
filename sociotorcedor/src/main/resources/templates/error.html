@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<!--
+  Página de erro usada automaticamente pelo Spring Boot (status, error e path vêm do próprio Boot).
+  Observação: com a configuração de segurança atual, visitantes sem login que caem num erro são levados ao login.
+-->
+<head>
+    <th:block th:replace="~{fragments/head :: base(${status == 403} ? 'Acesso negado' : (${status == 404} ? 'Página não encontrada' : 'Algo deu errado'))}"/>
+</head>
+<body>
+<header th:replace="~{fragments/navegacao :: topo('')}"></header>
+
+<main id="conteudo" class="moldura grid gap-6 py-16 md:py-24">
+    <th:block th:switch="${status}">
+        <th:block th:case="403">
+            <h1 class="display text-4xl">Acesso negado</h1>
+            <p class="max-w-prose text-lg text-ink-muted">Sua conta não tem permissão para esta página. Se você enviou um formulário que ficou aberto por muito tempo, volte, recarregue a página e tente de novo.</p>
+            <a th:href="@{/perfil}" class="botao botao-primario justify-self-start">Ir para Minha conta</a>
+        </th:block>
+        <th:block th:case="404">
+            <h1 class="display text-4xl">Página não encontrada</h1>
+            <p class="max-w-prose text-lg text-ink-muted">O endereço não existe ou mudou. Os jogos e os planos continuam no menu.</p>
+            <a th:href="@{/}" class="botao botao-primario justify-self-start">Voltar ao início</a>
+        </th:block>
+        <th:block th:case="*">
+            <h1 class="display text-4xl">Algo deu errado</h1>
+            <p class="max-w-prose text-lg text-ink-muted">Não conseguimos concluir o pedido agora. Tente de novo em instantes; se continuar, volte ao início e refaça o caminho.</p>
+            <a th:href="@{/}" class="botao botao-primario justify-self-start">Voltar ao início</a>
+        </th:block>
+    </th:block>
+</main>
+
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('')}"></nav>
+</body>
+</html>

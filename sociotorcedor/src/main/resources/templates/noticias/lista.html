@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: base('Notícias')}"/>
+</head>
+<body>
+<header th:replace="~{fragments/navegacao :: topo('noticias')}"></header>
+
+<main id="conteudo" class="moldura grid gap-10 py-10 md:py-14">
+    <header class="grid max-w-3xl gap-3">
+        <h1 class="display text-3xl sm:text-4xl">Notícias do clube</h1>
+        <p th:replace="~{fragments/ui :: previa('Conteúdo de demonstração: o clube e as notícias são fictícios.')}"></p>
+    </header>
+
+    <ol th:if="${not #lists.isEmpty(noticias)}" class="grid max-w-3xl border-t border-line">
+        <li th:each="n : ${noticias}" class="grid gap-2 border-b border-line py-6">
+            <p class="text-sm text-ink-muted">
+                <span class="font-bold text-ink" th:text="${n.editoria}">Torcida</span>,
+                <time th:datetime="${@formato.isoData(n.data)}" th:text="${@formato.dataNumerica(n.data)}">19/11/2026</time>
+            </p>
+            <h2 class="display text-2xl leading-tight">
+                <a th:href="@{/noticias/{id}(id=${n.id})}" class="hover:underline" th:text="${n.titulo}">Título</a>
+            </h2>
+            <p class="max-w-prose text-ink-muted" th:text="${n.resumo}">Resumo</p>
+        </li>
+    </ol>
+    <th:block th:if="${#lists.isEmpty(noticias)}">
+        <div th:replace="~{fragments/ui :: vazio('Nenhuma notícia publicada', 'As notícias do clube aparecem aqui assim que forem publicadas.', @{/}, 'Voltar ao início')}"></div>
+    </th:block>
+</main>
+
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('noticias')}"></nav>
+</body>
+</html>

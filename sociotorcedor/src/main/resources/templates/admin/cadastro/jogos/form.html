@@ -4,75 +4,86 @@
     <th:block th:replace="~{fragments/head :: base('Cadastrar jogo')}"/>
 </head>
 <body>
+<header th:replace="~{fragments/navegacao :: topo('admin')}"></header>
 
-<div th:replace="~{fragments/navbar :: navbar('admin')}"></div>
+<main id="conteudo" class="moldura grid gap-8 py-10 md:py-14">
+    <header class="grid max-w-2xl gap-3">
+        <a th:replace="~{fragments/ui :: voltar(@{/admin}, 'Administração')}"></a>
+        <h1 class="display text-3xl sm:text-4xl">Cadastrar jogo</h1>
+        <p class="text-ink-muted">Depois de salvar, você cadastra os lotes de ingressos de cada setor do estádio.</p>
+    </header>
 
-<main id="conteudo" class="conteudo flex max-w-2xl flex-col gap-6 py-8 md:py-10">
-    <a th:replace="~{fragments/ui :: voltar(@{/admin}, 'Painel administrativo')}"></a>
+    <form th:action="@{/admin/cadastro/jogo}" th:object="${cadastroJogoForm}" method="post" novalidate class="grid max-w-2xl gap-8">
+        <p th:if="${#fields.hasErrors('*')}" role="alert" class="aviso aviso-erro">
+            <svg th:replace="~{fragments/icones :: icone('alerta', 'size-6 shrink-0 text-danger')}"></svg>
+            <span>O jogo não foi salvo. Corrija os campos marcados abaixo.</span>
+        </p>
 
-    <div class="painel flex flex-col gap-6 p-6 sm:p-8">
-        <header th:replace="~{fragments/ui :: cabecalho('Cadastrar jogo',
-                'Depois de salvar, você define os lotes de ingressos de cada setor.')}"></header>
-
-        <form th:action="@{/admin/cadastro/jogo}" th:object="${cadastroJogoForm}" method="post"
-              class="flex flex-col gap-5" novalidate>
-
-            <p th:if="${#fields.hasErrors('*')}" class="alerta alerta-erro" role="alert">
-                O jogo não foi salvo. Corrija os campos indicados abaixo.</p>
-
-            <fieldset class="flex flex-col gap-3">
-                <legend class="sr-only">Times</legend>
-                <div class="grid gap-5 sm:grid-cols-[1fr_auto_1fr] sm:items-start">
-                    <div class="campo">
-                        <label for="casaId" class="rotulo">Time da casa</label>
-                        <select id="casaId" th:field="*{casaId}" class="entrada" th:errorclass="entrada-invalida" aria-describedby="casaId-erro">
-                            <option value="">Selecione o time</option>
-                            <option th:each="t : ${times}" th:value="${t.id}" th:text="${t.nome}"></option>
-                        </select>
-                        <span id="casaId-erro" class="erro-campo" th:if="${#fields.hasErrors('casaId')}" th:errors="*{casaId}"></span>
-                    </div>
-                    <span class="hidden pt-10 font-display text-xl font-bold text-ink-muted sm:block" aria-hidden="true">x</span>
-                    <div class="campo">
-                        <label for="foraId" class="rotulo">Time visitante</label>
-                        <select id="foraId" th:field="*{foraId}" class="entrada" th:errorclass="entrada-invalida" aria-describedby="foraId-erro">
-                            <option value="">Selecione o time</option>
-                            <option th:each="t : ${times}" th:value="${t.id}" th:text="${t.nome}"></option>
-                        </select>
-                        <span id="foraId-erro" class="erro-campo" th:if="${#fields.hasErrors('foraId')}" th:errors="*{foraId}"></span>
-                    </div>
+        <fieldset class="grid gap-4">
+            <legend class="mb-4 text-lg font-bold">Partida</legend>
+            <div class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-start">
+                <div class="campo">
+                    <label for="casaId" class="campo-rotulo">Time da casa</label>
+                    <select th:field="*{casaId}" class="campo-entrada" th:errorclass="campo-invalido"
+                            th:attr="aria-invalid=${#fields.hasErrors('casaId')} ? 'true' : null" aria-describedby="casaId-erro">
+                        <option value="">Escolha o time</option>
+                        <option th:each="t : ${times}" th:value="${t.id}" th:text="${t.nome + ' (' + t.sigla + ')'}">São Paulo FC (SPFC)</option>
+                    </select>
+                    <p id="casaId-erro" th:if="${#fields.hasErrors('casaId')}" th:errors="*{casaId}" class="campo-erro">Erro</p>
                 </div>
-                <span class="erro-campo" th:if="${#fields.hasErrors('timesDiferentes')}" th:errors="*{timesDiferentes}"></span>
-            </fieldset>
-
-            <div class="campo">
-                <label for="estadioId" class="rotulo">Estádio</label>
-                <select id="estadioId" th:field="*{estadioId}" class="entrada" th:errorclass="entrada-invalida" aria-describedby="estadioId-erro">
-                    <option value="">Selecione o estádio</option>
-                    <option th:each="e : ${estadios}" th:value="${e.id}" th:text="${e.nome}"></option>
-                </select>
-                <span id="estadioId-erro" class="erro-campo" th:if="${#fields.hasErrors('estadioId')}" th:errors="*{estadioId}"></span>
+                <span class="display hidden pt-9 text-2xl text-ink-muted sm:block" aria-hidden="true">×</span>
+                <div class="campo">
+                    <label for="foraId" class="campo-rotulo">Time visitante</label>
+                    <select th:field="*{foraId}" class="campo-entrada" th:errorclass="campo-invalido"
+                            th:attr="aria-invalid=${#fields.hasErrors('foraId')} ? 'true' : null" aria-describedby="foraId-erro">
+                        <option value="">Escolha o time</option>
+                        <option th:each="t : ${times}" th:value="${t.id}" th:text="${t.nome + ' (' + t.sigla + ')'}">Grêmio (GRE)</option>
+                    </select>
+                    <p id="foraId-erro" th:if="${#fields.hasErrors('foraId')}" th:errors="*{foraId}" class="campo-erro">Erro</p>
+                </div>
             </div>
+            <p th:if="${#fields.hasErrors('timesDiferentes')}" th:errors="*{timesDiferentes}" class="campo-erro">Os times devem ser diferentes</p>
+        </fieldset>
 
+        <fieldset class="grid gap-5">
+            <legend class="mb-4 text-lg font-bold">Quando e onde</legend>
+            <div class="campo">
+                <label for="estadioId" class="campo-rotulo">Estádio</label>
+                <select th:field="*{estadioId}" class="campo-entrada sm:max-w-sm" th:errorclass="campo-invalido"
+                        th:attr="aria-invalid=${#fields.hasErrors('estadioId')} ? 'true' : null" aria-describedby="estadioId-dica estadioId-erro">
+                    <option value="">Escolha o estádio</option>
+                    <option th:each="e : ${estadios}" th:value="${e.id}" th:text="${e.nome}">MorumBIS</option>
+                </select>
+                <p id="estadioId-dica" class="campo-dica">Os setores à venda serão os deste estádio.</p>
+                <p id="estadioId-erro" th:if="${#fields.hasErrors('estadioId')}" th:errors="*{estadioId}" class="campo-erro">Erro</p>
+            </div>
             <div class="grid gap-5 sm:grid-cols-2">
                 <div class="campo">
-                    <label for="dhJogo" class="rotulo">Data e hora</label>
-                    <input type="datetime-local" id="dhJogo" th:field="*{dhJogo}" class="entrada" th:errorclass="entrada-invalida" aria-describedby="dhJogo-erro">
-                    <span id="dhJogo-erro" class="erro-campo" th:if="${#fields.hasErrors('dhJogo')}" th:errors="*{dhJogo}"></span>
+                    <label for="dhJogo" class="campo-rotulo">Data e hora</label>
+                    <input type="datetime-local" th:field="*{dhJogo}" class="campo-entrada" th:errorclass="campo-invalido"
+                           th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd''T''HH:mm')}"
+                           th:attr="aria-invalid=${#fields.hasErrors('dhJogo')} ? 'true' : null" aria-describedby="dhJogo-erro">
+                    <p id="dhJogo-erro" th:if="${#fields.hasErrors('dhJogo')}" th:errors="*{dhJogo}" class="campo-erro">Erro</p>
                 </div>
                 <div class="campo">
-                    <label for="campeonato" class="rotulo">Campeonato</label>
-                    <input type="text" id="campeonato" th:field="*{campeonato}" class="entrada" th:errorclass="entrada-invalida"
-                           placeholder="Brasileirão 2026" aria-describedby="campeonato-erro">
-                    <span id="campeonato-erro" class="erro-campo" th:if="${#fields.hasErrors('campeonato')}" th:errors="*{campeonato}"></span>
+                    <label for="campeonato" class="campo-rotulo">Campeonato</label>
+                    <input type="text" th:field="*{campeonato}" class="campo-entrada" th:errorclass="campo-invalido"
+                           list="campeonatos-sugeridos" autocomplete="off" placeholder="Brasileirão 2026"
+                           th:attr="aria-invalid=${#fields.hasErrors('campeonato')} ? 'true' : null" aria-describedby="campeonato-dica campeonato-erro">
+                    <datalist id="campeonatos-sugeridos">
+                        <option th:each="c : ${campeonatos}" th:value="${c}"></option>
+                    </datalist>
+                    <p id="campeonato-dica" class="campo-dica">Use o mesmo nome dos jogos já cadastrados.</p>
+                    <p id="campeonato-erro" th:if="${#fields.hasErrors('campeonato')}" th:errors="*{campeonato}" class="campo-erro">Erro</p>
                 </div>
             </div>
+        </fieldset>
 
-            <button type="submit" class="btn btn-principal w-full">Salvar e cadastrar lotes</button>
-        </form>
-    </div>
+        <button type="submit" class="botao botao-primario justify-self-start">Salvar e cadastrar lotes</button>
+    </form>
 </main>
 
-<footer th:replace="~{fragments/footer :: rodape}"></footer>
-
+<footer th:replace="~{fragments/rodape :: rodape}"></footer>
+<nav th:replace="~{fragments/navegacao :: abas('admin')}"></nav>
 </body>
 </html>

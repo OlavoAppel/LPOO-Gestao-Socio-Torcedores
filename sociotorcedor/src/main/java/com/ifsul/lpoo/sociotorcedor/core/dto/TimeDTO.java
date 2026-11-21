@@ -13,4 +13,6 @@ import lombok.NoArgsConstructor;
 public class TimeDTO {
     private String sigla;
     private String escudoPath;
+    /** Nome completo, para títulos e texto alternativo do escudo. */
+    private String nome;
 }

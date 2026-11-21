@@ -14,6 +14,10 @@ import java.util.List;
 
 public interface JogoRepository extends JpaRepository<Jogo, Long> {
 
+    // Campeonatos já usados, para sugerir no formulário de cadastro de jogo (só leitura).
+    @Query("select distinct j.campeonato from Jogo j where j.campeonato is not null order by j.campeonato")
+    List<String> listarCampeonatos();
+
     List<Jogo> findByDhJogoBetween(LocalDateTime dhInicaio, LocalDateTime dhFim);
 
     // Cada métrica é uma subquery no SELECT, correlacionada ao jogo da linha (j).
