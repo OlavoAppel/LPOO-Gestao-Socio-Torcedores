@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+/** Regra 1: o pedido só vale entre o início da venda do lote e o horário do jogo. */
 @Component
 public class IntervaloLoteValidator extends LoteValidationHandle {
 
@@ -15,15 +16,19 @@ public class IntervaloLoteValidator extends LoteValidationHandle {
         LocalDateTime dhInicio = lote.getDhInicioVenda(), dhFim = lote.getJogo().getDhJogo();
         LocalDateTime dhLocal = contexto.getDhRequisicao();
 
+        if(dhInicio == null){
+            return recusado("A venda deste lote ainda não tem data de início");
+        }
+
         if(dhLocal.isBefore(dhInicio)){
-            return new ValidationResult(String.format("Início da venda do lotem em %s", dhInicio.toString()));
+            return recusado("Início da venda do lote em " + formatar(dhInicio));
         }
 
         if(dhLocal.isAfter(dhFim)){
-            return new ValidationResult("Venda do lote fechada, jogo já aconteceu");
+            return recusado("Venda do lote fechada, jogo já aconteceu");
         }
 
-        return new ValidationResult("");
+        return aprovado();
     }
 
 }

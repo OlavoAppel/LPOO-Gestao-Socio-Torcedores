@@ -64,6 +64,10 @@ public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
             """)
     BigDecimal contaReceitaPorJogo(@Param("jogoId") Long jogoId, @Param("status") StatusIngresso status);
 
+    // Quantos ingressos o associado já tem no jogo, nos status informados (limite por jogo na cadeia de validação).
+    long countByAssociado_IdAndLote_Jogo_IdAndStatusIn(Long associadoId, Long jogoId,
+                                                       java.util.Collection<StatusIngresso> status);
+
 }
 
 

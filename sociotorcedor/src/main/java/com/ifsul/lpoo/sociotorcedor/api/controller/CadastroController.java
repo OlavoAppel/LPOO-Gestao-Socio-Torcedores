@@ -38,7 +38,11 @@ public class CadastroController {
             redirectAttributes.addFlashAttribute("sucesso", "Cadastro realizado! Entre com seu usuário e senha.");
             return "redirect:/login";
         } catch (CadastroException e) {
-            model.addAttribute("erro", e.getMessage());
+            if (e.getCampo() != null) {
+                result.rejectValue(e.getCampo(), "cadastro.duplicado", e.getMessage()); // erro junto do campo
+            } else {
+                model.addAttribute("erro", e.getMessage());
+            }
             return "cadastro";
         }
     }

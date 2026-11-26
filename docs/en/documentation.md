@@ -179,60 +179,67 @@ The interface is a **web** interface. Spring builds the pages on the server with
 
 | Page | Address | File | Access | Content |
 |---|---|---|---|---|
-| Home | `/` | `home.html` | Everyone | Only the navigation bar |
+| Home | `/` | `home.html` | Everyone | Next game (date and time in large type) beside the crest mosaic, upcoming games, fans' mosaic and news |
+| Calendar | `/jogos` | `jogos.html` | Everyone | Games by month, month shortcuts and past games collapsed |
+| Game | `/jogos/{id}` | `jogos/detalhe.html` | Everyone | Match data, ticket sale status and what each category pays in each sector |
+| Plans | `/planos` | `planos.html` | Everyone | Comparison of the member categories and the fans' mosaic |
+| News | `/noticias`, `/noticias/{id}` | `noticias/lista.html`, `noticias/detalhe.html` | Everyone | Club news (mock data) |
 | Login | `/login` | `login.html` | Everyone | Login form |
 | Sign-up | `/cadastro` | `cadastro.html` | Everyone | Sign-up form |
-| Games | `/jogos` | `jogos.html` | Signed-in user | Next game, month filter and list of games |
-| Tickets | `/ingressos?jogoId=` | `ingressos/lista.html` | Signed-in user | Batches of the game |
-| Profile | `/perfil` | `perfil.html` | `USER` and `ADMIN` | Welcome message |
-| Admin | `/admin` | `admin.html` | `ADMIN` only | Welcome message |
+| Purchase | `/ingressos?jogoId=` | `ingressos/lista.html` | Signed-in user | Sector choice and price with the category discount |
+| Ticket bought | `/ingressos/sucesso` | `sucesso.html` | Signed-in user | Receipt with the entry code |
+| My account | `/perfil` | `perfil.html` | `USER` and `ADMIN` | Tickets, account data and sign-out |
+| My membership | `/sociotorcedor` | `sociotorcedor.html` | Signed-in user | Member: card, benefits, points (preview), history and cancellation. Non-member: plans and category choice |
+| Administration | `/admin` | `admin.html` | `ADMIN` only | Month figures and games with the status of their batches |
+| Metrics | `/admin/metricas` | `admin/dashboard.html` | `ADMIN` only | Members by category, occupancy and revenue of upcoming games |
+| New game | `/admin/cadastro/jogo` | `admin/cadastro/jogos/form.html` | `ADMIN` only | Game form |
+| Game batches | `/admin/cadastro/{id}/lotes` | `admin/cadastro/jogos/lotes.html` | `ADMIN` only | Registered batches and the new batch form |
 
-The navigation bar is a fragment that all pages use (`fragments/navbar.html`). Each page includes it with `th:replace` and passes the name of the active link (for example `navbar('jogos')`). Other fragments are in `templates/fragments`: `head` (fonts, theme and Tailwind), `marca` (crest and logo), `footer`, `ui` (page header, alerts, empty state, back link), `jogo` (next-game scoreboard and game row) and `carteirinha` (member card).
+Repeated parts are in `templates/fragments`: `head` (fonts, theme and CSS), `navegacao` (top bar and fixed mobile tabs), `rodape` (footer), `marca` (crest, logo and crest mosaic), `icones`, `ui` (page header, back link, alerts, empty state, amount in reais, preview notice), `jogo` (match-up and calendar row), `mosaico` (fans' mosaic and batch meter), `planos` (comparison and category choice), `ingresso`, `carteirinha` (member card) and `admin` (games table of the panel). Each page includes the top bar with `th:replace` and passes the active section (for example `topo('jogos')`).
 
 ### 7.2 Basic components
 
-| Component | Where it is |
+| Component | Where it appears |
 |---|---|
-| Button (`button`) | Light/dark theme, account menu, **Sair da conta**, calendar months, **Comprar ingresso**, **Associar-se**, **Novo lote** |
-| Link button (`a.btn`) | **Entrar** in the bar, **Comprar ingresso** in the scoreboard and the games |
-| Text, password, e-mail, date and select fields | Login, sign-up, game and batch forms |
-| Hidden field | `loteId` (purchase) and `categoriaId` (membership) |
-| Label (`label`) | All fields of the forms |
+| Button (`button`) | Light/dark theme, **Comprar ingresso**, **Associar-se**, **Sair da conta**, **Salvar lote** |
+| Link button (`a.botao`) | **Entrar**, **Comprar ingresso** on the home and game pages, **Cadastrar jogo** |
+| Text, password, e-mail, number, date and select fields | Login, sign-up, new game and new batch |
+| Radio buttons | Sector choice (`loteId`) and member category choice (`categoriaId`) |
+| Label (`label`) | Every form field |
 | Form (`form`) | Login, sign-up, logout, purchase, membership, cancellation, game and batch |
-| Drop-down menu | Account menu |
-| Scoreboard | Next game, on the home page |
-| Ticket with stub | Batches on sale, bought tickets, purchase confirmation |
-| Member card | Profile and membership page, for members |
-| Modal window (`dialog`) | New batch |
-| Table | Metrics and batches of the game |
+| Fixed tabs | Navigation on phones |
+| Mosaic | Crest on the home page; active members on the home, plans and membership pages |
+| Batch meter | Tickets left in each sector (10 squares) |
+| Member card | Membership page |
+| Table | Plan comparison, admin panel and metrics, game batches |
 | Image | Team crests (with `alt`) |
-| Message | Login and form errors, membership success |
+| Notice | Login and form errors, refused purchase, membership and cancellation |
+| Collapsible block (`details`) | Past games, previous tickets, cancellation confirmation |
 
 ### 7.3 Events
 
 | Event | Where | What happens |
 |---|---|---|
-| `click` on the theme button | `theme.js` | Switches `data-theme` between `light` and `dark` and saves the choice. |
-| `click` on the account button | `theme.js` | Opens and closes the drop-down menu. A click outside or `Esc` closes it. |
-| `DOMContentLoaded` | `jogos.html` | Marks the months that have games and shows the month of the next game. |
-| `click` on the month buttons | `jogos.html` | The button gets `aria-pressed="true"`. Only the games of that month appear. If there are none, the page shows "Nenhum jogo neste mês". |
-| `click` on **Novo lote** | `lotes.html` | Opens the `dialog`. If the form comes back with errors, the page opens the `dialog` again. |
-| `DOMContentLoaded` and theme change | `dashboard.js` | Draws the charts with the token colors. |
-| `submit` of the forms | several pages | The browser sends the `POST` with the CSRF token. |
+| `click` on the theme button | `theme.js` | Switches `data-theme` between `light` and `dark`, saves the choice and updates `aria-pressed`. |
+| System theme change | `theme.js` | With no saved choice, the page follows the system. |
+| Home page load | CSS | The crest mosaic rises column by column once. With reduced motion, there is no animation. |
+| `click` on **Cancelar associação** | `details` | Opens the confirmation; the cancellation only happens on **Confirmar cancelamento**. |
+| Form `submit` | several pages | The browser sends the `POST` with the CSRF token. |
+
+No essential task depends on JavaScript: the calendar uses in-page links, purchase and membership are plain forms, and the batch form is on the page itself.
 
 ### 7.4 Layouts and style
 
-The style uses **Tailwind CSS v4**, loaded from the CDN in the `head.html` fragment. The project has no Node, so Tailwind compiles in the browser.
+The style uses **Tailwind CSS v4**, compiled by the standalone CLI (a single binary, no Node) from `src/main/tailwind/app.css`. The output is `static/css/app.css`, which is committed. The command is in `README.md`.
 
-- **Flexbox** in the bars, forms and lists.
-- **CSS Grid** in the scoreboard, game rows, tickets and metrics.
-- **Responsive** with the Tailwind prefixes (`sm:`, `md:`, `lg:`), from 360 px to desktop.
-
-The colors, fonts and brand are in `static/css/tema.css`. It is the only file to change the palette. The club names are in `messages.properties`.
+- **CSS Grid** for page layouts, the mosaic, price tables and forms; **Flexbox** for bars and lists.
+- **Responsive** through the Tailwind prefixes (`sm:`, `md:`, `lg:`), from 360 px to desktop. On phones, navigation is in the fixed tabs.
+- **Colors** in `static/css/paleta.css`, the only palette file. Each token has a light and a dark value (`light-dark()`), so changing colors does not need a rebuild.
+- **Charts** of the admin are server-side HTML and CSS with the token colors. The tables are the accessible version.
 
 ### 7.5 Navigation
 
-Figure 5 (Section 8) shows how the user goes from one page to another. A user who is not signed in and opens `/jogos` or `/ingressos` goes to the login page.
+Figure 5 (Section 8) shows how the user goes from one page to another. A user who is not signed in and opens a protected page (purchase, my account, my membership) goes to the login page and comes back to it after signing in.
 
 ## 8. UML diagrams
 
@@ -460,23 +467,40 @@ V-->>U: HTML page with the batches
 stateDiagram-v2
 direction LR
 state "Home (/)" as Inicio
+state "Calendar (/jogos)" as Jogos
+state "Game (/jogos/id)" as Jogo
+state "Purchase (/ingressos)" as Compra
+state "Ticket bought (/ingressos/sucesso)" as Sucesso
+state "Plans (/planos)" as Planos
+state "My membership (/sociotorcedor)" as Socio
+state "My account (/perfil)" as Perfil
+state "News (/noticias)" as Noticias
 state "Login (/login)" as Login
 state "Sign-up (/cadastro)" as Cadastro
-state "Games (/jogos)" as Jogos
-state "Tickets (/ingressos)" as Ingressos
-state "Profile (/perfil)" as Perfil
-state "Admin (/admin)" as Admin
+state "Administration (/admin)" as Admin
+state "Metrics (/admin/metricas)" as Metricas
+state "New game (/admin/cadastro/jogo)" as NovoJogo
+state "Game batches (/admin/cadastro/id/lotes)" as Lotes
 [*] --> Inicio
-Inicio --> Login : Entrar button
-Login --> Cadastro : Cadastre-se link
+Inicio --> Jogos : Jogos tab
+Inicio --> Compra : Comprar ingresso
+Jogos --> Jogo : game row
+Jogo --> Compra : Comprar ingresso
+Compra --> Login : not signed in
+Login --> Compra : after signing in
+Compra --> Sucesso : Comprar ingresso
+Sucesso --> Perfil : Ver meus ingressos
+Inicio --> Planos : Comparar os planos
+Planos --> Socio : Entrar para se associar
+Inicio --> Noticias : Notícias do clube
+Login --> Cadastro : Criar conta
 Cadastro --> Login : sign-up done
-Login --> Inicio : correct login
-Inicio --> Jogos : Jogos link
-Jogos --> Ingressos : button of the next game
-Inicio --> Perfil : avatar menu
-Inicio --> Admin : avatar menu (ADMIN only)
-Perfil --> Login : Sair
-Admin --> Login : Sair
+Perfil --> Login : Sair da conta
+Inicio --> Admin : Admin tab (ADMIN only)
+Admin --> Metricas : Ver métricas
+Admin --> NovoJogo : Cadastrar jogo
+NovoJogo --> Lotes : Salvar
+Admin --> Lotes : Lotes
 ```
 
 *Source file and image: [navegacao-en.mmd](../diagramas/navegacao-en.mmd) · [navegacao-en.png](../diagramas/navegacao-en.png)*

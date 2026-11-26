@@ -179,60 +179,67 @@ A interface é **web**. O Spring monta as páginas no servidor com Thymeleaf. O 
 
 | Tela | Endereço | Arquivo | Acesso | Conteúdo |
 |---|---|---|---|---|
-| Início | `/` | `home.html` | Todos | Só a barra de navegação |
+| Início | `/` | `home.html` | Todos | Próximo jogo (data e hora em destaque) ao lado do brasão em mosaico, próximos jogos, mosaico da torcida e notícias |
+| Calendário | `/jogos` | `jogos.html` | Todos | Jogos por mês, atalhos para os meses e jogos já disputados recolhidos |
+| Jogo | `/jogos/{id}` | `jogos/detalhe.html` | Todos | Dados da partida, situação da venda e quanto cada categoria paga em cada setor |
+| Planos | `/planos` | `planos.html` | Todos | Comparação das categorias de sócio e o mosaico da torcida |
+| Notícias | `/noticias`, `/noticias/{id}` | `noticias/lista.html`, `noticias/detalhe.html` | Todos | Notícias do clube (dados fictícios) |
 | Login | `/login` | `login.html` | Todos | Formulário de login |
 | Cadastro | `/cadastro` | `cadastro.html` | Todos | Formulário de cadastro |
-| Jogos | `/jogos` | `jogos.html` | Usuário logado | Próximo jogo, filtro por mês e lista de jogos |
-| Ingressos | `/ingressos?jogoId=` | `ingressos/lista.html` | Usuário logado | Lotes do jogo |
-| Perfil | `/perfil` | `perfil.html` | `USER` e `ADMIN` | Mensagem de boas-vindas |
-| Admin | `/admin` | `admin.html` | Só `ADMIN` | Mensagem de boas-vindas |
+| Compra | `/ingressos?jogoId=` | `ingressos/lista.html` | Usuário logado | Escolha do setor e preço com o desconto da categoria |
+| Ingresso comprado | `/ingressos/sucesso` | `sucesso.html` | Usuário logado | Comprovante com o código de entrada |
+| Minha conta | `/perfil` | `perfil.html` | `USER` e `ADMIN` | Ingressos, dados da conta e saída |
+| Minha associação | `/sociotorcedor` | `sociotorcedor.html` | Usuário logado | Sócio: carteirinha, benefícios, pontos (prévia), histórico e cancelamento. Não sócio: planos e escolha da categoria |
+| Administração | `/admin` | `admin.html` | Só `ADMIN` | Números do mês e jogos com a situação dos lotes |
+| Métricas | `/admin/metricas` | `admin/dashboard.html` | Só `ADMIN` | Sócios por categoria, ocupação e receita dos próximos jogos |
+| Cadastro de jogo | `/admin/cadastro/jogo` | `admin/cadastro/jogos/form.html` | Só `ADMIN` | Formulário do jogo |
+| Lotes do jogo | `/admin/cadastro/{id}/lotes` | `admin/cadastro/jogos/lotes.html` | Só `ADMIN` | Lotes cadastrados e formulário de novo lote |
 
-A barra de navegação é um fragmento reutilizável (`fragments/navbar.html`). Todas as telas a incluem com `th:replace`, passando o nome do link ativo (por exemplo `navbar('jogos')`). Outros fragmentos ficam em `templates/fragments`: `head` (fontes, tema e Tailwind), `marca` (brasão e logotipo), `footer`, `ui` (cabeçalho de página, alertas, estado vazio, link de voltar), `jogo` (placar do próximo jogo e linha de jogo) e `carteirinha`.
+As peças repetidas ficam em `templates/fragments`: `head` (fontes, tema e CSS), `navegacao` (topo e abas fixas do celular), `rodape`, `marca` (brasão, logotipo e brasão em mosaico), `icones`, `ui` (cabeçalho de página, voltar, alertas, estado vazio, valor em reais, aviso de prévia), `jogo` (confronto e linha do calendário), `mosaico` (mosaico da torcida e medidor de lote), `planos` (comparação e escolha da categoria), `ingresso`, `carteirinha` e `admin` (tabela de jogos do painel). Cada página inclui o topo com `th:replace`, passando a seção ativa (por exemplo `topo('jogos')`).
 
 ### 7.2 Componentes básicos
 
 | Componente | Onde aparece |
 |---|---|
-| Botão (`button`) | Tema claro/escuro, menu da conta, **Sair da conta**, meses do calendário, **Comprar ingresso**, **Associar-se**, **Novo lote** |
-| Botão-link (`a.btn`) | **Entrar** na barra, **Comprar ingresso** no placar e nos jogos |
-| Campos de texto, senha, e-mail, data e seleção | Login, cadastro, cadastro de jogo e de lote |
-| Campo oculto | `loteId` (compra) e `categoriaId` (associação) |
+| Botão (`button`) | Tema claro/escuro, **Comprar ingresso**, **Associar-se**, **Sair da conta**, **Salvar lote** |
+| Botão-link (`a.botao`) | **Entrar**, **Comprar ingresso** na página inicial e na do jogo, **Cadastrar jogo** |
+| Campos de texto, senha, e-mail, número, data e seleção | Login, cadastro, cadastro de jogo e de lote |
+| Botões de opção (`radio`) | Escolha do setor (`loteId`) e da categoria de sócio (`categoriaId`) |
 | Rótulo (`label`) | Todos os campos dos formulários |
 | Formulário (`form`) | Login, cadastro, logout, compra, associação, cancelamento, jogo e lote |
-| Menu suspenso | Menu da conta |
-| Placar | Próximo jogo, na home |
-| Ingresso com canhoto | Lotes à venda, ingressos comprados, confirmação de compra |
-| Carteirinha | Perfil e página de sócio, para quem é sócio |
-| Janela modal (`dialog`) | Novo lote |
-| Tabela | Métricas e lotes do jogo |
+| Abas fixas | Navegação no celular |
+| Mosaico | Brasão na página inicial; sócios ativos na página inicial, nos planos e na área do sócio |
+| Medidor de lote | Ingressos restantes de cada setor (10 quadrados) |
+| Carteirinha | Área do sócio |
+| Tabela | Comparação de planos, painel e métricas do admin, lotes do jogo |
 | Imagem | Escudos dos times (com `alt`) |
-| Mensagem de aviso | Erros de login e de formulário, sucesso da associação |
+| Mensagem de aviso | Erros de login e de formulário, compra recusada, associação e cancelamento |
+| Bloco recolhível (`details`) | Jogos já disputados, ingressos anteriores, confirmação do cancelamento |
 
 ### 7.3 Eventos
 
 | Evento | Onde | O que acontece |
 |---|---|---|
-| `click` no botão de tema | `theme.js` | Alterna `data-theme` entre `light` e `dark` e salva a escolha. |
-| `click` no botão da conta | `theme.js` | Abre e fecha o menu suspenso. Clique fora ou `Esc` fecham. |
-| `DOMContentLoaded` | `jogos.html` | Marca os meses que têm jogos e mostra o mês do próximo jogo. |
-| `click` nos botões de mês | `jogos.html` | O botão fica com `aria-pressed="true"`. Só os jogos do mês aparecem. Sem jogos, aparece "Nenhum jogo neste mês". |
-| `click` em **Novo lote** | `lotes.html` | Abre o `dialog`. Se o envio voltar com erro, a página reabre o `dialog`. |
-| `DOMContentLoaded` e troca de tema | `dashboard.js` | Desenha os gráficos com as cores dos tokens. |
+| `click` no botão de tema | `theme.js` | Alterna `data-theme` entre `light` e `dark`, salva a escolha e atualiza `aria-pressed`. |
+| Mudança de tema do sistema | `theme.js` | Sem escolha salva, a página acompanha o sistema. |
+| Abertura da página inicial | CSS | O brasão em mosaico se ergue coluna a coluna uma vez. Com movimento reduzido, não há animação. |
+| `click` em **Cancelar associação** | `details` | Abre a confirmação; o cancelamento só acontece em **Confirmar cancelamento**. |
 | `submit` dos formulários | várias telas | O navegador envia o `POST` com o token CSRF. |
+
+Nenhuma tarefa essencial depende de JavaScript: o calendário usa links internos, a compra e a associação são formulários comuns e o formulário de lote fica na própria página.
 
 ### 7.4 Layouts e estilo
 
-O estilo usa **Tailwind CSS v4**, carregado pelo CDN no fragmento `head.html`. O projeto não tem Node, então o Tailwind compila no navegador.
+O estilo usa **Tailwind CSS v4**, compilado pelo CLI standalone (binário único, sem Node) a partir de `src/main/tailwind/app.css`. O resultado é `static/css/app.css`, que vai para o repositório. O comando está no `README.md`.
 
-- **Flexbox** nas barras, formulários e listas.
-- **CSS Grid** no placar, nas linhas de jogo, nos ingressos e nas métricas.
-- **Responsivo** pelos prefixos do Tailwind (`sm:`, `md:`, `lg:`), de 360 px até desktop.
-
-As cores, as fontes e a marca ficam em `static/css/tema.css`. Esse é o único arquivo para trocar a paleta. Os nomes do clube ficam em `messages.properties`.
+- **CSS Grid** nos layouts de página, no mosaico, nas tabelas de preço e nos formulários; **Flexbox** nas barras e listas.
+- **Responsivo** pelos prefixos do Tailwind (`sm:`, `md:`, `lg:`), de 360 px até desktop. No celular, a navegação fica nas abas fixas.
+- **Cores** em `static/css/paleta.css`, o único arquivo da paleta. Cada token tem o valor claro e o escuro (`light-dark()`), então trocar cores não exige recompilar.
+- **Gráficos** do admin feitos com HTML e CSS no servidor, com as cores dos tokens. As tabelas são a versão acessível.
 
 ### 7.5 Navegação
 
-A Figura 5 (seção 8) mostra como o usuário passa de uma tela para outra. Quem não está logado e abre `/jogos` ou `/ingressos` vai para a tela de login.
+A Figura 5 (seção 8) mostra como o usuário passa de uma tela para outra. Quem não está logado e abre uma tela protegida (compra, minha conta, minha associação) vai para o login e volta para ela depois de entrar.
 
 ## 8. Diagramas UML
 
@@ -460,23 +467,40 @@ V-->>U: página HTML com os lotes
 stateDiagram-v2
 direction LR
 state "Início (/)" as Inicio
+state "Jogos (/jogos)" as Jogos
+state "Jogo (/jogos/id)" as Jogo
+state "Compra (/ingressos)" as Compra
+state "Ingresso comprado (/ingressos/sucesso)" as Sucesso
+state "Planos (/planos)" as Planos
+state "Minha associação (/sociotorcedor)" as Socio
+state "Minha conta (/perfil)" as Perfil
+state "Notícias (/noticias)" as Noticias
 state "Login (/login)" as Login
 state "Cadastro (/cadastro)" as Cadastro
-state "Jogos (/jogos)" as Jogos
-state "Ingressos (/ingressos)" as Ingressos
-state "Perfil (/perfil)" as Perfil
-state "Admin (/admin)" as Admin
+state "Administração (/admin)" as Admin
+state "Métricas (/admin/metricas)" as Metricas
+state "Cadastro de jogo (/admin/cadastro/jogo)" as NovoJogo
+state "Lotes do jogo (/admin/cadastro/id/lotes)" as Lotes
 [*] --> Inicio
-Inicio --> Login : botão Entrar
-Login --> Cadastro : link Cadastre-se
+Inicio --> Jogos : aba Jogos
+Inicio --> Compra : Comprar ingresso
+Jogos --> Jogo : linha do jogo
+Jogo --> Compra : Comprar ingresso
+Compra --> Login : sem login
+Login --> Compra : depois de entrar
+Compra --> Sucesso : Comprar ingresso
+Sucesso --> Perfil : Ver meus ingressos
+Inicio --> Planos : Comparar os planos
+Planos --> Socio : Entrar para se associar
+Inicio --> Noticias : Notícias do clube
+Login --> Cadastro : Criar conta
 Cadastro --> Login : cadastro feito
-Login --> Inicio : login correto
-Inicio --> Jogos : link Jogos
-Jogos --> Ingressos : botão do próximo jogo
-Inicio --> Perfil : menu do avatar
-Inicio --> Admin : menu do avatar (só ADMIN)
-Perfil --> Login : Sair
-Admin --> Login : Sair
+Perfil --> Login : Sair da conta
+Inicio --> Admin : aba Admin (só ADMIN)
+Admin --> Metricas : Ver métricas
+Admin --> NovoJogo : Cadastrar jogo
+NovoJogo --> Lotes : Salvar
+Admin --> Lotes : Lotes
 ```
 
 *Arquivo-fonte e imagem: [navegacao-pt.mmd](../diagramas/navegacao-pt.mmd) · [navegacao-pt.png](../diagramas/navegacao-pt.png)*

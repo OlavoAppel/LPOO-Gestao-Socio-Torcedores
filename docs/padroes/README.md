@@ -89,7 +89,7 @@ Há também duas sobrecargas para criar `LoteIngressoDTO`: uma com o resultado d
 
 **Contexto:** a disponibilidade de um lote depende de regras de negócio e a consulta pode precisar executar uma sequência de validações. Uma regra deve poder reprovar o lote antes que as seguintes sejam executadas.
 
-**Decisão:** cada validador estende `LoteValidationHandle`, implementa `validar` e pode encaminhar a requisição ao próximo elemento. A configuração Spring monta e publica a cadeia; `LoteService` a invoca.
+**Decisão:** cada validador estende `LoteValidationHandle`, implementa `validar` e pode encaminhar a requisição ao próximo elemento. A configuração Spring monta e publica a cadeia; `LoteIngressoService` a invoca.
 
 **Justificativa:** permite acrescentar verificações independentes — por exemplo, elegibilidade do associado ou disponibilidade de ingressos — sem concentrar todas as regras num único método. Cada elo só precisa conhecer sua própria condição e o próximo elo.
 
@@ -109,17 +109,30 @@ public final ValidationResult handle(LoteIngresso lote, ContextoCompra contexto)
 
 ```java
 if (dhLocal.isBefore(dhInicio)) {
-    return new ValidationResult("Início da venda do lote ...");
+    return recusado("Início da venda do lote em " + formatar(dhInicio));
 }
 if (dhLocal.isAfter(dhFim)) {
-    return new ValidationResult("Venda do lote fechada, jogo já aconteceu");
+    return recusado("Venda do lote fechada, jogo já aconteceu");
 }
-return new ValidationResult("");
+return aprovado();
 ```
 
-**Configuração e chamada:** `config/LoteValidationConfig.java` expõe o validador como `loteValidationChain`; `api/service/LoteService.java` chama `loteValidationChain.handle(loteDisponivel, contextoCompra)`.
+**Configuração e chamada:** `config/LoteValidationConfig.java` liga os elos com `setProximo` e expõe o primeiro como `loteValidationChain`; `api/service/LoteIngressoService.java` chama `loteValidationChain.handle(lote, contexto)` tanto ao listar os lotes quanto, de novo, ao comprar (validação dupla no backend).
 
-**Limite atual:** a configuração devolve somente `IntervaloLoteValidator`, portanto existe a estrutura extensível da cadeia, mas apenas um elo concreto está ativo. Para adicionar outra regra, implemente um novo elo e conecte-o explicitamente na configuração; a regra não passa a fazer parte da cadeia só por existir como classe.
+**Elos ativos, na ordem de checagem** (o motivo mostrado ao torcedor é o do primeiro elo que recusa):
+
+| # | Elo | Regra de negócio |
+|---|---|---|
+| 1 | `IntervaloLoteValidator` | O pedido só vale entre o início da venda do lote e o horário do jogo. Lote sem data de início é recusado (antes causava `NullPointerException`). |
+| 2 | `EstoqueLoteValidator` | O lote precisa ter ingresso disponível; a tela já mostra "esgotado". O abate atômico do estoque na compra continua existindo por causa da corrida entre compradores. |
+| 3 | `VendaExclusivaValidator` | Até `dhTerminoVendaExclusiva`, só sócio compra; "não associado" espera o fim da fase ou se associa. Sem a data, o lote abre para todos. |
+| 4 | `CategoriaMinimaValidator` | Se o lote tem `categoriaMinima`, o comprador precisa ter hierarquia igual ou maior. |
+| 5 | `SetorPermitidoValidator` | Se o setor do estádio lista `sociosPermitidos` (ex.: camarote só Prata e Ouro), só essas categorias compram. Lista vazia = sem restrição. |
+| 6 | `LimitePorJogoValidator` | No máximo N ingressos por jogo por conta (propriedade `ingresso.limite-por-jogo`, padrão 1: um ingresso por conta), somando todos os setores. Contam `RESERVADO` e `PAGO`; `CANCELADO` e `EXPIRADO` liberam a vaga. |
+
+Os elos 3 a 6 dependem de quem compra. Para um visitante que só consulta os lotes (sem conta de torcedor), eles aprovam em vez de recusar: a compra em si já exige login. Os helpers `aprovado()`, `recusado(...)` e `compradorDe(...)` ficam em `LoteValidationHandle`.
+
+**Como acrescentar uma regra:** crie um `@Component` que estenda `LoteValidationHandle`, implemente `validar` e ligue-o na posição certa em `LoteValidationConfig`; a regra não passa a fazer parte da cadeia só por existir como classe. Os testes da cadeia estão em `LoteValidationChainTest` (sem banco).
 
 ## Decisão: MVC com separação em camadas
 

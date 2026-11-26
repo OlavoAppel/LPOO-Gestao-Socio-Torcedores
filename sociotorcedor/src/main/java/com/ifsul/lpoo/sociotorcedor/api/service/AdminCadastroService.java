@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -81,14 +82,36 @@ public class AdminCadastroService {
                     "O estoque excede a capacidade do setor (" + setor.getCapacidadeTotal() + ")");
         }
 
+        validarJanelaDeVenda(jogo, form);
+
         LoteIngresso lote = new LoteIngresso();
         lote.setJogo(jogo);
         lote.setSetor(setor);
         lote.setPrecoBase(form.getPrecoBase());
         lote.setIngressoDisponiveis(form.getEstoque());
         lote.setIngressosTotaisLote(form.getEstoque());
+        lote.setDhInicioVenda(form.getDhInicioVenda());
+        lote.setDhTerminoVendaExclusiva(form.getDhTerminoVendaExclusiva());
         loteIngressoRepository.save(lote);
 
+    }
+
+    /** A venda começa antes do jogo, e a fase exclusiva (se houver) fica dentro da venda: início < término ≤ jogo. */
+    private void validarJanelaDeVenda(Jogo jogo, CadastroLoteForm form) {
+        LocalDateTime inicio = form.getDhInicioVenda();
+        LocalDateTime terminoExclusiva = form.getDhTerminoVendaExclusiva();
+
+        if (!inicio.isBefore(jogo.getDhJogo())) {
+            throw new IllegalArgumentException("O início da venda deve ser antes do jogo");
+        }
+        if (terminoExclusiva != null) {
+            if (!terminoExclusiva.isAfter(inicio)) {
+                throw new IllegalArgumentException("O término da venda exclusiva deve ser depois do início da venda");
+            }
+            if (terminoExclusiva.isAfter(jogo.getDhJogo())) {
+                throw new IllegalArgumentException("O término da venda exclusiva não pode ser depois do jogo");
+            }
+        }
     }
 
 
