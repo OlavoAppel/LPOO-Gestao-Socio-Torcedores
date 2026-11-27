@@ -61,7 +61,7 @@ public class LoteIngressoService {
         return loteDtoList;
     }
 
-    @Transactional // se algo falhar depois de abater o estoque, tudo é desfeito
+    @Transactional // se algo falhar, tudo é desfeito
     public void comprarIngresso(ContextoCompra contextoCompra){
         Usuario usuario = contextoCompra.getUsuario();
         if (usuario == null || usuario.getAssociado() == null) {

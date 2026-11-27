@@ -8,7 +8,6 @@ import java.util.List;
 
 public interface BeneficioSocioRepository extends JpaRepository<BeneficioSocio, Long> {
 
-    // Lê-se: where categoria.id in (:ids). Uma única consulta para todas as categorias.
     List<BeneficioSocio> findByCategoriaIdIn(Collection<Long> categoriaIds);
 
 }

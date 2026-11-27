@@ -30,8 +30,6 @@ public interface AssociadoRepository extends JpaRepository<Associado, Long> {
     // ... and dataAdesao between :inicio and :fim
     long countByCategoriaHierarquiaGreaterThanAndDataAdesaoBetween(Integer hierarquia, LocalDate inicio, LocalDate fim);
 
-    // @Query com JPQL: necessária quando há agrupamento. O "select new" já devolve o DTO pronto.
-    // LEFT JOIN para categorias sem nenhum sócio aparecerem com 0.
     @Query("""
             select new com.ifsul.lpoo.sociotorcedor.core.dto.DashboardInfoCategoriaDTO(
                 c.id,

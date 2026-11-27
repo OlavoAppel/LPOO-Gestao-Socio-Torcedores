@@ -18,7 +18,6 @@ public class AdminDashboardController {
 
     @GetMapping
     public String painel(Model model) {
-        // extras (só leitura): números do mês e todos os jogos com a situação dos lotes e das vendas
         model.addAttribute("dashboardInfo", dashboardService.getInformacoesDashboard());
         model.addAttribute("jogos", adminJogosService.listarParaPainel());
         return "admin";

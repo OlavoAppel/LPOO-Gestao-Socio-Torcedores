@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 public class LoteIngressoController {
 
     private final LoteIngressoService loteIngressoService;
-    // só leitura: dados extras das telas de compra
     private final JogoDetalheService jogoDetalheService;
     private final IngressoConsultaService ingressoConsultaService;
 
@@ -37,7 +36,6 @@ public class LoteIngressoController {
 
         model.addAttribute("lotes", loteIngressoService.findLotes(contexto));
         model.addAttribute("logado", usuario != null);
-        // extra (só leitura): a partida, o setor de cada lote, o estoque e o preço com o desconto do torcedor
         model.addAttribute("jogo", jogoDetalheService.detalhar(jogoId, usuario).orElse(null));
         return "ingressos/lista";
     }
@@ -60,7 +58,6 @@ public class LoteIngressoController {
 
     @GetMapping("/sucesso")
     public String sucesso(@AuthenticationPrincipal Usuario usuario, Model model) {
-        // extra (só leitura): o ingresso comprado por último, para mostrar setor, valor e código de entrada
         if (usuario != null) {
             ingressoConsultaService.ultimoDoUsuario(usuario.getUsername())
                     .ifPresent(ingresso -> model.addAttribute("ingresso", ingresso));

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.Optional;
 
-/** Notícias do clube (públicas). Depende só da interface NoticiaService (hoje com dados fictícios). */
 @Controller
 @RequestMapping("/noticias")
 @RequiredArgsConstructor

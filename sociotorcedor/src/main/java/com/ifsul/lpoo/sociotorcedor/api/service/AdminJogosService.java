@@ -29,7 +29,7 @@ public class AdminJogosService {
 
     public List<AdminJogoDTO> listarParaPainel() {
         LocalDateTime agora = LocalDateTime.now();
-        // mesma consulta das métricas (ingressos PAGO), só que desde sempre
+
         Map<Long, DashboardInfoJogoDTO> resumo = jogoRepository.resumoPorJogo(DESDE_SEMPRE, StatusIngresso.PAGO).stream()
                 .collect(Collectors.toMap(DashboardInfoJogoDTO::getJogoId, Function.identity(), (a, b) -> a));
 

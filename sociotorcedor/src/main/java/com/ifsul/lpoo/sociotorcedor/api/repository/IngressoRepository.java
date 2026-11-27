@@ -28,7 +28,6 @@ public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
     java.util.List<Ingresso> buscarDoUsuarioPorCompraRecente(@Param("username") String username,
                                                              org.springframework.data.domain.Limit limite);
 
-    // coalesce: sum() devolve null quando não há linhas; assim devolvemos 0.
     @Query("select coalesce(sum(i.precoPago), 0) from Ingresso i where i.status = :status")
     BigDecimal somarReceitaPorStatus(@Param("status") StatusIngresso status);
 
@@ -40,7 +39,6 @@ public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
                                               @Param("inicio") LocalDateTime inicio,
                                               @Param("fim") LocalDateTime fim);
 
-    // Ingressos de um usuário, já com jogo/times/estádio/setor carregados (evita lazy na view).
     @Query("""
             select i from Ingresso i
             join fetch i.lote l
@@ -64,7 +62,6 @@ public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
             """)
     BigDecimal contaReceitaPorJogo(@Param("jogoId") Long jogoId, @Param("status") StatusIngresso status);
 
-    // Quantos ingressos o associado já tem no jogo, nos status informados (limite por jogo na cadeia de validação).
     long countByAssociado_IdAndLote_Jogo_IdAndStatusIn(Long associadoId, Long jogoId,
                                                        java.util.Collection<StatusIngresso> status);
 

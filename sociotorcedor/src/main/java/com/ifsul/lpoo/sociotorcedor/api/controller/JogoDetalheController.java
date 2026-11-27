@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Optional;
 
-/** Página pública de um jogo: data, estádio, setores à venda e quanto cada categoria paga (só leitura). */
 @Controller
 @RequiredArgsConstructor
 public class JogoDetalheController {

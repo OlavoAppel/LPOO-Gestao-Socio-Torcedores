@@ -102,12 +102,6 @@ public class DTOFactory {
         return jogoDTO;
     }
 
-    // ------------------------------------------------------------------ telas do front (só leitura)
-
-    /**
-     * Um lote como o torcedor vê: preço de cada categoria e o da categoria dele. Os preços usam o mesmo
-     * CategoriaSocio.aplicarDescontoIngresso da compra; a validade vem do resultado da cadeia de validação.
-     */
     public static SetorOfertaDTO createSetorOfertaDTO(LoteIngresso lote, LoteIngressoDTO situacao,
                                                       List<CategoriaSocio> categorias, CategoriaSocio sua,
                                                       LocalDateTime agora) {

@@ -36,7 +36,6 @@ public class SocioTorcedorService {
     private final HistoricoCategoriaRepository historicoCategoriaRepository;
     private final BeneficioSocioRepository beneficioSocioRepository;
 
-    /** Categorias que o usuário pode contratar (exclui "não associado"), cada uma com seus benefícios. */
     public List<CategoriaSocioDTO> listarCategoriasDisponiveis() {
         List<CategoriaSocio> categorias = categoriaSocioRepository
                 .findByHierarquiaGreaterThanOrderByHierarquiaAsc(CategoriaSocio.HIERARQUIA_NAO_ASSOCIADO);
@@ -52,7 +51,6 @@ public class SocioTorcedorService {
                 .toList();
     }
 
-    /** Benefícios de uma categoria (para mostrar o que o sócio atual já recebe). */
     public List<BeneficioSocioDTO> listarBeneficios(Long categoriaId) {
         return beneficioSocioRepository.findByCategoriaIdIn(List.of(categoriaId)).stream()
                 .map(DTOFactory::createBeneficioSocioDTO)

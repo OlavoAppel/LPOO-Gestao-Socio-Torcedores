@@ -26,7 +26,6 @@ import java.util.List;
 public class SocioTorcedorController {
 
     private final SocioTorcedorService socioTorcedorService;
-    // só leitura: dados extras da área do sócio
     private final MosaicoService mosaicoService;
     private final JogoDetalheService jogoDetalheService;
     private final AreaSocioService areaSocioService;
@@ -43,7 +42,6 @@ public class SocioTorcedorController {
                     socioTorcedorService.listarBeneficios(usuario.getAssociado().getCategoria().getId()));
         }
 
-        // extras (só leitura): mosaico da torcida, preços do próximo jogo, carteirinha, histórico e pontos
         MosaicoDTO mosaico = mosaicoService.montar(usuario);
         model.addAttribute("mosaico", mosaico);
         model.addAttribute("beneficiosComparados", DTOFactory.createLinhasBeneficio(categorias));

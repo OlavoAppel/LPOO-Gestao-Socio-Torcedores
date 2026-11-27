@@ -18,7 +18,6 @@ public interface LoteIngressoRepository extends JpaRepository<LoteIngresso, Long
 
     @Transactional
     @Modifying
-    // A condição no WHERE torna a checagem de estoque atômica: devolve 0 linhas se não houver ingressos suficientes.
     @Query("UPDATE LoteIngresso l SET l.ingressoDisponiveis = l.ingressoDisponiveis - :quantidade WHERE l.id = :id AND l.ingressoDisponiveis >= :quantidade")
     int decrementarIngressosDisponiveis(@Param("id") Long id, @Param("quantidade") int quantidade);
 
@@ -26,7 +25,6 @@ public interface LoteIngressoRepository extends JpaRepository<LoteIngresso, Long
 
     Boolean existsByJogoIdAndSetorId(Long jogoId, Long setorId);
 
-    // Vendidos = ingressos com o status informado (ex.: PAGO) dos lotes do jogo.
     @Query("""
             select count(i)
             from Ingresso i
@@ -34,7 +32,6 @@ public interface LoteIngressoRepository extends JpaRepository<LoteIngresso, Long
             """)
     Long contaIngressosVendidosPorJogo(@Param("jogoId") Long jogoId, @Param("status") StatusIngresso status);
 
-    // Capacidade = soma dos ingressos que cada lote do jogo colocou à venda.
     @Query("select coalesce(sum(l.ingressosTotaisLote), 0) from LoteIngresso l where l.jogo.id = :jogoId")
     Long somaCapacidadePorJogo(@Param("jogoId") Long jogoId);
 

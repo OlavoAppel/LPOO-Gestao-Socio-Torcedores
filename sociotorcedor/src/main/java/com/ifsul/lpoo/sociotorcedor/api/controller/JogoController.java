@@ -24,7 +24,6 @@ public class JogoController {
         JogosDisponiveisDTO jogosData = jogoService.findJogosAno();
         model.addAttribute("jogosData", jogosData);
 
-        // extras (só leitura): os mesmos jogos em ordem de data, agrupados por mês
         LocalDateTime agora = LocalDateTime.now();
         model.addAttribute("proximosPorMes", calendarioService.proximosPorMes(jogosData, agora));
         model.addAttribute("encerradosPorMes", calendarioService.encerradosPorMes(jogosData, agora));

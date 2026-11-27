@@ -23,13 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * Monta a página de um jogo e a escada de preços (o que cada categoria paga em cada setor). Só leitura.
- *
- * <p>Não decide nada sobre venda: a validade de cada lote vem de {@link LoteIngressoService#findLotes},
- * que roda a mesma cadeia de validação da compra, e os preços usam {@code CategoriaSocio.aplicarDescontoIngresso},
- * o mesmo cálculo aplicado em {@code comprarIngresso}.
- */
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

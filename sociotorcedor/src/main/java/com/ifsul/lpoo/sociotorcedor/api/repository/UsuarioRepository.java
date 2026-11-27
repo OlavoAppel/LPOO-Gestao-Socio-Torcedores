@@ -9,8 +9,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByUsername(String username);
     boolean existsByUsername(String username);
 
-    // Uma consulta por campo (e não um "or" único): o admin não tem Associado, e o join implícito
-    // com associado.cpf descartava o usuário inteiro, deixando "admin" ser cadastrado de novo.
     boolean existsByUsernameIgnoreCase(String username);
 
     boolean existsByEmailIgnoreCase(String email);

@@ -20,8 +20,6 @@ public interface JogoRepository extends JpaRepository<Jogo, Long> {
 
     List<Jogo> findByDhJogoBetween(LocalDateTime dhInicaio, LocalDateTime dhFim);
 
-    // Cada métrica é uma subquery no SELECT, correlacionada ao jogo da linha (j).
-    // O DTO recebe vendidos e capacidade crus e calcula a porcentagem no construtor.
     @Query("""
             select new com.ifsul.lpoo.sociotorcedor.core.dto.DashboardInfoJogoDTO(
                 j.id,

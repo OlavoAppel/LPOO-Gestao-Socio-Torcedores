@@ -50,7 +50,6 @@ public class AdminDashboardService {
                 associadoRepository.countByCategoriaHierarquiaGreaterThanAndDataAdesaoBetween(
                         CategoriaSocio.HIERARQUIA_NAO_ASSOCIADO, inicioData, fimData));
 
-        // TODO decidir: "ganhos totais" = só ingressos ou ingressos + mensalidades?
         dto.setGanhosTotais(ingressoRepository.somarReceitaPorStatus(STATUS_PAGO).add(associadoRepository.somarMesalidadeAssociados()));
 
         dto.setReceitaIngressos(ingressoRepository.somarReceitaPorStatusNoPeriodo(STATUS_PAGO, inicio, fim));

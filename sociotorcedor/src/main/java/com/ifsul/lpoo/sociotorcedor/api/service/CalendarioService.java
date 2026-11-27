@@ -21,7 +21,7 @@ import java.util.Objects;
 @Service
 public class CalendarioService {
 
-    /** Jogos que ainda vão acontecer, do mais próximo ao mais distante, agrupados por mês. */
+    /// Jogos que ainda vão acontecer, do mais próximo ao mais distante, agrupados por mês.
     public List<MesCalendarioDTO> proximosPorMes(JogosDisponiveisDTO dados, LocalDateTime agora) {
         return agrupar(jogos(dados).stream()
                 .filter(j -> !j.getDhJogo().isBefore(agora))
@@ -29,7 +29,7 @@ public class CalendarioService {
                 .toList());
     }
 
-    /** Jogos que já aconteceram, do mais recente ao mais antigo, agrupados por mês. */
+    /// Jogos que já aconteceram, do mais recente ao mais antigo, agrupados por mês.
     public List<MesCalendarioDTO> encerradosPorMes(JogosDisponiveisDTO dados, LocalDateTime agora) {
         return agrupar(jogos(dados).stream()
                 .filter(j -> j.getDhJogo().isBefore(agora))
@@ -37,7 +37,7 @@ public class CalendarioService {
                 .toList());
     }
 
-    /** Os próximos jogos depois de agora, sem o jogo informado (o "próximo jogo" já em destaque). */
+    /// Os próximos jogos depois de agora, sem o jogo informado (o "próximo jogo" já em destaque).
     public List<JogoDTO> proximos(JogosDisponiveisDTO dados, LocalDateTime agora, Long excetoId, int limite) {
         return jogos(dados).stream()
                 .filter(j -> !j.getDhJogo().isBefore(agora))

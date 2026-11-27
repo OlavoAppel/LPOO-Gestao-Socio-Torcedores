@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminCadastroController {
 
     private final AdminCadastroService adminCadastroService;
-    private final AdminJogosService adminJogosService; // só leitura: sugestões de campeonato
+    private final AdminJogosService adminJogosService;
 
     @GetMapping("/jogo")
     public String formNovoJogo(Model model) {

@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 public class HomeController {
 
     private final JogoService jogoService;
-    // só leitura, para os blocos da página inicial
     private final CalendarioService calendarioService;
     private final MosaicoService mosaicoService;
     private final SocioTorcedorService socioTorcedorService;
@@ -31,7 +30,6 @@ public class HomeController {
         JogosDisponiveisDTO jogosData = jogoService.findJogosAno();
         model.addAttribute("jogosData", jogosData);
 
-        // extras (só leitura): jogos seguintes em ordem, mosaico da torcida, resumo dos planos e notícias
         Long proximoId = jogosData.getProximoJogo() == null ? null : jogosData.getProximoJogo().getId();
         model.addAttribute("seguintes", calendarioService.proximos(jogosData, LocalDateTime.now(), proximoId, 3));
         model.addAttribute("mosaico", mosaicoService.montar(usuario));
