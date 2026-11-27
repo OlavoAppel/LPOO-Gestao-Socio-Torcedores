@@ -1,21 +1,21 @@
 flowchart TB
 subgraph APRES["Camada de Apresentação"]
-  V["Views Thymeleaf<br/>templates/*.html + CSS + JavaScript"]
-  C["Controllers - api/controller<br/>HomeController, CadastroController, JogoController,<br/>LoteIngressoController, DashboardController"]
+  V["Views Thymeleaf<br/>templates/*.html + fragments + CSS + theme.js"]
+  C["Controllers - api/controller<br/>Home, Cadastro, Jogo, JogoDetalhe, LoteIngresso, Planos, Noticia,<br/>SocioTorcedor, Perfil, AdminDashboard, AdminCadastro"]
 end
 subgraph SERV["Camada de Serviço - regras de negócio"]
-  S["Services - api/service<br/>CadastroService, JogoService, LoteIngressoService"]
-  VAL["Validação - core/validation<br/>LoteValidationHandle, IntervaloLoteValidator"]
+  S["Services - api/service<br/>Cadastro, Jogo, LoteIngresso, SocioTorcedor, Admin*,<br/>consultas das telas (JogoDetalhe, Mosaico, Calendario, AreaSocio, IngressoConsulta),<br/>interfaces Noticia e Fidelidade (api/service/mock)"]
+  VAL["Validação - core/validation<br/>LoteValidationHandle e os seis validadores de lote, CpfValidator"]
   F["Fábricas - core/factory<br/>UsuarioFactory, DTOFactory"]
 end
 subgraph PERS["Camada de Persistência"]
-  R["Repositories - api/repository<br/>Usuario, Associado, Jogo, Time, Estadio"]
+  R["Repositories - api/repository<br/>Usuario, Associado, CategoriaSocio, BeneficioSocio, HistoricoCategoria,<br/>Jogo, LoteIngresso, Ingresso, Time, Estadio, Setor"]
   DB[("PostgreSQL")]
 end
 subgraph DOM["Domínio e transferência de dados - core"]
-  M["Entidades - core/model<br/>Usuario, Associado, Jogo, Time, Estadio,<br/>SetorEstadio, LoteIngresso, CategoriaSocio<br/>DTOs - core/dto e Forms - core/form"]
+  M["Entidades - core/model<br/>Usuario, Associado, CategoriaSocio, BeneficioSocio, HistoricoCategoria,<br/>Jogo, Time, Estadio, SetorEstadio, LoteIngresso, Ingresso<br/>DTOs - core/dto e Forms - core/form"]
 end
-T["Transversal: security/SecurityConfig, config/LoteValidationConfig, migration/DataSeeder"]
+T["Transversal: security/SecurityConfig, config/LoteValidationConfig, config/FormatadorView, migration/DataSeeder"]
 V <--> C
 C --> S
 S --> VAL

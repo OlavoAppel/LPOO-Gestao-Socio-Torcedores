@@ -27,7 +27,7 @@ O sistema ajuda um clube de futebol a gerir seus sócio-torcedores. A proposta d
 3. **Controle de ingressos:** valores por campeonato e controle da venda dos ingressos dos jogos.
 4. **Programa de benefícios:** controle de brindes e de experiências exclusivas.
 
-Nesta entrega, o sistema cobre o cadastro de usuários, o login, o calendário de jogos e a lista de lotes de ingresso de cada jogo. As demais áreas ainda estão em desenvolvimento (seção 3.3).
+Nesta entrega, o sistema cobre o cadastro de usuários, o login, o calendário de jogos, a compra de ingressos (com pagamento simulado), a associação a uma categoria de sócio e a área do administrador. Notícias e programa de pontos aparecem com dados fictícios, e o resgate de brindes ainda não existe (seção 3.3).
 
 Nesta disciplina, o projeto também serve para mostrar quatro competências: documentação, padrões de projeto, interface gráfica e padrões de arquitetura.
 
@@ -46,26 +46,32 @@ Nesta disciplina, o projeto também serve para mostrar quatro competências: doc
 | Validação | Bean Validation |
 | Redução de código repetido | Lombok |
 | Banco de dados | PostgreSQL |
-| Interface | HTML, CSS e JavaScript |
+| Interface | HTML, Tailwind CSS v4 e um script de tema (`theme.js`) |
+| Testes | JUnit e Spring Boot Test |
 
 ### 3.2 Funcionalidades prontas
 
-- **Cadastro de usuário.** O visitante informa usuário, e-mail, senha e CPF. O sistema cria um `Usuario` com um `Associado` da categoria `NAO_ASSOCIADO`.
+- **Cadastro de usuário.** O visitante informa usuário, e-mail, senha, nome e CPF. O formulário confere o CPF (com dígitos verificadores), o e-mail e o formato do usuário, e mostra o erro junto do campo. O sistema recusa usuário, e-mail e CPF repetidos. Depois cria um `Usuario` com um `Associado` da categoria "não associado".
 - **Login e logout.** O sistema usa formulário de login. Há dois papéis: `USER` e `ADMIN`.
-- **Calendário de jogos.** A tela mostra os jogos do ano, o destaque do próximo jogo e um filtro por mês.
-- **Lotes de ingresso.** A tela mostra os lotes de um jogo. Cada lote aparece como válido ou inválido, com o motivo.
-- **Telas Perfil e Admin.** As duas telas mostram o nome do usuário. A tela Admin só abre para o papel `ADMIN`.
-- **Dados iniciais.** A classe `DataSeeder` cria o usuário `admin`, seis times, dois estádios, seis jogos e quatro lotes para o próximo jogo.
+- **Calendário e página do jogo.** O calendário mostra os jogos do ano por mês, com o próximo jogo em destaque. A página do jogo mostra a situação da venda e o preço de cada categoria em cada setor.
+- **Compra de ingresso.** O usuário logado escolhe um setor. A cadeia de validação confere o lote ao listar e de novo ao comprar. O sistema abate o estoque com um `UPDATE` atômico e grava um `Ingresso` com status `PAGO` (pagamento simulado), o preço da categoria e um código de entrada. O comprovante fica em `/ingressos/sucesso` e a lista, em Minha conta.
+- **Associação de sócio.** Em `/sociotorcedor`, o usuário escolhe uma categoria ou cancela a associação. O `SocioTorcedorService` troca a categoria, define a data de adesão e grava o `HistoricoCategoria`. A tela mostra carteirinha, benefícios e histórico.
+- **Desconto por categoria.** O desconto de `CategoriaSocio` entra no preço pago (`aplicarDescontoIngresso`) e na página do jogo.
+- **Planos, mosaico e notícias.** `/planos` compara as categorias. O mosaico mostra um quadrado por sócio ativo. As notícias e a prévia do programa de pontos usam dados fictícios (seção 3.3).
+- **Área do administrador.** O papel `ADMIN` vê os números do mês e as métricas, cadastra jogos e cadastra lotes. O cadastro do lote confere setor repetido, capacidade do setor e a janela de venda.
+- **Dados iniciais.** A classe `DataSeeder` cria as categorias de sócio com seus benefícios, o usuário `admin`, 48 torcedores de teste, os times, os estádios com quatro setores, os jogos com seus lotes e os ingressos já vendidos. Ela só roda em banco vazio.
 
 ### 3.3 Funcionalidades ainda não prontas
 
 | Item | Situação no código |
 |---|---|
-| Compra de ingresso | O botão **Comprar** existe. O endereço `/ingressos/comprar` não tem controller. O método `IngressoService.comprarIngresso()` está vazio. |
-| Tornar-se sócio | `SocioTorcedorController` está comentado. `SocioTorcedorService.tornarseSocio()` existe, mas nenhuma classe o chama. |
-| Desconto por categoria | O preço com desconto é igual ao preço base (em `DTOFactory`). |
-| Programa de benefícios | A entidade `BeneficioSocio` existe, mas nenhuma classe a usa. |
-| Botão **Saiba Mais** | O link aponta para `#`. |
+| Pagamento real do ingresso | A compra já nasce com status `PAGO`. Os status `RESERVADO`, `EXPIRADO` e `CANCELADO` existem e a regra de limite por jogo os considera, mas só o `DataSeeder` os cria. Não há cancelamento de ingresso. |
+| Cobrança da mensalidade | A mensalidade aparece nos planos. O sistema não cobra nem controla o pagamento. |
+| Resgate de brindes | A entidade `BeneficioSocio` só alimenta a lista de benefícios de cada categoria. Não há resgate nem retirada. |
+| Notícias | `NoticiaMockService` devolve dados fixos. `Noticia` não é uma entidade e não há tabela. |
+| Programa de pontos | `FidelidadeMockService` devolve uma prévia fixa. As ações aparecem desabilitadas. |
+
+O roteiro do que o backend precisa para tornar reais as notícias e os pontos está em [`docs/front/dados-ficticios.md`](../front/dados-ficticios.md).
 
 ### 3.4 Como executar
 
@@ -75,7 +81,7 @@ Nesta disciplina, o projeto também serve para mostrar quatro competências: doc
 4. Na pasta `sociotorcedor/`, execute `./mvnw spring-boot:run`.
 5. Abra `http://localhost:8080`.
 
-O banco usa o endereço `localhost:5432`. Na primeira execução, o `DataSeeder` cria os dados iniciais. O usuário inicial de demonstração é `admin`, com a senha `admin`.
+O banco usa o endereço `localhost:5432`. Em banco vazio, o `DataSeeder` cria os dados iniciais. O administrador de demonstração é `admin`, com a senha `admin`. Os torcedores de teste usam a senha `123456`.
 
 ### 3.5 Armazenamento de dados
 
@@ -107,7 +113,7 @@ A Figura 3 (seção 8) mostra essa organização.
 
 ### 4.3 Exemplo de um pedido
 
-O usuário abre `/ingressos?jogoId=1`. O `LoteIngressoController` cria um `ContextoCompra` e chama o `LoteIngressoService`. O serviço busca o jogo no `JogoRepository`. Depois, o serviço valida cada lote com a cadeia de validação. O `DTOFactory` cria um `LoteIngressoDTO` para cada lote. O controller envia a lista para a tela `ingressos/lista`. A Figura 4 mostra esse fluxo.
+O usuário abre `/ingressos?jogoId=1`. O `LoteIngressoController` cria um `ContextoCompra` e chama o `LoteIngressoService`. O serviço busca o jogo no `JogoRepository`. Depois, o serviço valida cada lote com a cadeia de validação. O `DTOFactory` cria um `LoteIngressoDTO` para cada lote. O controller envia a lista e o detalhe do jogo (`JogoDetalheService`) para a tela `ingressos/lista`. A Figura 4 mostra esse fluxo.
 
 ## 5. Padrões de projeto utilizados
 
@@ -116,9 +122,9 @@ A equipe usa cinco padrões de projeto. Cada padrão tem uma classe ou um grupo 
 ### 5.1 Chain of Responsibility (Cadeia de Responsabilidade)
 
 - **Problema.** As regras para vender um lote vão crescer. Colocar todas em um único método cria um `if` grande e difícil de mudar.
-- **Onde aparece.** `LoteValidationHandle`, `IntervaloLoteValidator`, `LoteValidationConfig` e `LoteIngressoService`.
+- **Onde aparece.** `LoteValidationHandle`, os seis validadores de `core/validation/lote`, `LoteValidationConfig` e `LoteIngressoService`.
 - **Como funciona.** Cada regra é uma classe. Cada classe recebe o lote, valida e passa o lote para a próxima classe da cadeia. A cadeia para na primeira regra que falha. O `LoteValidationConfig` monta a cadeia. O `LoteIngressoService` só chama a primeira classe.
-- **Situação atual.** A cadeia tem **uma regra**: `IntervaloLoteValidator`. Ela verifica se o horário do pedido está dentro do período de venda do lote. Para criar uma nova regra, a equipe escreve uma nova classe e liga a classe com `setProximo()`. O modelo já tem dados para novas regras, como `categoriaMinima` e `ingressoDisponiveis`. Essas regras ainda não existem.
+- **Situação atual.** A cadeia tem **seis regras**, nesta ordem: janela de venda (`IntervaloLoteValidator`), estoque (`EstoqueLoteValidator`), venda exclusiva para sócios (`VendaExclusivaValidator`), categoria mínima (`CategoriaMinimaValidator`), categorias permitidas no setor (`SetorPermitidoValidator`) e limite de ingressos por jogo (`LimitePorJogoValidator`). O motivo mostrado ao torcedor é o da primeira regra que recusa. As quatro últimas dependem de quem compra: para um visitante que só consulta os lotes, elas aprovam. Para criar uma nova regra, a equipe escreve uma classe `@Component` e liga a classe com `setProximo()` no `LoteValidationConfig`. A classe só entra na cadeia se for ligada lá. A tabela completa das regras está em [`docs/padroes/README.md`](../padroes/README.md).
 - **Por que serve.** O `LoteIngressoService` não muda quando uma regra nova entra. Isso segue o princípio aberto/fechado.
 
 ### 5.2 Template Method (Método Modelo)
@@ -132,8 +138,8 @@ A equipe usa cinco padrões de projeto. Cada padrão tem uma classe ou um grupo 
 
 - **Problema.** Criar alguns objetos exige vários passos. Espalhar esses passos pelo código gera repetição e erro.
 - **Onde aparece.**
-  - `UsuarioFactory.createNewUsuario()` monta um `Usuario` com um `Associado`, define a categoria `NAO_ASSOCIADO` e o papel `USER`, e criptografa a senha.
-  - `DTOFactory` converte entidades em DTOs (`createJogoDTO` e `createLoteIngressoDTO`).
+  - `UsuarioFactory.createNewUsuario()` monta um `Usuario` com um `Associado`, define a categoria inicial "não associado" (a `CategoriaSocio` de hierarquia 0) e o papel `USER`, e criptografa a senha.
+  - `DTOFactory` converte entidades em DTOs (`createJogoDTO`, `createLoteIngressoDTO` e os DTOs das telas do jogo, dos planos, da carteirinha e do painel).
 - **Por que serve.** O `CadastroService` e o `JogoService` não conhecem os detalhes da criação. Se a criação mudar, só a fábrica muda.
 
 ### 5.4 Builder (Construtor)
@@ -145,13 +151,14 @@ A equipe usa cinco padrões de projeto. Cada padrão tem uma classe ou um grupo 
 ### 5.5 Repository (Repositório)
 
 - **Problema.** O código de negócio não deve conter código de acesso ao banco.
-- **Onde aparece.** As interfaces de `api/repository`: `UsuarioRepository`, `AssociadoRepository`, `JogoRepository`, `TimeRepository` e `EstadioRepository`. Todas estendem `JpaRepository`.
-- **Como funciona.** O Spring Data cria a implementação. A equipe escreve só consultas específicas, como `findByDhJogoBetween` e `checkDuplicateUser`.
+- **Onde aparece.** As interfaces de `api/repository`, como `UsuarioRepository`, `AssociadoRepository`, `CategoriaSocioRepository`, `JogoRepository`, `LoteIngressoRepository` e `IngressoRepository`. Todas estendem `JpaRepository`.
+- **Como funciona.** O Spring Data cria a implementação. A equipe escreve só consultas específicas, como `findByDhJogoBetween`, `existsByUsernameIgnoreCase` e as consultas `@Query` do painel.
 
 ### 5.6 Outros mecanismos de apoio
 
 - **DTO e Form.** As telas recebem `JogoDTO`, `LoteIngressoDTO` e `CadastroForm`. As telas não recebem entidades.
 - **Injeção de dependência.** O Spring cria os objetos e os entrega às classes. Os serviços e as fábricas são beans do Spring.
+- **Interface com implementação de demonstração.** `NoticiaService` e `FidelidadeService` são interfaces. As classes de `api/service/mock/` devolvem dados fixos. Quando o backend real existir, uma nova classe substitui a de demonstração e os controllers não mudam (ver [`docs/padroes/README.md`](../padroes/README.md)).
 
 ## 6. Padrões de arquitetura
 
@@ -252,7 +259,7 @@ A Figura 5 (seção 8) mostra como o usuário passa de uma tela para outra. Quem
 | 5 | Diagrama de navegação (estados) | Mostrar o fluxo entre as telas | 7 |
 | 6 | Diagrama de sequência (cadastro) | Mostrar o fluxo de `POST /cadastro` | 3 e 5 |
 
-Todos os diagramas vêm do código real. O diagrama de domínio não mostra as entidades `Endereco`, `Localidade`, `BeneficioSocio` e `Noticia`, porque nenhuma outra classe usa essas entidades.
+Todos os diagramas vêm do código real. O diagrama de domínio não mostra `Endereco` e `Localidade`, que nenhuma outra classe usa, nem `Noticia`, que é uma classe comum, sem tabela.
 
 ### Figura 1 — Classes do domínio
 
@@ -273,15 +280,30 @@ class Usuario {
 class Associado {
   -Long id
   -String nome
-  -Categoria categoria
+  -LocalDate dataAdesao
   -String cpf
   -String telefone
   -LocalDate dataNascimento
 }
-class Categoria {
-  <<enumeration>>
-  NAO_ASSOCIADO
-  SOCIO1TESTE
+class CategoriaSocio {
+  -Long id
+  -String nome
+  -BigDecimal mensalidade
+  -BigDecimal descontoIngresso
+  -Integer hierarquia
+  +aplicarDescontoIngresso(preco) BigDecimal
+  +isNaoAssociado() boolean
+}
+class BeneficioSocio {
+  -Long id
+  -String nome
+  -String descricao
+  -BigDecimal descontoIngresso
+  -BigDecimal descontoBrindes
+}
+class HistoricoCategoria {
+  -Long id
+  -LocalDate data
 }
 class Jogo {
   -Long id
@@ -308,33 +330,46 @@ class LoteIngresso {
   -Long id
   -String nome
   -BigDecimal precoBase
+  -Integer ingressosTotaisLote
   -Integer ingressoDisponiveis
   -LocalDateTime dhInicioVenda
   -LocalDateTime dhTerminoVendaExclusiva
 }
-class CategoriaSocio {
+class Ingresso {
   -Long id
-  -String nome
-  -BigDecimal mensalidade
-  -BigDecimal descontoIngresso
-  -Integer hierarquia
+  -BigDecimal precoPago
+  -LocalDateTime dhCompra
+  -String codigo
+}
+class StatusIngresso {
+  <<enumeration>>
+  RESERVADO
+  PAGO
+  EXPIRADO
+  CANCELADO
 }
 Usuario ..|> UserDetails
 Usuario "1" -- "1" Associado
-Associado ..> Categoria
+Associado "*" --> "1" CategoriaSocio
+BeneficioSocio "*" --> "1" CategoriaSocio
+HistoricoCategoria "*" --> "1" Associado
+HistoricoCategoria "*" --> "1" CategoriaSocio : anterior e nova
 Jogo "*" --> "1" Estadio
 Jogo "*" --> "1" Time : casa
 Jogo "*" --> "1" Time : fora
 Jogo "1" o-- "*" LoteIngresso
 Estadio "1" *-- "*" SetorEstadio
 LoteIngresso "*" --> "1" SetorEstadio
-LoteIngresso "*" --> "1" CategoriaSocio : categoriaMinima
-SetorEstadio "*" -- "*" CategoriaSocio
+LoteIngresso "*" --> "0..1" CategoriaSocio : categoriaMinima
+SetorEstadio "*" -- "*" CategoriaSocio : sociosPermitidos
+Ingresso "*" --> "1" Associado
+Ingresso "*" --> "1" LoteIngresso
+Ingresso ..> StatusIngresso
 ```
 
 *Arquivo-fonte e imagem: [classes-dominio.mmd](../diagramas/classes-dominio.mmd) · [classes-dominio.png](../diagramas/classes-dominio.png)*
 
-A associação entre `SetorEstadio` e `CategoriaSocio` é de muitos para muitos. No código, cada lado declara a sua própria lista com `@ManyToMany`.
+A associação entre `SetorEstadio` e `CategoriaSocio` é de muitos para muitos. O lado dono é `SetorEstadio.sociosPermitidos`, que usa a tabela `SETOR_CATEGORIA_PERMITIDA`. A lista `CategoriaSocio.setoresDiponiveis` é o lado inverso (`mappedBy`) e não cria outra tabela.
 
 ### Figura 2 — Classes da validação de lotes
 
@@ -348,9 +383,12 @@ class LoteValidationHandle {
   +handle(lote, contexto) ValidationResult
   #validar(lote, contexto) ValidationResult
 }
-class IntervaloLoteValidator {
-  #validar(lote, contexto) ValidationResult
-}
+class IntervaloLoteValidator
+class EstoqueLoteValidator
+class VendaExclusivaValidator
+class CategoriaMinimaValidator
+class SetorPermitidoValidator
+class LimitePorJogoValidator
 class ValidationResult {
   -boolean valido
   -String motivo
@@ -359,13 +397,15 @@ class ContextoCompra {
   -Usuario usuario
   -LocalDateTime dhRequisicao
   -Long jogoId
+  -Long loteId
 }
 class LoteValidationConfig {
-  +loteValidationChain(intervaloValidator) LoteValidationHandle
+  +loteValidationChain(seis validadores) LoteValidationHandle
 }
 class LoteIngressoService {
   -LoteValidationHandle loteValidationChain
   +findLotes(contexto) List
+  +comprarIngresso(contexto) void
 }
 class DTOFactory {
   +createLoteIngressoDTO(lote, result)$ LoteIngressoDTO
@@ -382,9 +422,13 @@ class LoteIngressoDTO {
 }
 class LoteIngresso
 LoteValidationHandle <|-- IntervaloLoteValidator
+LoteValidationHandle <|-- EstoqueLoteValidator
+LoteValidationHandle <|-- VendaExclusivaValidator
+LoteValidationHandle <|-- CategoriaMinimaValidator
+LoteValidationHandle <|-- SetorPermitidoValidator
+LoteValidationHandle <|-- LimitePorJogoValidator
 LoteValidationHandle o-- LoteValidationHandle : proximo
-LoteValidationConfig ..> IntervaloLoteValidator : recebe
-LoteValidationConfig ..> LoteValidationHandle : cria o bean
+LoteValidationConfig ..> LoteValidationHandle : liga os elos e cria o bean
 LoteIngressoService --> LoteValidationHandle : usa a cadeia
 LoteIngressoService ..> DTOFactory
 LoteIngressoService ..> ContextoCompra
@@ -401,22 +445,22 @@ LoteValidationHandle ..> ContextoCompra : le
 ```mermaid
 flowchart TB
 subgraph APRES["Camada de Apresentação"]
-  V["Views Thymeleaf<br/>templates/*.html + CSS + JavaScript"]
-  C["Controllers - api/controller<br/>HomeController, CadastroController, JogoController,<br/>LoteIngressoController, DashboardController"]
+  V["Views Thymeleaf<br/>templates/*.html + fragments + CSS + theme.js"]
+  C["Controllers - api/controller<br/>Home, Cadastro, Jogo, JogoDetalhe, LoteIngresso, Planos, Noticia,<br/>SocioTorcedor, Perfil, AdminDashboard, AdminCadastro"]
 end
 subgraph SERV["Camada de Serviço - regras de negócio"]
-  S["Services - api/service<br/>CadastroService, JogoService, LoteIngressoService"]
-  VAL["Validação - core/validation<br/>LoteValidationHandle, IntervaloLoteValidator"]
+  S["Services - api/service<br/>Cadastro, Jogo, LoteIngresso, SocioTorcedor, Admin*,<br/>consultas das telas (JogoDetalhe, Mosaico, Calendario, AreaSocio, IngressoConsulta),<br/>interfaces Noticia e Fidelidade (api/service/mock)"]
+  VAL["Validação - core/validation<br/>LoteValidationHandle e os seis validadores de lote, CpfValidator"]
   F["Fábricas - core/factory<br/>UsuarioFactory, DTOFactory"]
 end
 subgraph PERS["Camada de Persistência"]
-  R["Repositories - api/repository<br/>Usuario, Associado, Jogo, Time, Estadio"]
+  R["Repositories - api/repository<br/>Usuario, Associado, CategoriaSocio, BeneficioSocio, HistoricoCategoria,<br/>Jogo, LoteIngresso, Ingresso, Time, Estadio, Setor"]
   DB[("PostgreSQL")]
 end
 subgraph DOM["Domínio e transferência de dados - core"]
-  M["Entidades - core/model<br/>Usuario, Associado, Jogo, Time, Estadio,<br/>SetorEstadio, LoteIngresso, CategoriaSocio<br/>DTOs - core/dto e Forms - core/form"]
+  M["Entidades - core/model<br/>Usuario, Associado, CategoriaSocio, BeneficioSocio, HistoricoCategoria,<br/>Jogo, Time, Estadio, SetorEstadio, LoteIngresso, Ingresso<br/>DTOs - core/dto e Forms - core/form"]
 end
-T["Transversal: security/SecurityConfig, config/LoteValidationConfig, migration/DataSeeder"]
+T["Transversal: security/SecurityConfig, config/LoteValidationConfig, config/FormatadorView, migration/DataSeeder"]
 V <--> C
 C --> S
 S --> VAL
@@ -439,7 +483,7 @@ actor U as Usuário autenticado
 participant C as LoteIngressoController
 participant S as LoteIngressoService
 participant R as JogoRepository
-participant H as IntervaloLoteValidator
+participant H as Cadeia de validação (6 elos)
 participant F as DTOFactory
 participant V as View ingressos/lista
 U->>C: GET /ingressos?jogoId=1
@@ -449,14 +493,14 @@ S->>R: findById(jogoId)
 R-->>S: Jogo com a lista de LoteIngresso
 loop para cada LoteIngresso do jogo
   S->>H: handle(lote, contexto)
-  H->>H: validar(lote, contexto)
+  H->>H: cada elo chama validar(lote, contexto) e para no primeiro que recusa
   H-->>S: ValidationResult (valido, motivo)
   S->>F: createLoteIngressoDTO(lote, result)
   F-->>S: LoteIngressoDTO
 end
 S-->>C: lista de LoteIngressoDTO
-C->>V: model com "lotes" e "logado"
-V-->>U: página HTML com os lotes
+C->>V: model com "lotes", "logado" e "jogo" (detalhe do jogo)
+V-->>U: página HTML com os setores e os preços
 ```
 
 *Arquivo-fonte e imagem: [sequencia-lotes-pt.mmd](../diagramas/sequencia-lotes-pt.mmd) · [sequencia-lotes-pt.png](../diagramas/sequencia-lotes-pt.png)*
@@ -516,23 +560,28 @@ participant S as CadastroService
 participant R as UsuarioRepository
 participant F as UsuarioFactory
 U->>C: POST /cadastro (CadastroForm)
-C->>S: cadastrar(form)
-S->>R: checkDuplicateUser(cpf, username, email)
-R-->>S: true ou false
-alt já existe um cadastro
-  S-->>C: lança Exception "Usuário já cadastrado para esses dados"
-  C-->>U: redirect:/cadastro com mensagem "erro"
-else não existe
-  S->>F: createNewUsuario(form)
-  F-->>S: Usuario com Associado e senha em BCrypt
-  S->>R: save(usuario)
-  C-->>U: redirect:/login com mensagem "sucesso"
+C->>C: valida o formulário (@Valid, @Cpf)
+alt o formulário tem erros
+  C-->>U: reexibe cadastro com a mensagem de cada campo
+else formulário válido
+  C->>S: cadastrar(form)
+  S->>R: existsByUsernameIgnoreCase, existsByEmailIgnoreCase, existsByAssociadoCpf
+  R-->>S: true ou false para cada dado
+  alt algum dado já existe
+    S-->>C: lança CadastroException (campo, mensagem)
+    C-->>U: reexibe cadastro com o erro junto do campo
+  else dados livres
+    S->>F: createNewUsuario(form)
+    F-->>S: Usuario com Associado "não associado" e senha em BCrypt
+    S->>R: save(usuario)
+    C-->>U: redirect:/login com mensagem "sucesso"
+  end
 end
 ```
 
 *Arquivo-fonte e imagem: [sequencia-cadastro-pt.mmd](../diagramas/sequencia-cadastro-pt.mmd) · [sequencia-cadastro-pt.png](../diagramas/sequencia-cadastro-pt.png)*
 
-O fluxo da Figura 6 mostra o comportamento atual: o controller chama o serviço sem consultar o resultado da validação do formulário (seção 11).
+Na Figura 6, o controller valida o formulário antes de chamar o serviço. O serviço confere usuário, e-mail e CPF um por um, para a tela apontar o campo com o problema.
 
 ## 9. Decisões de projeto
 
@@ -541,23 +590,29 @@ Cada decisão tem o contexto, a escolha, o motivo e a consequência.
 | N.º | Decisão | Motivo | Consequência |
 |---|---|---|---|
 | D1 | Usar arquitetura em camadas com Spring MVC | Separar tela, regra e dados. Seguir a estrutura que o Spring Boot já oferece. | Nenhum controller acessa o banco. Cada camada muda sem afetar as outras. |
-| D2 | Validar o lote com Chain of Responsibility | As regras de venda vão crescer. Cada regra deve ficar em uma classe. | Uma regra nova exige só uma classe nova e uma ligação na cadeia. Hoje existe uma regra. |
+| D2 | Validar o lote com Chain of Responsibility | As regras de venda vão crescer. Cada regra deve ficar em uma classe. | Uma regra nova exige só uma classe nova e uma ligação na cadeia. Hoje existem seis regras. |
 | D3 | Fixar o fluxo da cadeia com Template Method em `LoteValidationHandle` | Todas as regras precisam seguir o mesmo fluxo. | O método `handle()` é `final`. As subclasses implementam só `validar()`. |
 | D4 | Criar `Usuario` e DTOs em fábricas | A criação tem vários passos, como a criptografia da senha. | O código de criação fica em um único lugar. |
 | D5 | Enviar DTOs e Forms para as telas, não entidades | A tela não precisa conhecer a estrutura do banco. | Mudar uma entidade não quebra a tela. |
 | D6 | Usar `@Builder` do Lombok em `JogoDTO` e `TimeDTO` | Esses DTOs têm vários campos. | A criação do objeto fica legível. |
 | D7 | Acessar o banco com Spring Data JPA | Evitar código repetido de acesso a dados. | Os repositórios são interfaces. A equipe escreve só consultas específicas. |
 | D8 | Autenticar com Spring Security, BCrypt e dois papéis (`USER`, `ADMIN`) | Proteger as telas e guardar senhas com segurança. | A classe `Usuario` implementa `UserDetails`. Isso simplifica o código, mas liga a entidade ao Spring Security. |
-| D9 | Montar as páginas no servidor com Thymeleaf e usar um fragmento de navegação | Reutilizar a barra de navegação em todas as telas. Manter o JavaScript pequeno. | Cada tela inclui o fragmento com `th:replace`. O JavaScript fica dentro dos arquivos HTML. |
+| D9 | Montar as páginas no servidor com Thymeleaf e usar um fragmento de navegação | Reutilizar a barra de navegação em todas as telas. Manter o JavaScript pequeno. | Cada tela inclui o fragmento com `th:replace`. O único JavaScript é `static/js/theme.js`. |
 | D10 | Usar PostgreSQL, `ddl-auto=update`, variáveis de ambiente e `DataSeeder` | Facilitar o desenvolvimento. Não guardar senhas no código. | O banco se atualiza sozinho. A demonstração começa com dados prontos. |
 
-**Desvio conhecido (D11).** A classe `InjectionProvider` guarda os repositórios em campos estáticos. `CadastroService`, `JogoService` e `LoteIngressoService` usam esses campos. Essa prática foge da injeção de dependência da seção 5.6, porque dificulta testes e esconde as dependências. As classes `DataSeeder`, `JogoController` e `LoteIngressoController` já usam injeção por construtor. O próximo passo é aplicar o mesmo estilo nos serviços.
+**Desvio conhecido (D11).** A classe `InjectionProvider` guarda repositórios em campos estáticos. Só `JogoService` e o método `LoteIngressoService.findLotes()` ainda a usam. Essa prática foge da injeção de dependência da seção 5.6, porque dificulta testes e esconde as dependências. Os controllers, o `CadastroService`, o `SocioTorcedorService`, os serviços de consulta das telas, o `UsuarioFactory` e o `DataSeeder` já usam injeção por construtor. `LoteIngressoService`, `AdminCadastroService` e `UsuarioDetailService` ainda usam `@Autowired` em campos. O próximo passo é aplicar a injeção por construtor nessas classes e remover o `InjectionProvider`.
 
 ## 10. Testes
 
 ### 10.1 Testes automáticos
 
-Existe um teste automático: `SociotorcedorApplicationTests.contextLoads()`. Ele verifica se o contexto do Spring inicia. O teste precisa do PostgreSQL e das variáveis de ambiente.
+| Classe | Testes | O que verifica |
+|---|---|---|
+| `SociotorcedorApplicationTests` | 1 | O contexto do Spring inicia. Precisa do PostgreSQL e das variáveis de ambiente. |
+| `CadastroFormValidationTest` | 11 | As regras do formulário de cadastro: CPF, e-mail, usuário, campos obrigatórios e espaços nas pontas. Não usa o banco. |
+| `LoteValidationChainTest` | 15 | Cada regra da cadeia de lotes, o visitante sem conta e a ordem das regras. Não usa o banco. |
+
+Os dois últimos rodam sem PostgreSQL, por exemplo com `./mvnw test -Dtest=LoteValidationChainTest`.
 
 ### 10.2 Testes manuais
 
@@ -566,48 +621,43 @@ O arquivo [`testes/README.md`](../../testes/README.md) registra 14 casos manuais
 | Resultado | Quantidade |
 |---|---|
 | Aprovado | 4 |
-| Falha | 7 |
+| Falha, já corrigida | 7 |
 | Regra a confirmar | 2 |
 | Comportamento observado | 1 |
 
-### 10.3 Causas identificadas no código
+### 10.3 Correções das falhas
 
-A leitura do código mostra três causas para as falhas:
+As falhas tinham três causas no código. As três já foram corrigidas:
 
-1. O `CadastroController` recebe o `BindingResult`, mas não consulta o resultado. As anotações de validação do `CadastroForm` não bloqueiam o cadastro.
-2. Os templates `cadastro.html` e `login.html` não mostram as mensagens `erro` e `sucesso` enviadas pelo controller.
-3. A consulta `checkDuplicateUser` compara `associado.nome` com o *username*. Ela não compara o campo `Usuario.username`.
+1. O `CadastroController` agora consulta o `BindingResult` e reexibe o formulário com os erros. As anotações do `CadastroForm` (inclusive `@Cpf`) bloqueiam o cadastro.
+2. Os templates `cadastro.html` e `login.html` mostram as mensagens `erro` e `sucesso`, e o erro de cada campo aparece junto dele.
+3. A consulta `checkDuplicateUser` foi trocada por três consultas separadas em `CadastroService`: usuário (sem diferenciar maiúsculas), e-mail e CPF.
 
-### 10.4 Testes previstos
+### 10.4 Ainda sem teste automático
 
-Estes testes ainda **não existem**. A classe `IntervaloLoteValidator` é a primeira candidata, porque não depende do banco.
-
-| Caso | Entrada | Resultado esperado |
-|---|---|---|
-| Venda ainda não começou | Horário do pedido antes de `dhInicioVenda` | `ValidationResult` inválido, com o motivo |
-| Venda aberta | Horário entre `dhInicioVenda` e o horário do jogo | `ValidationResult` válido |
-| Jogo já aconteceu | Horário do pedido depois do jogo | `ValidationResult` inválido, com o motivo |
+- A compra de ingresso (`LoteIngressoService.comprarIngresso()`), a associação (`SocioTorcedorService`) e o cálculo do desconto (`CategoriaSocio.aplicarDescontoIngresso`).
+- O cadastro de jogo e de lote (`AdminCadastroService`) e os controllers.
+- Duas regras de cadastro esperam decisão da equipe: usuário só com números (CAD-08) e tamanho mínimo da senha (CAD-10).
 
 ## 11. Conclusão
 
-O sistema tem uma base de código organizada em camadas. Ele usa cinco padrões de projeto e o padrão MVC. A interface web cobre cadastro, login, calendário de jogos e lotes de ingresso.
+O sistema tem uma base de código organizada em camadas. Ele usa cinco padrões de projeto e o padrão MVC. A interface web cobre cadastro, login, calendário e página do jogo, compra de ingresso, associação de sócio, planos e a área do administrador.
 
 ### Limitações conhecidas
 
-- A compra de ingresso, a associação de sócios, os descontos e os benefícios ainda não funcionam (seção 3.3).
-- A cadeia de validação tem uma única regra.
-- O formulário de cadastro não bloqueia dados inválidos (seção 10.3).
-- A rota `/jogos` exige login, mas a barra de navegação mostra o link **Jogos** para visitantes.
-- As telas Início, Perfil e Admin têm pouco conteúdo.
+- O pagamento do ingresso é simulado, e não há cancelamento de ingresso. A mensalidade não é cobrada, e o resgate de brindes não existe (seção 3.3).
+- As notícias e o programa de pontos usam dados fictícios (seção 3.3).
+- O campo `precoComDesconto` de `LoteIngressoDTO` repete o preço base. O preço com desconto mostrado na compra vem de `JogoDetalheDTO`.
+- O cadastro aceita usuário só com números e senha sem tamanho mínimo (seção 10.4).
 - O código usa três estilos de injeção de dependência (seção 9, D11).
 
 ### Próximos passos
 
-1. Consultar o `BindingResult` no cadastro e mostrar as mensagens nas telas.
-2. Corrigir a consulta `checkDuplicateUser`.
-3. Criar o endpoint de compra e novas regras na cadeia (categoria mínima e estoque de ingressos).
-4. Escrever os testes unitários da seção 10.4.
-5. Trocar o uso do `InjectionProvider` por injeção por construtor.
+1. Decidir as regras de usuário só com números e de senha.
+2. Cobrar o ingresso de verdade, com reserva, pagamento, expiração e cancelamento.
+3. Trocar as implementações de demonstração de notícias e pontos pelas reais.
+4. Escrever testes para a compra, a associação e o cadastro de lotes.
+5. Trocar o `InjectionProvider` e o `@Autowired` em campos por injeção por construtor.
 
 ## 12. Glossário
 

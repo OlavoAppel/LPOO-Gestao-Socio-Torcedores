@@ -48,12 +48,16 @@ Os estudantes são:
 
 O sistema já faz estas coisas:
 
-- **Cadastrar uma pessoa.** A pessoa escreve o nome de usuário, o e-mail, a senha e o CPF.
+- **Cadastrar uma pessoa.** A pessoa escreve o nome, o nome de usuário, o e-mail, a senha e o CPF. O sistema confere se os dados estão certos. Ele mostra o erro ao lado do campo.
 - **Entrar no sistema.** A pessoa usa o nome de usuário e a senha. Isso se chama **login**.
 - **Sair do sistema.** Isso se chama **logout**.
 - **Mostrar os jogos do ano.** A pessoa escolhe um mês. O sistema mostra os jogos desse mês.
 - **Mostrar o próximo jogo.**
 - **Mostrar os lotes de ingressos de um jogo.**
+- **Vender ingressos.** A pessoa escolhe o setor e compra. O pagamento é de mentira, só para teste.
+- **Dar desconto.** Cada tipo de sócio paga um preço diferente.
+- **Virar sócio.** A pessoa escolhe um plano. Ela vê a carteirinha de sócio. Ela pode cancelar depois.
+- **Ajudar o administrador.** O administrador cadastra jogos e lotes. Ele vê números e gráficos.
 
 Um **lote** é um grupo de ingressos.
 
@@ -61,14 +65,17 @@ Cada lote tem um preço e um período de venda.
 
 O sistema avisa se o lote está aberto ou fechado para venda.
 
+O sistema também mostra notícias e pontos de fidelidade. Esses dados são **de mentira**, só para mostrar como a tela vai ficar.
+
 ## 4. O que o sistema ainda não faz?
 
 Algumas coisas ainda não funcionam:
 
-- Comprar o ingresso.
-- Virar sócio do clube.
-- Dar desconto para cada tipo de sócio.
-- Dar brindes aos sócios.
+- Cobrar o pagamento de verdade.
+- Cancelar um ingresso.
+- Cobrar a mensalidade do sócio.
+- Entregar brindes aos sócios.
+- Guardar notícias e pontos no banco de dados.
 
 Os estudantes querem fazer essas coisas depois.
 
@@ -79,11 +86,14 @@ Uma **tela** é uma página que a pessoa vê no navegador.
 | Tela | Quem pode ver |
 |---|---|
 | Início | Todas as pessoas |
+| Jogos e página de cada jogo | Todas as pessoas |
+| Planos | Todas as pessoas |
+| Notícias | Todas as pessoas |
 | Entrar | Todas as pessoas |
 | Cadastro | Todas as pessoas |
-| Jogos | Quem fez login |
-| Ingressos | Quem fez login |
-| Perfil | Quem fez login |
+| Comprar ingresso | Quem fez login |
+| Minha conta | Quem fez login |
+| Minha associação | Quem fez login |
 | Administração | Só o administrador |
 
 O **administrador** é a pessoa que cuida do sistema.
@@ -134,7 +144,7 @@ A receita ajuda a resolver um problema comum.
 
 Nós usamos cinco padrões:
 
-1. **Cadeia de Responsabilidade.** O sistema confere o lote em passos. Cada passo é uma regra. Hoje temos uma regra: o lote só vende no período certo.
+1. **Cadeia de Responsabilidade.** O sistema confere o lote em passos. Cada passo é uma regra. Hoje temos seis regras: o período de venda, o estoque, a venda só para sócios, o plano mínimo, os planos aceitos no setor e o limite de ingressos por jogo.
 2. **Método Modelo.** Todas as regras seguem o mesmo caminho.
 3. **Fábrica.** Uma parte do sistema só faz objetos. Por exemplo, ela monta o cadastro de uma pessoa e esconde a senha.
 4. **Construtor.** O sistema monta objetos grandes com calma, um campo de cada vez.
@@ -153,8 +163,9 @@ Estes são os passos de uma pessoa nova:
 5. A pessoa faz o login.
 6. A pessoa clica em **Jogos**.
 7. A pessoa vê o calendário.
-8. A pessoa clica no botão do próximo jogo.
-9. A pessoa vê os lotes de ingressos.
+8. A pessoa clica em um jogo e vê os setores e os preços.
+9. A pessoa clica em **Comprar ingresso** e escolhe o setor.
+10. A pessoa vê o comprovante com o código de entrada.
 
 ## 9. O que tem nas telas?
 
@@ -164,7 +175,7 @@ As telas têm estas partes:
 - **Campos.** A pessoa escreve neles.
 - **Links.** A pessoa clica e vai para outra tela.
 - **Cartões.** Eles mostram um jogo ou um lote.
-- **Menu.** Ele abre quando a pessoa clica na foto do perfil.
+- **Abas.** No celular, elas ficam fixas embaixo da tela.
 - **Escudos.** São as imagens dos times.
 
 Quando a pessoa clica, o sistema responde.
@@ -184,23 +195,24 @@ Veja o resultado:
 | Resultado | Quantidade |
 |---|---|
 | Deu certo | 4 |
-| Deu erro | 7 |
+| Deu erro, e já foi corrigido | 7 |
 | Falta decidir a regra | 2 |
 | Só observamos | 1 |
 
-Os estudantes já sabem onde estão os erros.
+Os estudantes também escreveram **testes automáticos**.
 
-Eles vão corrigir os erros.
+Um teste automático é um programa que confere se outro programa funciona.
+
+Eles conferem o formulário de cadastro e as regras dos lotes.
 
 ## 11. O que vem depois?
 
 Os próximos passos são:
 
-1. Mostrar mensagens de erro claras no cadastro.
-2. Evitar cadastros com dados errados.
-3. Permitir a compra de ingressos.
-4. Criar mais regras para os lotes.
-5. Fazer mais testes.
+1. Decidir as regras de nome de usuário e de senha.
+2. Cobrar o pagamento do ingresso de verdade.
+3. Guardar as notícias e os pontos no banco de dados.
+4. Fazer mais testes.
 
 ## 12. Palavras difíceis
 

@@ -1,21 +1,21 @@
 flowchart TB
 subgraph APRES["Presentation layer"]
-  V["Thymeleaf views<br/>templates/*.html + CSS + JavaScript"]
-  C["Controllers - api/controller<br/>HomeController, CadastroController, JogoController,<br/>LoteIngressoController, DashboardController"]
+  V["Thymeleaf views<br/>templates/*.html + fragments + CSS + theme.js"]
+  C["Controllers - api/controller<br/>Home, Cadastro, Jogo, JogoDetalhe, LoteIngresso, Planos, Noticia,<br/>SocioTorcedor, Perfil, AdminDashboard, AdminCadastro"]
 end
 subgraph SERV["Service layer - business rules"]
-  S["Services - api/service<br/>CadastroService, JogoService, LoteIngressoService"]
-  VAL["Validation - core/validation<br/>LoteValidationHandle, IntervaloLoteValidator"]
+  S["Services - api/service<br/>Cadastro, Jogo, LoteIngresso, SocioTorcedor, Admin*,<br/>page queries (JogoDetalhe, Mosaico, Calendario, AreaSocio, IngressoConsulta),<br/>Noticia and Fidelidade interfaces (api/service/mock)"]
+  VAL["Validation - core/validation<br/>LoteValidationHandle and the six batch validators, CpfValidator"]
   F["Factories - core/factory<br/>UsuarioFactory, DTOFactory"]
 end
 subgraph PERS["Persistence layer"]
-  R["Repositories - api/repository<br/>Usuario, Associado, Jogo, Time, Estadio"]
+  R["Repositories - api/repository<br/>Usuario, Associado, CategoriaSocio, BeneficioSocio, HistoricoCategoria,<br/>Jogo, LoteIngresso, Ingresso, Time, Estadio, Setor"]
   DB[("PostgreSQL")]
 end
 subgraph DOM["Domain and data transfer - core"]
-  M["Entities - core/model<br/>Usuario, Associado, Jogo, Time, Estadio,<br/>SetorEstadio, LoteIngresso, CategoriaSocio<br/>DTOs - core/dto and Forms - core/form"]
+  M["Entities - core/model<br/>Usuario, Associado, CategoriaSocio, BeneficioSocio, HistoricoCategoria,<br/>Jogo, Time, Estadio, SetorEstadio, LoteIngresso, Ingresso<br/>DTOs - core/dto and Forms - core/form"]
 end
-T["Cross-cutting: security/SecurityConfig, config/LoteValidationConfig, migration/DataSeeder"]
+T["Cross-cutting: security/SecurityConfig, config/LoteValidationConfig, config/FormatadorView, migration/DataSeeder"]
 V <--> C
 C --> S
 S --> VAL

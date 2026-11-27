@@ -7,9 +7,12 @@ class LoteValidationHandle {
   +handle(lote, contexto) ValidationResult
   #validar(lote, contexto) ValidationResult
 }
-class IntervaloLoteValidator {
-  #validar(lote, contexto) ValidationResult
-}
+class IntervaloLoteValidator
+class EstoqueLoteValidator
+class VendaExclusivaValidator
+class CategoriaMinimaValidator
+class SetorPermitidoValidator
+class LimitePorJogoValidator
 class ValidationResult {
   -boolean valido
   -String motivo
@@ -18,13 +21,15 @@ class ContextoCompra {
   -Usuario usuario
   -LocalDateTime dhRequisicao
   -Long jogoId
+  -Long loteId
 }
 class LoteValidationConfig {
-  +loteValidationChain(intervaloValidator) LoteValidationHandle
+  +loteValidationChain(seis validadores) LoteValidationHandle
 }
 class LoteIngressoService {
   -LoteValidationHandle loteValidationChain
   +findLotes(contexto) List
+  +comprarIngresso(contexto) void
 }
 class DTOFactory {
   +createLoteIngressoDTO(lote, result)$ LoteIngressoDTO
@@ -41,9 +46,13 @@ class LoteIngressoDTO {
 }
 class LoteIngresso
 LoteValidationHandle <|-- IntervaloLoteValidator
+LoteValidationHandle <|-- EstoqueLoteValidator
+LoteValidationHandle <|-- VendaExclusivaValidator
+LoteValidationHandle <|-- CategoriaMinimaValidator
+LoteValidationHandle <|-- SetorPermitidoValidator
+LoteValidationHandle <|-- LimitePorJogoValidator
 LoteValidationHandle o-- LoteValidationHandle : proximo
-LoteValidationConfig ..> IntervaloLoteValidator : recebe
-LoteValidationConfig ..> LoteValidationHandle : cria o bean
+LoteValidationConfig ..> LoteValidationHandle : liga os elos e cria o bean
 LoteIngressoService --> LoteValidationHandle : usa a cadeia
 LoteIngressoService ..> DTOFactory
 LoteIngressoService ..> ContextoCompra

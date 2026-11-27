@@ -47,10 +47,10 @@ O serviço usa a fábrica antes de salvar o resultado (`api/service/CadastroServ
 
 ```java
 Usuario usuario = usuarioFactory.createNewUsuario(form);
-InjectionProvider.getUsuarioRepository().save(usuario);
+usuarioRepository.save(usuario);
 ```
 
-**Limite importante:** a Factory constrói o objeto; ela não evita inserções duplicadas nem realiza a persistência. A consulta de duplicidade e o `save` continuam sendo responsabilidade do fluxo de cadastro. O benefício é evitar duplicar a lógica de construção, não reduzir o número de registros no banco.
+**Limite importante:** a Factory constrói o objeto; ela não evita inserções duplicadas nem realiza a persistência. As consultas de duplicidade (usuário, e-mail e CPF, cada uma com a sua mensagem) e o `save` continuam sendo responsabilidade do `CadastroService`. O benefício é evitar duplicar a lógica de construção, não reduzir o número de registros no banco.
 
 ## Decisão: Factory/Mapper para converter entidades em DTOs
 
@@ -81,7 +81,7 @@ JogoDTO jogoDTO = DTOFactory.createJogoDTO(jogo);
 jogosDisponiveis.addJogo(jogoDTO);
 ```
 
-Há também duas sobrecargas para criar `LoteIngressoDTO`: uma com o resultado de validação e outra para o caso de erro de consulta. `LoteService` as utiliza ao montar a lista apresentada.
+Há também duas sobrecargas para criar `LoteIngressoDTO`: uma com o resultado de validação e outra para o caso de erro de consulta. `LoteIngressoService` as utiliza ao montar a lista apresentada. As telas novas também têm métodos próprios na fábrica (`createJogoDetalheDTO`, `createSetorOfertaDTO`, `createAdminJogoDTO`, `createCarteirinhaDTO`, `createLinhasBeneficio` e os DTOs de categoria e benefício).
 
 **Limite:** `DTOFactory` é uma classe utilitária com métodos estáticos, não um bean Spring. Se as conversões passarem a exigir dependências ou regras configuráveis, a implementação pode evoluir para uma fábrica injetável ou um mapper dedicado, atualizando esta decisão.
 
@@ -149,6 +149,9 @@ Os elos 3 a 6 dependem de quem compra. Para um visitante que só consulta os lot
 public String jogosDisponiveis(Model model) {
     JogosDisponiveisDTO jogosData = jogoService.findJogosAno();
     model.addAttribute("jogosData", jogosData);
+    LocalDateTime agora = LocalDateTime.now();
+    model.addAttribute("proximosPorMes", calendarioService.proximosPorMes(jogosData, agora));
+    model.addAttribute("encerradosPorMes", calendarioService.encerradosPorMes(jogosData, agora));
     return "jogos";
 }
 ```
@@ -192,11 +195,11 @@ boolean existsByUsername(String username);
 
 **Justificativa:** deixa a criação e conexão dos componentes sob controle do container, facilita substituir implementações e evita que cada chamada construa manualmente dependências compartilhadas.
 
-**Exemplo — construtor de `LoteService.java`:**
+**Exemplo — construtor de `LoteIngressoService.java`:**
 
 ```java
-public LoteService(@Qualifier("loteValidationChain")
-                   LoteValidationHandle loteValidationChain) {
+public LoteIngressoService(@Qualifier("loteValidationChain")
+                           LoteValidationHandle loteValidationChain) {
     this.loteValidationChain = loteValidationChain;
 }
 ```
@@ -211,38 +214,40 @@ public class UsuarioFactory {
 }
 ```
 
-**Esclarecimento sobre Singleton:** os componentes gerenciados pelo Spring normalmente compartilham uma instância por contexto. Isso é uma configuração do ciclo de vida do framework. Não significa que `UsuarioFactory`, `LoteService` ou outras classes implementem manualmente o padrão GoF Singleton.
+**Esclarecimento sobre Singleton:** os componentes gerenciados pelo Spring normalmente compartilham uma instância por contexto. Isso é uma configuração do ciclo de vida do framework. Não significa que `UsuarioFactory`, `LoteIngressoService` ou outras classes implementem manualmente o padrão GoF Singleton.
 
 ## Decisão existente a documentar com ressalva: `InjectionProvider`
 
 **Status:** presente no código; funciona como um Service Locator estático e encapsula estado global.
 
-**Contexto:** vários services obtêm repositories por métodos estáticos, em vez de receberem as dependências diretamente.
+**Contexto:** a classe expõe, por métodos estáticos, os repositories de usuário, associado e jogo. Hoje só `JogoService` e `LoteIngressoService.findLotes()` a usam; o restante do código já recebe as dependências pelo construtor.
 
 **Exemplo — `api/repository/InjectionProvider.java`:**
 
 ```java
 @Getter private static UsuarioRepository usuarioRepository;
+@Getter private static AssociadoRepository associadoRepository;
 @Getter private static JogoRepository jogoRepository;
 
 @PostConstruct
 public void init() {
     InjectionProvider.usuarioRepository = usuarioRepositoryInject;
+    InjectionProvider.associadoRepository = associadoRepositoryInject;
     InjectionProvider.jogoRepository = jogoRepositoryInject;
 }
 ```
 
-Uso em `CadastroService`:
+Uso em `JogoService`:
 
 ```java
-InjectionProvider.getUsuarioRepository().save(usuario);
+List<Jogo> jogosAnuais = InjectionProvider.getJogoRepository().findByDhJogoBetween(dhInicio, dhFim);
 ```
 
 **Por que essa abordagem aparece:** fornece acesso conveniente aos repositories sem adicioná-los como campos e parâmetros de cada service. Essa é a função observável da implementação; o repositório não registra a motivação histórica da equipe.
 
 **Classificação correta:** embora o nome `InjectionProvider` e os campos estáticos possam lembrar Singleton, a classe não implementa o Singleton clássico — não tem construtor privado nem método que controle a criação da única instância. O papel exercido é mais próximo de Service Locator/global state.
 
-**Impacto para manutenção:** o acoplamento fica menos visível nas assinaturas dos services, e testes isolados ficam mais difíceis porque os repositories são estado global. Para código novo, prefira injeção de dependência explícita por construtor, como já ocorre em `LoteService`. Se o projeto migrar os serviços existentes, atualize este registro para marcar o Service Locator como removido.
+**Impacto para manutenção:** o acoplamento fica menos visível nas assinaturas dos services, e testes isolados ficam mais difíceis porque os repositories são estado global. Para código novo, prefira injeção de dependência explícita por construtor, como já ocorre nos controllers e na maioria dos services. Ainda usam `@Autowired` em campos `LoteIngressoService`, `AdminCadastroService` e `UsuarioDetailService`. Se o projeto migrar os serviços restantes, atualize este registro para marcar o Service Locator como removido.
 
 ## Categorias de sócio como entidade
 

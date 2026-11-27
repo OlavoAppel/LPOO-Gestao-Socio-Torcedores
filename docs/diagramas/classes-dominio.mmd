@@ -14,15 +14,30 @@ class Usuario {
 class Associado {
   -Long id
   -String nome
-  -Categoria categoria
+  -LocalDate dataAdesao
   -String cpf
   -String telefone
   -LocalDate dataNascimento
 }
-class Categoria {
-  <<enumeration>>
-  NAO_ASSOCIADO
-  SOCIO1TESTE
+class CategoriaSocio {
+  -Long id
+  -String nome
+  -BigDecimal mensalidade
+  -BigDecimal descontoIngresso
+  -Integer hierarquia
+  +aplicarDescontoIngresso(preco) BigDecimal
+  +isNaoAssociado() boolean
+}
+class BeneficioSocio {
+  -Long id
+  -String nome
+  -String descricao
+  -BigDecimal descontoIngresso
+  -BigDecimal descontoBrindes
+}
+class HistoricoCategoria {
+  -Long id
+  -LocalDate data
 }
 class Jogo {
   -Long id
@@ -49,25 +64,38 @@ class LoteIngresso {
   -Long id
   -String nome
   -BigDecimal precoBase
+  -Integer ingressosTotaisLote
   -Integer ingressoDisponiveis
   -LocalDateTime dhInicioVenda
   -LocalDateTime dhTerminoVendaExclusiva
 }
-class CategoriaSocio {
+class Ingresso {
   -Long id
-  -String nome
-  -BigDecimal mensalidade
-  -BigDecimal descontoIngresso
-  -Integer hierarquia
+  -BigDecimal precoPago
+  -LocalDateTime dhCompra
+  -String codigo
+}
+class StatusIngresso {
+  <<enumeration>>
+  RESERVADO
+  PAGO
+  EXPIRADO
+  CANCELADO
 }
 Usuario ..|> UserDetails
 Usuario "1" -- "1" Associado
-Associado ..> Categoria
+Associado "*" --> "1" CategoriaSocio
+BeneficioSocio "*" --> "1" CategoriaSocio
+HistoricoCategoria "*" --> "1" Associado
+HistoricoCategoria "*" --> "1" CategoriaSocio : anterior e nova
 Jogo "*" --> "1" Estadio
 Jogo "*" --> "1" Time : casa
 Jogo "*" --> "1" Time : fora
 Jogo "1" o-- "*" LoteIngresso
 Estadio "1" *-- "*" SetorEstadio
 LoteIngresso "*" --> "1" SetorEstadio
-LoteIngresso "*" --> "1" CategoriaSocio : categoriaMinima
-SetorEstadio "*" -- "*" CategoriaSocio
+LoteIngresso "*" --> "0..1" CategoriaSocio : categoriaMinima
+SetorEstadio "*" -- "*" CategoriaSocio : sociosPermitidos
+Ingresso "*" --> "1" Associado
+Ingresso "*" --> "1" LoteIngresso
+Ingresso ..> StatusIngresso

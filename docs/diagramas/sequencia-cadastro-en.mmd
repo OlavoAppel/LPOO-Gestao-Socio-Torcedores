@@ -6,15 +6,20 @@ participant S as CadastroService
 participant R as UsuarioRepository
 participant F as UsuarioFactory
 U->>C: POST /cadastro (CadastroForm)
-C->>S: cadastrar(form)
-S->>R: checkDuplicateUser(cpf, username, email)
-R-->>S: true or false
-alt a record already exists
-  S-->>C: throw Exception "Usuário já cadastrado para esses dados"
-  C-->>U: redirect:/cadastro with message "erro"
-else no record exists
-  S->>F: createNewUsuario(form)
-  F-->>S: Usuario with Associado and BCrypt password
-  S->>R: save(usuario)
-  C-->>U: redirect:/login with message "sucesso"
+C->>C: check the form (@Valid, @Cpf)
+alt the form has errors
+  C-->>U: show the sign-up page again with the message of each field
+else the form is valid
+  C->>S: cadastrar(form)
+  S->>R: existsByUsernameIgnoreCase, existsByEmailIgnoreCase, existsByAssociadoCpf
+  R-->>S: true or false for each value
+  alt a value already exists
+    S-->>C: throw CadastroException (field, message)
+    C-->>U: show the sign-up page again with the error next to the field
+  else values are free
+    S->>F: createNewUsuario(form)
+    F-->>S: Usuario with a "not a member" Associado and BCrypt password
+    S->>R: save(usuario)
+    C-->>U: redirect:/login with message "sucesso"
+  end
 end
